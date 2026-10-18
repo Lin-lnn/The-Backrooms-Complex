@@ -29,6 +29,8 @@ public class BacteriaRenderer extends LivingEntityRenderer<BacteriaEntity, Slime
     public BacteriaRenderer(EntityRendererProvider.Context context) {
         super(context, new SlimeModel<>(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.SLIME)), 0.5F);
         this.addLayer(new SlimeOuterLayer<>(this, context.getModelSet()));
+        // 攻击触手（灰黑色，从体内伸出）
+        this.addLayer(new BacteriaTentacleLayer(this));
     }
 
     /**
