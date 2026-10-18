@@ -1,7 +1,7 @@
 package com.the_backrooms_complex.client;
 
 import com.the_backrooms_complex.entity.BacteriaEntity;
-import net.minecraft.client.model.SlimeModel;
+
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -19,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
  * <p>通过覆写 {@code getRenderType} 返回 {@link RenderType#entityTranslucent}，
  * 让整个模型以约 70% 不透明度渲染 —— 看起来像半透明的灰黑色黏液。</p>
  */
-public class BacteriaRenderer extends LivingEntityRenderer<BacteriaEntity, SlimeModel<BacteriaEntity>> {
+public class BacteriaRenderer extends LivingEntityRenderer<BacteriaEntity, BacteriaModel> {
 
     /** 贴图路径。 */
     public static final ResourceLocation TEXTURE =
@@ -27,8 +27,8 @@ public class BacteriaRenderer extends LivingEntityRenderer<BacteriaEntity, Slime
                     com.the_backrooms_complex.BackroomsComplex.MODID, "textures/entity/bacteria.png");
 
     public BacteriaRenderer(EntityRendererProvider.Context context) {
-        super(context, new SlimeModel<>(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.SLIME)), 0.5F);
-        this.addLayer(new SlimeOuterLayer<>(this, context.getModelSet()));
+        super(context, new BacteriaModel(context.bakeLayer(BacteriaClient.LAYER)), 0.45F);
+
         // 攻击触手（灰黑色，从体内伸出）
         this.addLayer(new BacteriaTentacleLayer(this));
     }

@@ -36,8 +36,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
  *
  * <p>粗细为 1 模型单位 = 1 像素，起点在史莱姆模型的视觉中心（{@value #BODY_CENTER_Y} 格）。</p>
  */
-public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
-        net.minecraft.client.model.SlimeModel<BacteriaEntity>> {
+public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity, BacteriaModel> {
 
     /** 根段长度（模型单位；16 = 1 格 ⇒ 18 ≈ 1.125 格）。 */
     public static final float ROOT_LENGTH = 18.0F;
@@ -46,7 +45,7 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
     /** 菌丝粗细（模型单位；0.5×2 = 1 像素）。 */
     public static final float THICKNESS = 0.5F;
     /** 起点高度（格，从脚底算起）。注意本模型的 Y 方向与直觉相反，数值越大越靠下。 */
-    public static final float BODY_CENTER_Y = 1.0625F;
+    public static final float BODY_CENTER_Y = 0.75F;
     /** 两种形态统一的额外偏移（格）。0 = 不额外偏移。 */
     public static final float EXTRA_LIFT = 0.0F;
 
@@ -64,8 +63,7 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
     /** 末段模型部件（接在根段末端）。 */
     private final ModelPart tip;
 
-    public BacteriaTentacleLayer(RenderLayerParent<BacteriaEntity,
-            net.minecraft.client.model.SlimeModel<BacteriaEntity>> parent) {
+    public BacteriaTentacleLayer(RenderLayerParent<BacteriaEntity, BacteriaModel> parent) {
         super(parent);
 
         MeshDefinition mesh = new MeshDefinition();

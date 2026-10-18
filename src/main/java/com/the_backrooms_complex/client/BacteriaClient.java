@@ -16,6 +16,17 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 @EventBusSubscriber(modid = BackroomsComplex.MODID, value = Dist.CLIENT)
 public final class BacteriaClient {
 
+    /** 模型层：自定义本体（小核心 + 摇曳菌丝）。 */
+    public static final net.minecraft.client.model.geom.ModelLayerLocation LAYER =
+            new net.minecraft.client.model.geom.ModelLayerLocation(
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
+                            BackroomsComplex.MODID, "bacteria_body"), "main");
+
+    @SubscribeEvent
+    public static void onRegisterLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(LAYER, BacteriaModel::createBodyLayer);
+    }
+
     /** 注册渲染器。 */
     @SubscribeEvent
     public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
