@@ -1,0 +1,15 @@
+# 仓库内统一 LF，检出到 Windows 时自动转 CRLF
+* text=auto
+
+*.java   text eol=lf
+*.gradle text eol=lf
+*.json   text eol=lf
+*.toml   text eol=lf
+*.md     text eol=lf
+*.py     text eol=lf
+
+# 二进制文件不做行尾转换
+*.png  binary
+*.nbt  binary
+*.jar  binary
+*.gz   binary
