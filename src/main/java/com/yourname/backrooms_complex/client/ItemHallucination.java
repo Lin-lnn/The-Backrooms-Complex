@@ -39,6 +39,7 @@ public final class ItemHallucination {
     /** 过渡模糊时长：0.5 秒（首尾各一次，合计 1 秒）。 */
     public static final int FADE_TICKS = 10;
 
+    /** 确定性随机源 */
     private static final RandomSource RNG = RandomSource.create();
 
     /** 剩余 tick；0 表示未在幻视中。 */

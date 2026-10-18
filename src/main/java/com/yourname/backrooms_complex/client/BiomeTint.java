@@ -27,11 +27,16 @@ import net.neoforged.neoforge.registries.DeferredBlock;
  */
 public final class BiomeTint {
 
+    /** 黄色房间群系的代表色 */
     public static final int HUE_YELLOW = 0x9B9F57;
+    /** 混凝土大厅群系的代表色（深灰） */
     public static final int HUE_CONCRETE = 0x333336;
+    /** 潮湿走廊群系的代表色 */
     public static final int HUE_DAMP = 0x6F714A;
 
+    /** 群系过渡采样半径（格），(2r+1)^2 个采样点求平均 */
     public static final int BLEND_RADIUS = 4;
+    /** 保留原贴图颜色所用的 tintIndex（裙边等部位） */
     public static final int TINT_KEEP = 1;
 
     /** 精神值低于此值时，所有后室方块统一着暗红色（仅该玩家客户端可见）。 */

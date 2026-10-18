@@ -36,17 +36,22 @@ public final class DehydrationBlur {
     public static final float MAX_RADIUS = 9.5F;
     /** 轻微模糊：30 <= 饮水值 < 50。 */
     public static final int MILD_THRESHOLD = 50;
+    /** 轻微模糊档的半径 */
     public static final float MILD_RADIUS = 2.5F;
     /** 中度模糊：10 <= 饮水值 < 30。 */
     public static final int MEDIUM_THRESHOLD = 30;
+    /** 中度模糊档的半径 */
     public static final float MEDIUM_RADIUS = 5.5F;
     /** 严重模糊：饮水值 < 10。 */
     public static final int SEVERE_THRESHOLD = 10;
+    /** 严重模糊档的半径 */
     public static final float SEVERE_RADIUS = 9.5F;
 
     /** 后处理链缓存。 */
     private static PostChain chain;
+    /** 上次 resize 时的帧缓冲宽度 */
     private static int lastWidth = -1;
+    /** 上次 resize 时的帧缓冲高度 */
     private static int lastHeight = -1;
 
     @SubscribeEvent

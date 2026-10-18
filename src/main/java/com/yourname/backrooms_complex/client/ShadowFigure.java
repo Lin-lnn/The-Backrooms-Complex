@@ -40,22 +40,29 @@ import org.joml.Matrix4f;
 @EventBusSubscriber(modid = BackroomsComplex.MODID, value = Dist.CLIENT)
 public final class ShadowFigure {
 
+    /** 触发/开始的数值阈值 */
     public static final int THRESHOLD = 40;
+    /** 每 tick 的触发概率 */
     public static final float CHANCE = 0.00005F;
     /** 影子的存活时间：5 秒。 */
     public static final int SHOW_TICKS = 100;
+    /** 消失后的模糊时长（tick） */
     public static final int BLUR_TICKS = 20;
 
     /** 影子与玩家的距离范围。 */
     public static final double MIN_DIST = 30.0D;
+    /** 生成/音源的最远距离（格） */
     public static final double MAX_DIST = 48.0D;
     /** 影子高度（格）。 */
     public static final float HEIGHT = 3.0F;
 
+    /** 影子贴图 */
     private static final ResourceLocation TEXTURE =
             ResourceLocation.fromNamespaceAndPath(BackroomsComplex.MODID, "textures/gui/shadow_figure.png");
+    /** 影子使用的渲染类型（写深度，故会被墙遮挡） */
     private static final RenderType RENDER_TYPE = RenderType.entityCutoutNoCull(TEXTURE);
 
+    /** 确定性随机源 */
     private static final RandomSource RNG = RandomSource.create();
 
     /** 剩余显示 tick。 */
@@ -63,6 +70,7 @@ public final class ShadowFigure {
     /** 影子底部中心的世界坐标。 */
     private static Vec3 shadowPos = Vec3.ZERO;
 
+    /** 剩余模糊 tick */
     private static int blurTicks = 0;
     /** 供 DehydrationBlur 读取的额外模糊强度 0~1。 */
     public static float blurBoost = 0.0F;

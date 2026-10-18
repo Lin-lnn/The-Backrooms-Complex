@@ -23,10 +23,13 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid = BackroomsComplex.MODID, value = Dist.CLIENT)
 public final class SoundHallucination {
 
+    /** 触发/开始的数值阈值 */
     public static final int THRESHOLD = 40;
+    /** 每 tick 的触发概率 */
     public static final float CHANCE = 0.00005F;
     /** 音源距离范围。 */
     public static final double MIN_DIST = 6.0D;
+    /** 生成/音源的最远距离（格） */
     public static final double MAX_DIST = 28.0D;
 
     /** 可用的原版恐怖音效。 */
@@ -45,6 +48,7 @@ public final class SoundHallucination {
             SoundEvents.EVOKER_AMBIENT
     };
 
+    /** 确定性随机源 */
     private static final RandomSource RNG = RandomSource.create();
 
     @SubscribeEvent

@@ -29,16 +29,24 @@ import com.yourname.backrooms_complex.ModNetwork;
 @EventBusSubscriber(modid = BackroomsComplex.MODID, value = Dist.CLIENT)
 public final class ModHud {
 
+    /** 饮水值的空底贴图 */
     private static final ResourceLocation THIRST_EMPTY = tex("thirst_empty");
+    /** 饮水值的半格贴图 */
     private static final ResourceLocation THIRST_HALF = tex("thirst_half");
+    /** 饮水值的满格贴图 */
     private static final ResourceLocation THIRST_FULL = tex("thirst_full");
+    /** 精神值的空底贴图 */
     private static final ResourceLocation SANITY_EMPTY = tex("sanity_empty");
+    /** 精神值的半格贴图 */
     private static final ResourceLocation SANITY_HALF = tex("sanity_half");
+    /** 精神值的满格贴图 */
     private static final ResourceLocation SANITY_FULL = tex("sanity_full");
 
     /** 每格像素间距、图标尺寸、格数。 */
     private static final int SPACING = 8;
+    /** 状态条图标的边长（像素） */
     private static final int ICON = 9;
+    /** 状态条的总格数 */
     private static final int SEGMENTS = 10;
 
     private static ResourceLocation tex(String name) {

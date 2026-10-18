@@ -41,6 +41,7 @@ public final class SanityShake {
     /** 剩余抖动 tick 数；0 表示未在抖动中。 */
     private static int shakeTicks = 0;
 
+    /** 确定性随机源 */
     private static final RandomSource RNG = RandomSource.create();
 
     /** 每 tick 判定是否触发。 */
