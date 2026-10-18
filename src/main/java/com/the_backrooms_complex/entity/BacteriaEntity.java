@@ -230,13 +230,21 @@ public class BacteriaEntity extends Monster {
                 && Math.abs(this.getDeltaMovement().y) < 1.0E-4D) {
             return;
         }
+        // 灰黑尘粒
         net.minecraft.core.particles.BlockParticleOption dust =
                 new net.minecraft.core.particles.BlockParticleOption(
                         net.minecraft.core.particles.ParticleTypes.FALLING_DUST,
                         net.minecraft.world.level.block.Blocks.GRAY_CONCRETE.defaultBlockState());
         serverLevel.sendParticles(dust,
-                this.getX(), this.getY() + 0.15D, this.getZ(),
-                2, 0.22D, 0.05D, 0.22D, 0.0D);
+                this.getX(), this.getY() + 0.05D, this.getZ(),
+                2, 0.22D, 0.02D, 0.22D, 0.0D);
+
+        // 地面划痕：每 10 tick 留一个（3 秒后消失由客户端处理）
+        if (this.tickCount % 10 == 0) {
+            serverLevel.sendParticles(com.the_backrooms_complex.ModParticles.SCRATCH.get(),
+                    this.getX(), this.getY() + 0.02D, this.getZ(),
+                    1, 0.35D, 0.0D, 0.35D, 0.0D);
+        }
     }
 
     /** 接触玩家：持续伤害 + 减速。 */
