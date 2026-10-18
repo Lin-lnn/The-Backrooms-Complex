@@ -54,6 +54,9 @@ public class BacteriaEntity extends Monster {
     public static final int CONTACT_INTERVAL_TICKS = 7;
     /** 每次接触造成的伤害。 */
     public static final float CONTACT_DAMAGE = 2.0F;
+    /** 贴墙时的向上攀爬速度（格/tick）。 */
+    public static final double CLIMB_SPEED = 0.10D;
+
     /** 减速效果时长（1 秒）。 */
     public static final int SLOW_TICKS = 20;
 
@@ -90,26 +93,81 @@ public class BacteriaEntity extends Monster {
     public boolean shouldShowName() {
         return false;
     }
-    /** 经过的路径留下中量灰黑色滴落粒子。 */
+    /**
+     * 真·爬墙：贴墙时关闭重力并给一个向上的速度，贴顶时抵消重力。
+     *
+     * <p>不再依赖寻路 —— 只要 AI 把它推向墙壁，它就会沿着墙面往上爬；
+     * 离开表面后重力恢复，会自然掉下来。</p>
+     */
     @Override
     public void aiStep() {
         super.aiStep();
+
         if (this.level().isClientSide() || !this.isAlive()) {
             return;
         }
-        // 每 4 tick 在地面留下 1 粒（中量）
-        if (this.tickCount % 4 == 0 && this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-5D) {
-            if (this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-                // 灰黑色滴落：用 FALLING_DUST 并指定深灰方块，渲染出灰黑尘粒
-                net.minecraft.core.particles.BlockParticleOption dust =
-                        new net.minecraft.core.particles.BlockParticleOption(
-                                net.minecraft.core.particles.ParticleTypes.FALLING_DUST,
-                                net.minecraft.world.level.block.Blocks.GRAY_CONCRETE.defaultBlockState());
-                serverLevel.sendParticles(dust,
-                        this.getX(), this.getY() + 0.15, this.getZ(),
-                        2, 0.22, 0.05, 0.22, 0.0);
+
+        boolean wall = hasWallNearby();
+        boolean ceiling = hasCeilingAbove();
+
+        // 贴墙或贴顶时关闭重力
+        this.setNoGravity(wall || ceiling);
+
+        if (wall) {
+            // 沿墙面向上爬（给一个恒定的向上速度）
+            var v = this.getDeltaMovement();
+            this.setDeltaMovement(v.x, CLIMB_SPEED, v.z);
+        } else if (ceiling) {
+            // 贴住天花板：抵消重力，保持水平移动
+            var v = this.getDeltaMovement();
+            this.setDeltaMovement(v.x, 0.0D, v.z);
+        }
+
+        spawnTrailParticles();
+    }
+
+    /** 四邻 0.6 格内是否有实心方块。 */
+    private boolean hasWallNearby() {
+        var box = this.getBoundingBox();
+        double cx = (box.minX + box.maxX) * 0.5D;
+        double cz = (box.minZ + box.maxZ) * 0.5D;
+        for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+            var probe = net.minecraft.core.BlockPos.containing(
+                    cx + dir.getStepX() * 0.6D, box.minY + 0.4D, cz + dir.getStepZ() * 0.6D);
+            if (this.level().getBlockState(probe).isSolidRender(this.level(), probe)) {
+                return true;
             }
         }
+        return false;
+    }
+
+    /** 正上方 0.3 格处是否有实心方块。 */
+    private boolean hasCeilingAbove() {
+        var box = this.getBoundingBox();
+        double cx = (box.minX + box.maxX) * 0.5D;
+        double cz = (box.minZ + box.maxZ) * 0.5D;
+        var probe = net.minecraft.core.BlockPos.containing(cx, box.maxY + 0.3D, cz);
+        return this.level().getBlockState(probe).isSolidRender(this.level(), probe);
+    }
+    /** 经过的路径留下中量灰黑色滴落粒子。 */
+    private void spawnTrailParticles() {
+        if (!(this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return;
+        }
+        if (this.tickCount % 4 != 0) {
+            return;
+        }
+        if (this.getDeltaMovement().horizontalDistanceSqr() <= 1.0E-5D
+                && Math.abs(this.getDeltaMovement().y) < 1.0E-4D) {
+            return;
+        }
+        net.minecraft.core.particles.BlockParticleOption dust =
+                new net.minecraft.core.particles.BlockParticleOption(
+                        net.minecraft.core.particles.ParticleTypes.FALLING_DUST,
+                        net.minecraft.world.level.block.Blocks.GRAY_CONCRETE.defaultBlockState());
+        serverLevel.sendParticles(dust,
+                this.getX(), this.getY() + 0.15D, this.getZ(),
+                2, 0.22D, 0.05D, 0.22D, 0.0D);
     }
 
     /** 接触玩家：持续伤害 + 减速。 */
