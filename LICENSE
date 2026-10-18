@@ -16,9 +16,12 @@ You are permitted to:
   2. Link to the official repository:
      https://github.com/Lin-lnn/The-Backrooms-Complex
 
-  3. Include the Mod in a publicly distributed modpack ONLY if you have the
-     author's explicit written permission, AND the Mod is obtained from the
-     official repository without modification, AND this notice is retained.
+  3. Include the Mod in a publicly distributed modpack, unconditionally, as
+     long as ALL of the following hold:
+       - the Mod is obtained from the official repository (or its official
+         release artifacts) and is NOT modified in any way;
+       - this notice is retained;
+       - you do not imply that the modpack is endorsed by the author.
 
 --------------------------------------------------------------------------------
 PROHIBITED ACTIONS

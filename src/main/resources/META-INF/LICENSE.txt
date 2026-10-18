@@ -1,0 +1,73 @@
+Copyright (c) 2026 Lin. All Rights Reserved.
+
+The Backrooms Complex (the "Mod"), including its source code, compiled
+binaries, textures, models, sounds, structure data and documentation, is
+proprietary software.
+
+--------------------------------------------------------------------------------
+GRANTED PERMISSIONS
+--------------------------------------------------------------------------------
+
+You are permitted to:
+
+  1. Install and play the Mod in a Minecraft instance that you own, in
+     single-player or on a private server.
+
+  2. Link to the official repository:
+     https://github.com/Lin-lnn/The-Backrooms-Complex
+
+  3. Include the Mod in a publicly distributed modpack, unconditionally, as
+     long as ALL of the following hold:
+       - the Mod is obtained from the official repository (or its official
+         release artifacts) and is NOT modified in any way;
+       - this notice is retained;
+       - you do not imply that the modpack is endorsed by the author.
+
+--------------------------------------------------------------------------------
+PROHIBITED ACTIONS
+--------------------------------------------------------------------------------
+
+You are NOT permitted to:
+
+  1. Redistribute, reupload, mirror, or otherwise make the Mod or its compiled
+     JAR file available through any other channel.
+
+  2. Modify, adapt, translate, or create derivative works based on the Mod or
+     any part of it.
+
+  3. Decompile, disassemble, reverse engineer, or attempt to extract the source
+     code from the compiled binary, except where such restriction is expressly
+     prohibited by applicable law.
+
+  4. Sell, rent, license, or otherwise commercially exploit the Mod.
+
+  5. Remove, obscure, or alter this copyright notice, the Mod name, or the
+     author attribution displayed in-game.
+
+--------------------------------------------------------------------------------
+REQUIRED ATTRIBUTION
+--------------------------------------------------------------------------------
+
+Any copy of the Mod that you are permitted to make or distribute must retain,
+unmodified, this entire notice, including the copyright line above, in a
+location visible both within the distributed files and in the Mod's in-game
+metadata.
+
+--------------------------------------------------------------------------------
+DISCLAIMER
+--------------------------------------------------------------------------------
+
+THE MOD IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE MOD OR THE
+USE OR OTHER DEALINGS IN THE MOD.
+
+--------------------------------------------------------------------------------
+CONTACT
+--------------------------------------------------------------------------------
+
+For permissions beyond the scope of this notice, contact the author through the
+official repository:
+https://github.com/Lin-lnn/The-Backrooms-Complex
