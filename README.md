@@ -14,7 +14,7 @@ backrooms_complex-1.0.0/
 ├── settings.gradle
 ├── gradle/wrapper/gradle-wrapper.properties      # Gradle 8.10.2
 └── src/main/
-    ├── java/com/yourname/backrooms_complex/
+    ├── java/com/the_backrooms_complex/
     │   ├── BackroomsLevel0.java                   # 模组主类（@Mod）
     │   ├── ModBlocks.java                         # 方块注册（生存不可破坏 / 创造可破坏）
     │   ├── ModItems.java                          # 物品 + 创造模式物品栏
@@ -87,7 +87,7 @@ backrooms_complex-1.0.0/
 
 > ✅ **本模组已实际构建成功并产出 JAR**，验证环境：
 > `Temurin 21.0.8` + `Gradle 9.1` + `ModDevGradle 2.0.107` + `NeoForge 21.1.190`。
-> 产物：`backrooms_complex-1.0.0.jar`（55.3 KB）。
+> 产物：`backrooms_complex-1.0.0.jar`（约 216 KB）。
 
 > ℹ️ 本项目使用 **ModDevGradle 2.x**（插件 id `net.neoforged.moddev`），
 > 而非旧的 `net.neoforged.gradle.userdev`；`neoForge { version = ... }` 会自动引入 NeoForge 依赖。
@@ -99,10 +99,10 @@ backrooms_complex-1.0.0/
 ### 1. 生成 Gradle Wrapper（首次必需）
 
 本项目只提供了 `gradle/wrapper/gradle-wrapper.properties`，**二进制 `gradle-wrapper.jar` 与 `gradlew(.bat)` 未随附**。
-用你本机的 Gradle 8.10+ 在项目根目录执行一次：
+使用仓库自带的 Gradle Wrapper（无需本机安装 Gradle）：
 
 ```bash
-# 在 backrooms_complex/ 目录下
+# 在 backrooms_complex-1.0.0/ 目录下
 gradle wrapper --gradle-version 8.10.2
 ```
 
@@ -112,7 +112,7 @@ gradle wrapper --gradle-version 8.10.2
 
 ### 2. 构建（编译）并打包为 JAR
 
-**一键打包（Windows）**：双击项目根目录的 [`build.bat`](build.bat) 即可（会自动生成 wrapper、执行构建、把 JAR 复制到项目根目录）。
+**一键打包（Windows）**：双击项目根目录的 [`build.bat`](build.bat) 即可（使用仓库自带 wrapper 构建，并把 JAR 复制到项目根目录）。
 
 或手动执行：
 
