@@ -122,6 +122,17 @@ public class BacteriaEntity extends Monster {
      * <p>细菌的名称只由「玉」等模组的信息浮层显示，
      * 头顶再挂一个原版名牌会造成"名字出现两次"的观感。</p>
      */
+    /** 双重保险：即使有自定义名称也不可见。 */
+    @Override
+    public boolean isCustomNameVisible() {
+        return false;
+    }
+
+    /** 拒绝任何名称写入（避免第三方模组给它起名后又被渲染）。 */
+    @Override
+    public void setCustomName(net.minecraft.network.chat.Component name) {
+        super.setCustomName(null);
+    }
     @Override
     public boolean shouldShowName() {
         return false;
