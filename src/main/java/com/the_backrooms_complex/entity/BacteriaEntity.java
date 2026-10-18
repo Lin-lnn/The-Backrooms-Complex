@@ -54,6 +54,13 @@ public class BacteriaEntity extends Monster {
     public static final int CONTACT_INTERVAL_TICKS = 7;
     /** 每次接触造成的伤害。 */
     public static final float CONTACT_DAMAGE = 2.0F;
+    /** 攻击动画剩余 tick；通过同步数据下发到客户端，用于驱动触手。 */
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> DATA_ATTACK_TICKS =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(BacteriaEntity.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.INT);
+    /** 一次攻击动画的总时长（tick）。 */
+    public static final int ATTACK_ANIM_TICKS = 10;
+
     /** 贴墙时的向上攀爬速度（格/tick）。 */
     public static final double CLIMB_SPEED = 0.10D;
 
@@ -62,6 +69,21 @@ public class BacteriaEntity extends Monster {
 
     public BacteriaEntity(EntityType<? extends BacteriaEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_ATTACK_TICKS, 0);
+    }
+
+    /** 客户端读取：当前攻击动画剩余 tick（0 表示没有攻击）。 */
+    public int getAttackTicks() {
+        return this.entityData.get(DATA_ATTACK_TICKS);
+    }
+
+    private void startAttackAnim() {
+        this.entityData.set(DATA_ATTACK_TICKS, ATTACK_ANIM_TICKS);
     }
 
     /** 属性注册（由 {@code ModEvents} 里的 AttributeEvent 调用）。 */
@@ -121,6 +143,12 @@ public class BacteriaEntity extends Monster {
             // 贴住天花板：抵消重力，保持水平移动
             var v = this.getDeltaMovement();
             this.setDeltaMovement(v.x, 0.0D, v.z);
+        }
+
+        // 递减攻击动画计时
+        int atk = this.entityData.get(DATA_ATTACK_TICKS);
+        if (atk > 0) {
+            this.entityData.set(DATA_ATTACK_TICKS, atk - 1);
         }
 
         spawnTrailParticles();
@@ -192,6 +220,9 @@ public class BacteriaEntity extends Monster {
     @Override
     public boolean doHurtTarget(net.minecraft.world.entity.Entity target) {
         boolean hit = super.doHurtTarget(target);
+        if (hit) {
+            this.startAttackAnim();
+        }
         if (hit && target instanceof Player player) {
             applySlowness(player);
         }

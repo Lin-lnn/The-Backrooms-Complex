@@ -62,10 +62,13 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
                        BacteriaEntity entity, float limbSwing, float limbSwingAmount,
                        float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        float anim = entity.getAttackAnim(partialTicks);
-        if (anim <= 0.0F) {
+        // 用同步的攻击计时驱动（getAttackAnim 对生物不会同步到客户端）
+        int remaining = entity.getAttackTicks();
+        if (remaining <= 0) {
             return;   // 没有攻击动作 -> 触手完全缩在体内，不渲染
         }
+        // 转成 0~1 的进度：刚触发时 remaining 最大
+        float anim = 1.0F - (remaining / (float) BacteriaEntity.ATTACK_ANIM_TICKS);
 
         // 伸出曲线：0~0.25 伸出，0.25~0.5 保持，0.5~1 缩回
         float extend;
