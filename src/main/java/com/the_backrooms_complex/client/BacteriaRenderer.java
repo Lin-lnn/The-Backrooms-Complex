@@ -31,6 +31,65 @@ public class BacteriaRenderer extends LivingEntityRenderer<BacteriaEntity, Slime
         this.addLayer(new SlimeOuterLayer<>(this, context.getModelSet()));
     }
 
+    /**
+     * 视觉上的「爬墙 / 附顶」效果（方案 B）。
+     *
+     * <p>实体本身仍在地面行走（不引入寻路 bug），但渲染时根据
+     * <b>四邻与正上方是否有实心方块</b> 对模型做旋转与平移：</p>
+     * <ul>
+     *   <li>侧面贴墙 ⇒ 模型旋转 90° 贴到墙上；</li>
+     *   <li>头顶有方块 ⇒ 模型旋转 180° 倒挂在天花板上；</li>
+     *   <li>四面无墙 ⇒ 正常贴地。</li>
+     * </ul>
+     */
+    @Override
+    protected void setupRotations(com.the_backrooms_complex.entity.BacteriaEntity entity,
+                                  com.mojang.blaze3d.vertex.PoseStack poseStack,
+                                  float ageInTicks, float rotationYaw, float partialTicks, float scale) {
+        super.setupRotations(entity, poseStack, ageInTicks, rotationYaw, partialTicks, scale);
+
+        var level = entity.level();
+        var box = entity.getBoundingBox();
+        double cx = (box.minX + box.maxX) * 0.5D;
+        double cz = (box.minZ + box.maxZ) * 0.5D;
+
+        // 正上方有实心方块 -> 倒挂在天花板
+        net.minecraft.core.BlockPos above = net.minecraft.core.BlockPos.containing(cx, box.maxY + 0.3D, cz);
+        if (level.getBlockState(above).isSolidRender(level, above)) {
+            poseStack.translate(0.0F, entity.getBbHeight(), 0.0F);
+            poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(180.0F));
+            return;
+        }
+
+        // 侧面贴墙 -> 朝那面墙倾倒 90°
+        net.minecraft.core.Direction[] sides = {
+                net.minecraft.core.Direction.NORTH, net.minecraft.core.Direction.SOUTH,
+                net.minecraft.core.Direction.WEST, net.minecraft.core.Direction.EAST
+        };
+        for (net.minecraft.core.Direction dir : sides) {
+            double px = cx + dir.getStepX() * 0.55D;
+            double pz = cz + dir.getStepZ() * 0.55D;
+            net.minecraft.core.BlockPos probe = net.minecraft.core.BlockPos.containing(px, box.minY + 0.4D, pz);
+            if (!level.getBlockState(probe).isSolidRender(level, probe)) {
+                continue;
+            }
+            // 沿墙方向旋转 90°，并把模型挪到墙面
+            float angle = switch (dir) {
+                case NORTH -> 90.0F;
+                case SOUTH -> -90.0F;
+                case WEST -> -90.0F;
+                default -> 90.0F;
+            };
+            poseStack.translate(0.0F, entity.getBbHeight() * 0.5F, 0.0F);
+            if (dir.getAxis() == net.minecraft.core.Direction.Axis.Z) {
+                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(angle));
+            } else {
+                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(angle));
+            }
+            poseStack.translate(0.0F, -entity.getBbHeight() * 0.5F, 0.0F);
+            return;
+        }
+    }
     @Override
     public ResourceLocation getTextureLocation(BacteriaEntity entity) {
         return TEXTURE;
