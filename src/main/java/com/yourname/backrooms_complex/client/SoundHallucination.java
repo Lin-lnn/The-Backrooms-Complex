@@ -3,7 +3,6 @@ package com.yourname.backrooms_complex.client;
 import com.yourname.backrooms_complex.BackroomsComplex;
 import com.yourname.backrooms_complex.ModNetwork;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
