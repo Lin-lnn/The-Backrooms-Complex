@@ -75,6 +75,10 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> CHISELED_CONCRETE_WALL =
             ITEMS.register("chiseled_concrete_wall", () -> new BlockItem(ModBlocks.CHISELED_CONCRETE_WALL.get(), new Item.Properties()));
 
+    /** 「菌毯」的方块物品。 */
+    public static final DeferredItem<BlockItem> MYCELIUM_CARPET =
+            ITEMS.register("mycelium_carpet", () -> new BlockItem(ModBlocks.MYCELIUM_CARPET.get(), new Item.Properties()));
+
     // ===== 功能物品：阈界的层级密钥 =====
     // 手持右键「枢纽之门」可传送至后室 Level 0（普通 Item 子类，仅带 tooltip）。
     public static final DeferredItem<ThresholdKeyItem> THRESHOLD_KEY =
@@ -181,6 +185,7 @@ public final class ModItems {
                         output.accept(ModBlocks.DAMP_FLOOR.get());
                         output.accept(ModBlocks.DAMP_CEILING.get());
                         output.accept(ModBlocks.CHISELED_CONCRETE_WALL.get());
+                        output.accept(ModItems.MYCELIUM_CARPET.get());
                         output.accept(ModItems.CHISEL.get());
                         output.accept(ModItems.WALL_DUST.get());
                         output.accept(ModItems.THRESHOLD_KEY.get());
