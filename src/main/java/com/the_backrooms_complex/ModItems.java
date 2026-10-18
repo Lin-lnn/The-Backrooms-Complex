@@ -246,7 +246,6 @@ public final class ModItems {
                     .icon(() -> new ItemStack(BACTERIA_SPAWN_EGG.get()))
                     .displayItems((parameters, output) -> {
                         output.accept(BACTERIA_SPAWN_EGG.get());
-                        output.accept(BACTERIA_TISSUE.get());
                     })
                     .build());
 
