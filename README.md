@@ -1,5 +1,11 @@
 # BackroomsComplex（后室综合体）— NeoForge 1.21.1 模组
 
+[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](LICENSE)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-green.svg)](https://www.minecraft.net/)
+[![NeoForge](https://img.shields.io/badge/NeoForge-21.1.x-orange.svg)](https://neoforged.net/)
+[![Build](https://github.com/Lin-lnn/The-Backrooms-Complex/actions/workflows/build.yml/badge.svg)](https://github.com/Lin-lnn/The-Backrooms-Complex/actions/workflows/build.yml)
+
+
 一个基于 **Minecraft 1.21.1 + NeoForge 21.1.x** 的自定义维度模组：无限延伸、昏暗压抑的"后室 Level 0"阈限空间。
 核心是自定义 `ChunkGenerator`，按区块确定性生成 **1~7 格可变宽度走廊**的迷宫地牢，多层堆叠，并在其中生成用户提供的 **NBT 特定结构**（`backrooms_complex:level0`）承担跨层连通与房间内容。
 
