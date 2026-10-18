@@ -34,8 +34,10 @@ public class ScratchParticle extends TextureSheetParticle {
             ResourceLocation.fromNamespaceAndPath(
                     com.the_backrooms_complex.BackroomsComplex.MODID, "particle/scratch");
 
-    protected ScratchParticle(ClientLevel level, double x, double y, double z) {
+    protected ScratchParticle(ClientLevel level, double x, double y, double z,
+                              net.minecraft.client.renderer.texture.TextureAtlasSprite sprite) {
         super(level, x, y, z);
+        this.setSprite(sprite);   // 必须设置，否则渲染时 sprite 为 null 会崩
         this.lifetime = LIFETIME;
         this.quadSize = 0.55F;
         this.gravity = 0.0F;
@@ -108,13 +110,20 @@ public class ScratchParticle extends TextureSheetParticle {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    /** 粒子提供者。 */
+    /** 粒子提供者（持有 SpriteSet 里取出的贴图，传给粒子）。 */
     public static class Provider implements ParticleProvider<SimpleParticleType> {
+
+        private final net.minecraft.client.renderer.texture.TextureAtlasSprite sprite;
+
+        public Provider(net.minecraft.client.particle.SpriteSet spriteSet) {
+            this.sprite = spriteSet.get(0, 0);
+        }
+
         @Override
         public net.minecraft.client.particle.Particle createParticle(
                 SimpleParticleType type, ClientLevel level,
                 double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new ScratchParticle(level, x, y, z);
+            return new ScratchParticle(level, x, y, z, this.sprite);
         }
     }
 }

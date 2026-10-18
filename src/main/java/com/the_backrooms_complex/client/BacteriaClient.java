@@ -36,7 +36,7 @@ public final class BacteriaClient {
     /** 注册「划痕」粒子的客户端提供者。 */
     @SubscribeEvent
     public static void onRegisterParticles(net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(com.the_backrooms_complex.ModParticles.SCRATCH.get(), spriteSet -> new ScratchParticle.Provider());
+        event.registerSpriteSet(com.the_backrooms_complex.ModParticles.SCRATCH.get(), ScratchParticle.Provider::new);
     }
     private BacteriaClient() {
     }
