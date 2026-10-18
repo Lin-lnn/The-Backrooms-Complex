@@ -75,9 +75,6 @@ public class Level0Structure extends Structure {
     @Override
     public Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
         ChunkPos chunkPos = context.chunkPos();
-        // 诊断：证明本方法是否被调用
-        org.slf4j.LoggerFactory.getLogger("backrooms_complex")
-                .info("[Level0Structure] findGenerationPoint chunk=({},{})", chunkPos.x, chunkPos.z);
 
         // 1) 反推本区块对应的 90×90 网格单元（与放置规则 Level0StructurePlacement 完全一致）
         int[] cell = Level0StructurePlacement.cellForChunk(chunkPos.x, chunkPos.z);
@@ -95,8 +92,6 @@ public class Level0Structure extends Structure {
                 BackroomsComplex.MODID, "level0_" + templateIndex);
         StructureTemplate template = templateManager.getOrCreate(templateId);
         Vec3i size = template.getSize();
-        org.slf4j.LoggerFactory.getLogger("backrooms_complex")
-                .info("[Level0Structure] cell=({},{}) template={} size=({},{},{})", gx, gz, templateId, size.getX(), size.getY(), size.getZ());
         if (size.getX() <= 0 || size.getY() <= 0 || size.getZ() <= 0) {
             return Optional.empty(); // 模板缺失或为空
         }
