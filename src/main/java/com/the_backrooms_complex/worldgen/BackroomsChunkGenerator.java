@@ -283,36 +283,17 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         }
                     }
                         }
-                        // ===== 潮湿房间地板的菌毯：每区块每层 2% 概率，成片 2~5 个 =====
+                        // ===== 潮湿房间地板的菌毯：平滑噪声场，形成不规则的自然斑块 =====
                         if (damp) {
-                            long carpetSeed = (long) chunk.getPos().x * 0x9E3779B97F4A7C15L
-                                    + (long) chunk.getPos().z * 0xC2B2AE3D27D4EB4FL
-                                    + (long) layer * 0x165667B19E3779F9L
-                                    + 7L;
-                            net.minecraft.util.RandomSource carpetRnd =
-                                    net.minecraft.util.RandomSource.create(carpetSeed);
-                            if (carpetRnd.nextDouble() < 0.005D) {   // 0.5%：世界坐标每列每层独立判定，整体呈零散斑块
-                                int count = 1 + carpetRnd.nextInt(3);   // 1~3（小块）
-                                int bx = worldX + carpetRnd.nextInt(11) - 5;
-                                int bz = worldZ + carpetRnd.nextInt(11) - 5;
-                                for (int k = 0; k < count; k++) {
-                                    // 散布范围 ±5 格，避免挤成一团
-                                    int px = bx + carpetRnd.nextInt(7) - 3;
-                                    int pz = bz + carpetRnd.nextInt(7) - 3;
-                                    // 只在潮湿地板之上铺设
-                                    if (chunk.getBlockState(mutable.set(px, y - 1, pz)) != dampFloor) {
-                                        continue;
-                                    }
-                                    // 绝不覆盖已有方块（保护踢脚线 / 墙脚）
-                                    if (!chunk.getBlockState(mutable.set(px, y, pz)).isAir()) {
-                                        continue;
-                                    }
-                                    chunk.setBlockState(mutable.set(px, y, pz),
-                                            ModBlocks.MYCELIUM_CARPET.get().defaultBlockState(), false);
-                                }
+                            double n = carpetNoise(worldX, worldZ, layer);
+                            // 阈值 0.60：约 18% 的地板被覆盖，边界平滑、形状不规则
+                            if (n > 0.60D
+                                    && chunk.getBlockState(mutable.set(worldX, y - 1, worldZ)) == dampFloor
+                                    && chunk.getBlockState(mutable.set(worldX, y, worldZ)).isAir()) {
+                                chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                                        ModBlocks.MYCELIUM_CARPET.get().defaultBlockState(), false);
                             }
                         }
-
                     } else {
                         // offset == 6：天花板（间隔处放荧光灯）
                         if (isLamp(worldX, worldZ)) {
@@ -428,6 +409,54 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         return CODEC;
     }
 
+    /**
+     * 菌毯分布的平滑噪声场。
+     *
+     * <p>做法：把世界坐标按 {@value #CARPET_CELL} 格划分成网格，网格顶点处用一个
+     * 确定性哈希生成 0~1 的值，再在格子内做<b>平滑双线性插值</b>（smoothstep）。
+     * 这样得到的等高线是自然的不规则团块，而不是方块状的矩形。</p>
+     *
+     * @param x     世界 X
+     * @param z     世界 Z
+     * @param layer 层索引（不同层的斑块形状不同）
+     * @return 0~1 的噪声值
+     */
+    /** 菌毯噪声网格边长（格）；越大斑块越平滑越大。 */
+    private static final double CARPET_CELL = 6.0D;
+
+    private static double carpetNoise(int x, int z, int layer) {
+        double fx = (double) x / CARPET_CELL;
+        double fz = (double) z / CARPET_CELL;
+        int x0 = (int) Math.floor(fx);
+        int z0 = (int) Math.floor(fz);
+        double tx = smoothStep(fx - x0);
+        double tz = smoothStep(fz - z0);
+
+        double v00 = carpetHash(x0, z0, layer);
+        double v10 = carpetHash(x0 + 1, z0, layer);
+        double v01 = carpetHash(x0, z0 + 1, layer);
+        double v11 = carpetHash(x0 + 1, z0 + 1, layer);
+
+        double a = v00 + (v10 - v00) * tx;
+        double b = v01 + (v11 - v01) * tx;
+        return a + (b - a) * tz;
+    }
+
+    /** smoothstep 缓动：让插值在格点处导数为 0，边界更圆润。 */
+    private static double smoothStep(double t) {
+        return t * t * (3.0D - 2.0D * t);
+    }
+
+    /** 网格顶点确定性哈希（0~1）。 */
+    private static double carpetHash(int gx, int gz, int layer) {
+        long h = (long) gx * 0x9E3779B97F4A7C15L
+                + (long) gz * 0xC2B2AE3D27D4EB4FL
+                + (long) layer * 0x165667B19E3779F9L;
+        h ^= h >>> 33;
+        h *= 0xFF51AFD7ED558CCDL;
+        h ^= h >>> 33;
+        return (h >>> 11) / (double) (1L << 53);
+    }
     @Override
     public void buildSurface(WorldGenRegion level, StructureManager structureManager,
                              RandomState random, ChunkAccess chunk) {
