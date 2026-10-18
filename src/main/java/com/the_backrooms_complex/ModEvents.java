@@ -68,6 +68,11 @@ public final class ModEvents {
      * 刮纸刀右键「地板」/「潮湿的地板」=> 掉落 1~2 个地毯纤维，并把方块转为剥离态。
      * 剥离态会在 60 秒后复原（混凝土大厅除外）。
      */
+    /** 注册细菌的属性（生命/攻击/移速）。 */
+    @SubscribeEvent
+    public static void onEntityAttributes(net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent event) {
+        event.put(ModEntities.BACTERIA.get(), com.the_backrooms_complex.entity.BacteriaEntity.createAttributes().build());
+    }
     @SubscribeEvent
     public static void onScrapeFloor(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel().isClientSide()) {
