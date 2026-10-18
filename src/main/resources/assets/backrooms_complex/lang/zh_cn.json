@@ -43,5 +43,6 @@
     "item.backrooms_complex.bacteria_tissue":  "细菌组织",
     "itemGroup.backrooms_complex.entities":  "后室综合体：实体",
     "item.backrooms_complex.bacteria_spawn_egg":  "细菌刷怪蛋",
-    "entity.backrooms_complex.bacteria":  "细菌"
+    "entity.backrooms_complex.bacteria":  "细菌",
+    "block.backrooms_complex.mycelium_carpet":  "菌毯"
 }

@@ -5,6 +5,7 @@ import com.the_backrooms_complex.block.DampCeilingBlock;
 import com.the_backrooms_complex.block.DampFloorBlock;
 import com.the_backrooms_complex.block.FluorescentLampBlock;
 import com.the_backrooms_complex.block.HubDoorBlock;
+import com.the_backrooms_complex.block.MyceliumCarpetBlock;
 import com.the_backrooms_complex.block.OakedWallBlock;
 import com.the_backrooms_complex.block.StrippedCarpetFloorBlock;
 import net.minecraft.world.level.block.Block;
@@ -126,6 +127,10 @@ public final class ModBlocks {
                 .noLootTable()
                 .sound(SoundType.STONE);
     }
+
+    /** 「菌毯」：潮湿房间地板上的灰黑菌丝地毯。 */
+    public static final DeferredBlock<MyceliumCarpetBlock> MYCELIUM_CARPET =
+            BLOCKS.register("mycelium_carpet", MyceliumCarpetBlock::new);
 
     private ModBlocks() {
     }

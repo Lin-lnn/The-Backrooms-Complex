@@ -181,6 +181,7 @@ public final class ModItems {
                         output.accept(ModBlocks.DAMP_FLOOR.get());
                         output.accept(ModBlocks.DAMP_CEILING.get());
                         output.accept(ModBlocks.CHISELED_CONCRETE_WALL.get());
+                output.accept(ModBlocks.MYCELIUM_CARPET.get());
                         output.accept(ModItems.CHISEL.get());
                         output.accept(ModItems.WALL_DUST.get());
                         output.accept(ModItems.THRESHOLD_KEY.get());
