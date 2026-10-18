@@ -35,10 +35,10 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
 
     /** 触手最大伸出长度（模型单位；16 = 1 格 ⇒ 26 ≈ 1.6 格）。 */
     public static final float MAX_LENGTH = 26.0F;
-    /** 触手粗细（模型单位；6 ≈ 0.375 格）。 */
-    public static final float THICKNESS = 3.0F;
+    /** 触手粗细（模型单位；0.5*2 = 1 像素）。 */
+    public static final float THICKNESS = 0.5F;
     /** 起点相对身体中心的横向偏移（格）。 */
-    public static final float SIDE_OFFSET = 0.35F;
+    public static final float SIDE_OFFSET = 0.0F;
 
     /** 触手用的模型部件（整块灰色，取贴图中的纯灰区域）。 */
     private final ModelPart tentacle;
@@ -87,9 +87,20 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
         VertexConsumer consumer = bufferSource.getBuffer(
                 RenderType.entityTranslucent(BacteriaRenderer.TEXTURE));
         poseStack.pushPose();
-        // 起点偏移 + 沿面朝方向伸出
+        // 从细菌身体中心生出
         poseStack.translate(SIDE_OFFSET, entity.getBbHeight() * 0.5F, 0.0F);
-        poseStack.scale(1.0F, 1.0F, extend);
+
+        int type = entity.getAttackType();
+        if (type == 2) {
+            // 横扫：围绕身体做水平扇形扫动
+            float sweep = -60.0F + 120.0F * extend;
+            poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(sweep));
+            poseStack.scale(1.0F, 1.0F, 0.85F);
+        } else {
+            // 突刺：直直伸向目标
+            poseStack.scale(1.0F, 1.0F, extend);
+        }
+
         this.tentacle.render(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }

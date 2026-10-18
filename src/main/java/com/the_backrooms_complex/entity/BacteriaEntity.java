@@ -58,6 +58,10 @@ public class BacteriaEntity extends Monster {
     private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> DATA_ATTACK_TICKS =
             net.minecraft.network.syncher.SynchedEntityData.defineId(BacteriaEntity.class,
                     net.minecraft.network.syncher.EntityDataSerializers.INT);
+    /** 攻击类型：0=无，1=突刺（接触攻击），2=横扫（普通攻击）。 */
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> DATA_ATTACK_TYPE =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(BacteriaEntity.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.INT);
     /** 一次攻击动画的总时长（tick）。 */
     public static final int ATTACK_ANIM_TICKS = 10;
 
@@ -75,6 +79,7 @@ public class BacteriaEntity extends Monster {
     protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_ATTACK_TICKS, 0);
+        builder.define(DATA_ATTACK_TYPE, 0);
     }
 
     /** 客户端读取：当前攻击动画剩余 tick（0 表示没有攻击）。 */
@@ -82,7 +87,13 @@ public class BacteriaEntity extends Monster {
         return this.entityData.get(DATA_ATTACK_TICKS);
     }
 
-    private void startAttackAnim() {
+    /** 攻击类型：0=无，1=突刺，2=横扫。 */
+    public int getAttackType() {
+        return this.entityData.get(DATA_ATTACK_TYPE);
+    }
+
+    private void startAttackAnim(int type) {
+        this.entityData.set(DATA_ATTACK_TYPE, type);
         this.entityData.set(DATA_ATTACK_TICKS, ATTACK_ANIM_TICKS);
     }
 
@@ -149,6 +160,9 @@ public class BacteriaEntity extends Monster {
         int atk = this.entityData.get(DATA_ATTACK_TICKS);
         if (atk > 0) {
             this.entityData.set(DATA_ATTACK_TICKS, atk - 1);
+            if (atk - 1 == 0) {
+                this.entityData.set(DATA_ATTACK_TYPE, 0);
+            }
         }
 
         spawnTrailParticles();
@@ -213,6 +227,7 @@ public class BacteriaEntity extends Monster {
             return;
         }
         player.hurt(this.damageSources().mobAttack(this), CONTACT_DAMAGE);
+        this.startAttackAnim(1);   // 突刺
         applySlowness(player);
     }
 
@@ -221,7 +236,7 @@ public class BacteriaEntity extends Monster {
     public boolean doHurtTarget(net.minecraft.world.entity.Entity target) {
         boolean hit = super.doHurtTarget(target);
         if (hit) {
-            this.startAttackAnim();
+            this.startAttackAnim(2);   // 横扫
         }
         if (hit && target instanceof Player player) {
             applySlowness(player);
