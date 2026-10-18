@@ -286,8 +286,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         // ===== 潮湿房间地板的菌毯：平滑噪声场，形成不规则的自然斑块 =====
                         if (damp) {
                             double n = carpetNoise(worldX, worldZ, layer);
-                            // 阈值 0.60：约 18% 的地板被覆盖，边界平滑、形状不规则
-                            if (n > 0.60D
+                            // 阈值 0.67：约 10% 的地板被覆盖，斑块更小更分散
+                            if (n > 0.67D
                                     && chunk.getBlockState(mutable.set(worldX, y - 1, worldZ)) == dampFloor
                                     && chunk.getBlockState(mutable.set(worldX, y, worldZ)).isAir()) {
                                 chunk.setBlockState(mutable.set(worldX, y, worldZ),
@@ -421,8 +421,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * @param layer 层索引（不同层的斑块形状不同）
      * @return 0~1 的噪声值
      */
-    /** 菌毯噪声网格边长（格）；越大斑块越平滑越大。 */
-    private static final double CARPET_CELL = 6.0D;
+    /** 菌毯噪声网格边长（格）；越小斑块越碎、越分散。 */
+    private static final double CARPET_CELL = 4.5D;
 
     private static double carpetNoise(int x, int z, int layer) {
         double fx = (double) x / CARPET_CELL;
