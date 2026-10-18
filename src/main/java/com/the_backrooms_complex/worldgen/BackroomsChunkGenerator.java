@@ -283,6 +283,31 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         }
                     }
                         }
+                        // ===== 潮湿房间地板的菌毯：每区块每层 2% 概率，成片 2~5 个 =====
+                        if (damp) {
+                            long carpetSeed = (long) chunk.getPos().x * 0x9E3779B97F4A7C15L
+                                    + (long) chunk.getPos().z * 0xC2B2AE3D27D4EB4FL
+                                    + (long) layer * 0x165667B19E3779F9L
+                                    + 7L;
+                            net.minecraft.util.RandomSource carpetRnd =
+                                    net.minecraft.util.RandomSource.create(carpetSeed);
+                            if (carpetRnd.nextDouble() < 0.02D) {
+                                int count = 2 + carpetRnd.nextInt(4);   // 2~5
+                                int bx = worldX + carpetRnd.nextInt(5) - 2;
+                                int bz = worldZ + carpetRnd.nextInt(5) - 2;
+                                for (int k = 0; k < count; k++) {
+                                    int px = bx + carpetRnd.nextInt(3) - 1;
+                                    int pz = bz + carpetRnd.nextInt(3) - 1;
+                                    // 只在潮湿地板之上铺设
+                                    if (chunk.getBlockState(mutable.set(px, y - 1, pz)) != dampFloor) {
+                                        continue;
+                                    }
+                                    chunk.setBlockState(mutable.set(px, y, pz),
+                                            ModBlocks.MYCELIUM_CARPET.get().defaultBlockState(), false);
+                                }
+                            }
+                        }
+
                     } else {
                         // offset == 6：天花板（间隔处放荧光灯）
                         if (isLamp(worldX, worldZ)) {
