@@ -12,7 +12,7 @@ backrooms_complex-1.0.0/
 ├── build.gradle
 ├── gradle.properties
 ├── settings.gradle
-├── gradle/wrapper/gradle-wrapper.properties      # Gradle 8.10.2
+├── gradle/wrapper/gradle-wrapper.properties      # Gradle 9.1.0
 └── src/main/
     ├── java/com/the_backrooms_complex/
     │   ├── BackroomsLevel0.java                   # 模组主类（@Mod）
@@ -95,20 +95,22 @@ backrooms_complex-1.0.0/
 ---
 
 ## 四、构建与启动
+### 1. 构建
 
-### 1. 生成 Gradle Wrapper（首次必需）
-
-本项目只提供了 `gradle/wrapper/gradle-wrapper.properties`，**二进制 `gradle-wrapper.jar` 与 `gradlew(.bat)` 未随附**。
-使用仓库自带的 Gradle Wrapper（无需本机安装 Gradle）：
+仓库已随附 Gradle Wrapper，**无需本机安装 Gradle**：
 
 ```bash
-# 在 backrooms_complex-1.0.0/ 目录下
-gradle wrapper --gradle-version 8.10.2
+# Windows
+gradlew.bat build
+
+# Linux / macOS
+./gradlew build
 ```
 
-之后即可使用 `./gradlew`（Linux/macOS）或 `gradlew.bat`（Windows）。
+产物在 `build/libs/backrooms_complex-1.0.0.jar`。
 
-> 若你使用 IntelliJ IDEA / Eclipse 导入项目，IDE 通常会自动补全 wrapper。
+> 首次构建会自动下载 Gradle 9.1.0 与 NeoForge 依赖，约需数分钟。
+
 
 ### 2. 构建（编译）并打包为 JAR
 
@@ -264,5 +266,5 @@ gradlew runData
 1. **荧光灯贴图**：`fluorescent_lamp.png` 当前是程序生成的明亮占位图，请替换为你想要的灯管/灯罩贴图（16×16 PNG）。
 2. **踢脚线贴图确认**：请确认 `*_basewalls_texture.png` 是否确为踢脚线纹理；若不是，请提供深色踢脚线贴图并替换 `wall_*_plinth.png`。
 3. **群系↔贴图配色确认**：我按 `classic=黄 / smooth=灰 / speckled=潮湿` 映射，若你的贴图实际配色不同，告诉我即可调整映射。
-4. **Gradle Wrapper**：需你在本地运行一次 `gradle wrapper` 生成 `gradlew`/`gradlew.bat`/`gradle-wrapper.jar`。
+4. **Gradle Wrapper**：已随附 `gradlew` / `gradlew.bat` / `gradle-wrapper.jar`，可直接构建。
 5. （可选）若希望用 **TerraBlender** 控制群系分布，请在 `build.gradle` 取消依赖注释并改为 TerraBlender 的 Region/SurfaceRule 方案；当前实现为"纯代码群系 + 简单噪声"，无需额外依赖。
