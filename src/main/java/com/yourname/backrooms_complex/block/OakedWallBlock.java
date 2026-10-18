@@ -10,13 +10,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import com.yourname.backrooms_complex.ModConfig;
 
 /**
  * 「被刮去墙纸」的 Level 0 墙壁方块。
  *
  * <p>由 {@link com.yourname.backrooms_complex.item.ScraperItem 刮纸刀} 右键墙壁主体方块时产生，
  * 贴图为"墙纸被刮掉后露出的底层墙面"。经过
- * {@link com.yourname.backrooms_complex.ModConfig#wallpaperRestoreSeconds 配置的秒数}后，
+ * {@link ModConfig#wallpaperRestoreSeconds 配置的秒数}后，
  * 由 {@link #tick} 自动恢复成原本有墙纸的墙壁。</p>
  *
  * <p>用 {@code variant} 属性记录"它原来是哪一面墙"，从而知道该恢复成

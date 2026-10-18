@@ -11,6 +11,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import com.yourname.backrooms_complex.ModNetwork;
 
 /**
  * 「饮水值条」与「精神值条」的 HUD 渲染。
@@ -66,7 +67,7 @@ public final class ModHud {
             return;
         }
         // 从同步缓存读取（服务端每秒推送一次）
-        int value = com.yourname.backrooms_complex.ModNetwork.clientThirst;
+        int value = ModNetwork.clientThirst;
         int w = mc.getWindow().getGuiScaledWidth();
         int h = mc.getWindow().getGuiScaledHeight();
         // 右对齐到饥饿条（右侧起点 = 中心 + 91），再向上移 10 像素
@@ -84,7 +85,7 @@ public final class ModHud {
         if (mc.player.isCreative() || mc.player.isSpectator()) {
             return;
         }
-        int value = com.yourname.backrooms_complex.ModNetwork.clientSanity;
+        int value = ModNetwork.clientSanity;
         int w = mc.getWindow().getGuiScaledWidth();
         int h = mc.getWindow().getGuiScaledHeight();
         // 左对齐到血条（左侧起点 = 中心 - 91）

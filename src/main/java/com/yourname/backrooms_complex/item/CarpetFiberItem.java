@@ -16,6 +16,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import com.yourname.backrooms_complex.ModDamageTypes;
+import com.yourname.backrooms_complex.ModNetwork;
 
 /**
  * 「地毯纤维」：从地板上刮下来的潮湿地毯碎屑。
@@ -78,7 +80,7 @@ public class CarpetFiberItem extends Item {
             if (next <= 0.0F) {
                 player.setHealth(0.0F);
                 net.minecraft.world.damagesource.DamageSource ds =
-                    player.damageSources().source(com.yourname.backrooms_complex.ModDamageTypes.INTESTINAL_OBSTRUCTION);
+                    player.damageSources().source(ModDamageTypes.INTESTINAL_OBSTRUCTION);
                 // die() 的死亡消息取自 CombatTracker 里记录的最后一个伤害来源，
                 // 所以必须先把该来源记进 tracker，否则会退化成通用的"死了"。
                 player.getCombatTracker().recordDamage(ds, EAT_DAMAGE);
@@ -92,7 +94,7 @@ public class CarpetFiberItem extends Item {
             player.addEffect(new MobEffectInstance(MobEffects.HUNGER, HUNGER_TICKS, 0, false, true, true));
             player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, NAUSEA_TICKS, 0, false, true, true));
             // 结算后立刻同步 HUD
-            com.yourname.backrooms_complex.ModNetwork.sendTo(player);
+            ModNetwork.sendTo(player);
         }
         if (entity instanceof Player player && !player.getAbilities().instabuild) {
             stack.shrink(1);

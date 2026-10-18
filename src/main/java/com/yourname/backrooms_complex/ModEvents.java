@@ -13,6 +13,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import com.yourname.backrooms_complex.DropHelper;
+import com.yourname.backrooms_complex.ModConfig;
 
 /**
  * 事件监听类。
@@ -95,10 +97,10 @@ public final class ModEvents {
         // 掉落 1~2 个地毯纤维
         int count = 1 + serverLevel.random.nextInt(2);
         net.minecraft.world.item.ItemStack drop = new net.minecraft.world.item.ItemStack(ModItems.CARPET_FIBER.get(), count);
-        com.yourname.backrooms_complex.DropHelper.dropFacing(serverLevel, pos, event.getEntity(), drop);
+        DropHelper.dropFacing(serverLevel, pos, event.getEntity(), drop);
         // 耐久
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer sp
-                && !sp.getAbilities().instabuild && com.yourname.backrooms_complex.ModConfig.scraperUsesDurability) {
+                && !sp.getAbilities().instabuild && ModConfig.scraperUsesDurability) {
             held.hurtAndBreak(1, sp, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
         }
         event.setCanceled(true);

@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import com.yourname.backrooms_complex.ModNetwork;
 
 /**
  * 「未知污水瓶」：喝下后恢复饮水值，但会付出精神值代价。
@@ -59,7 +60,7 @@ public class SewageBottleItem extends Item {
             ModPlayerData.addThirst(serverPlayer, ModPlayerData.SEWAGE_THIRST_RESTORE);
             ModPlayerData.addSanity(serverPlayer, -ModPlayerData.SEWAGE_SANITY_COST);
             // 立刻同步给客户端，否则要等下一次每秒结算（最多 1 秒延迟）
-            com.yourname.backrooms_complex.ModNetwork.sendTo(serverPlayer);
+            ModNetwork.sendTo(serverPlayer);
         }
         if (entity instanceof Player player && !player.getAbilities().instabuild) {
             stack.shrink(1);

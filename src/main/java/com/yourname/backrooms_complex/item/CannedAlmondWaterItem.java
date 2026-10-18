@@ -13,6 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import com.yourname.backrooms_complex.ModPlayerData;
 
 /**
  * 「罐装杏仁水」（受潮 / 保存完好）。
@@ -79,8 +80,8 @@ public class CannedAlmondWaterItem extends Item {
     /** 小工具：把三个数值一次性加上去（内部走 ModPlayerData，保持 HUD 同步）。 */
     private static final class ModPlayerDataProxy {
         static void apply(ServerPlayer player, int sanity, int thirst, int hunger) {
-            com.yourname.backrooms_complex.ModPlayerData.addSanity(player, sanity);
-            com.yourname.backrooms_complex.ModPlayerData.addThirst(player, thirst);
+            ModPlayerData.addSanity(player, sanity);
+            ModPlayerData.addThirst(player, thirst);
             if (hunger > 0) {
                 player.getFoodData().eat(hunger, 0.0F);
             }

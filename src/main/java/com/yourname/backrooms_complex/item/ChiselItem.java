@@ -16,6 +16,7 @@ import com.yourname.backrooms_complex.ModConfig;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import com.yourname.backrooms_complex.DropHelper;
 
 /**
  * 凿子：右键「混凝土墙壁」把它凿破成「被凿破的混凝土墙壁」。
@@ -64,7 +65,7 @@ public class ChiselItem extends Item {
 
         // 3) 掉落 1~3 个墙灰
         int count = 1 + serverLevel.getRandom().nextInt(3);
-        com.yourname.backrooms_complex.DropHelper.dropFacing(serverLevel, pos, context.getPlayer(), new ItemStack(ModItems.WALL_DUST.get(), count));
+        DropHelper.dropFacing(serverLevel, pos, context.getPlayer(), new ItemStack(ModItems.WALL_DUST.get(), count));
 
         // 4) 消耗 1 点耐久
         Player player = context.getPlayer();

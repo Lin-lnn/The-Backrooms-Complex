@@ -17,6 +17,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import com.yourname.backrooms_complex.DropHelper;
 
 /**
  * 刮纸刀：右键 Level 0 的墙壁<b>主体</b>方块（{@code wall_yellow} / {@code wall_concrete} / {@code wall_damp}），
@@ -67,7 +68,7 @@ public class ScraperItem extends Item {
         serverLevel.scheduleTick(pos, ModBlocks.WALL_OAKED.get(), delay);
 
         // 3) 掉落 1 个墙纸
-        com.yourname.backrooms_complex.DropHelper.dropFacing(serverLevel, pos, context.getPlayer(), new ItemStack(ModItems.WALLPAPER.get()));
+        DropHelper.dropFacing(serverLevel, pos, context.getPlayer(), new ItemStack(ModItems.WALLPAPER.get()));
 
         // 4) 音效
         serverLevel.playSound(null, pos, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 0.6F, 1.4F);
