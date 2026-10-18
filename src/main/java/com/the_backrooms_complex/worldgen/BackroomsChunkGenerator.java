@@ -291,15 +291,20 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                                     + 7L;
                             net.minecraft.util.RandomSource carpetRnd =
                                     net.minecraft.util.RandomSource.create(carpetSeed);
-                            if (carpetRnd.nextDouble() < 0.6D) {   // 60%（原 2% 的 30 倍）
+                            if (carpetRnd.nextDouble() < 0.15D) {   // 15%，稀疏分布
                                 int count = 2 + carpetRnd.nextInt(4);   // 2~5
-                                int bx = worldX + carpetRnd.nextInt(5) - 2;
-                                int bz = worldZ + carpetRnd.nextInt(5) - 2;
+                                int bx = worldX + carpetRnd.nextInt(11) - 5;
+                                int bz = worldZ + carpetRnd.nextInt(11) - 5;
                                 for (int k = 0; k < count; k++) {
-                                    int px = bx + carpetRnd.nextInt(3) - 1;
-                                    int pz = bz + carpetRnd.nextInt(3) - 1;
+                                    // 散布范围 ±5 格，避免挤成一团
+                                    int px = bx + carpetRnd.nextInt(7) - 3;
+                                    int pz = bz + carpetRnd.nextInt(7) - 3;
                                     // 只在潮湿地板之上铺设
                                     if (chunk.getBlockState(mutable.set(px, y - 1, pz)) != dampFloor) {
+                                        continue;
+                                    }
+                                    // 绝不覆盖已有方块（保护踢脚线 / 墙脚）
+                                    if (!chunk.getBlockState(mutable.set(px, y, pz)).isAir()) {
                                         continue;
                                     }
                                     chunk.setBlockState(mutable.set(px, y, pz),
