@@ -234,6 +234,22 @@ public final class ModItems {
     public static final DeferredItem<Item> BACTERIA_TISSUE =
             ITEMS.register("bacteria_tissue", () -> new Item(new Item.Properties()));
 
+    /** 「细菌刷怪蛋」。 */
+    public static final DeferredItem<net.minecraft.world.item.SpawnEggItem> BACTERIA_SPAWN_EGG =
+            ITEMS.register("bacteria_spawn_egg", () -> new net.minecraft.world.item.SpawnEggItem(
+                    ModEntities.BACTERIA.get(), 0x3A3836, 0x1E1C1A, new Item.Properties().stacksTo(64)));
+
+    /** 实体标签页：后室综合体：实体。 */
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ENTITIES_TAB =
+            CREATIVE_MODE_TABS.register("backrooms_entities", () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.backrooms_complex.entities"))
+                    .icon(() -> new ItemStack(BACTERIA_SPAWN_EGG.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(BACTERIA_SPAWN_EGG.get());
+                        output.accept(BACTERIA_TISSUE.get());
+                    })
+                    .build());
+
     private ModItems() {
     }
 }
