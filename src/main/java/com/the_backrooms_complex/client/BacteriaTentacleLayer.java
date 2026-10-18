@@ -47,12 +47,15 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
     public static final float THICKNESS = 0.5F;
     /** 起点高度：史莱姆模型的视觉中心（格，从脚底算起）。 */
     public static final float BODY_CENTER_Y = 1.5F;
+    /** 两种形态统一的额外抬高（格；6 像素 = 6/16 = 0.375 格）。 */
+    public static final float EXTRA_LIFT = 0.375F;
+
     /** 横扫时额外抬高的高度（格；4 像素 = 4/16 = 0.25 格）。 */
     public static final float SWEEP_LIFT = 0.25F;
     /** 横扫角度范围：从 −60° 到 +60°。 */
     public static final float SWEEP_HALF_ANGLE = 60.0F;
     /** 横扫时末段背向扫动方向的弯曲角度（度）。 */
-    public static final float SWEEP_BEND = 28.0F;
+    public static final float SWEEP_BEND = 55.0F;
     /** 横扫动画在前多少比例内可见（之后收回）。 */
     public static final float SWEEP_VISIBLE_PCT = 0.85F;
 
@@ -115,7 +118,7 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
                 return;                              // 收尾阶段收回
             }
             // 抬高 4 像素
-            poseStack.translate(0.0F, BODY_CENTER_Y + SWEEP_LIFT, 0.0F);
+            poseStack.translate(0.0F, BODY_CENTER_Y + SWEEP_LIFT + EXTRA_LIFT, 0.0F);
             // 只扫一次：-60° -> +60°
             float angle = -SWEEP_HALF_ANGLE + SWEEP_HALF_ANGLE * 2.0F * (p / SWEEP_VISIBLE_PCT);
             poseStack.mulPose(Axis.YP.rotationDegrees(angle));
@@ -137,7 +140,7 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
                 poseStack.popPose();
                 return;
             }
-            poseStack.translate(0.0F, BODY_CENTER_Y, 0.0F);
+            poseStack.translate(0.0F, BODY_CENTER_Y + EXTRA_LIFT, 0.0F);
             poseStack.scale(1.0F, 1.0F, extend);
             this.tip.yRot = 0.0F;
         }
