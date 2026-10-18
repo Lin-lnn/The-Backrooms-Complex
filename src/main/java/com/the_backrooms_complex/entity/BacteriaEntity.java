@@ -68,6 +68,12 @@ public class BacteriaEntity extends Monster {
     /** 贴墙时的向上攀爬速度（格/tick）。 */
     public static final double CLIMB_SPEED = 0.10D;
 
+    /** 最长附着时间（tick）：5 秒后强制松手，避免卡在天花板下不来。 */
+    public static final int MAX_CLING_TICKS = 100;
+
+    /** 已持续附着的 tick 数。 */
+    private int clingTicks = 0;
+
     /** 减速效果时长（1 秒）。 */
     public static final int SLOW_TICKS = 20;
 
@@ -153,9 +159,22 @@ public class BacteriaEntity extends Monster {
 
         boolean wall = hasWallNearby();
         boolean ceiling = hasCeilingAbove();
+        boolean surface = wall || ceiling;
 
-        // 贴墙或贴顶时关闭重力
-        this.setNoGravity(wall || ceiling);
+        // 附着计时：超过上限就强制松手（否则会永远卡在天花板）
+        if (surface) {
+            this.clingTicks++;
+        } else {
+            this.clingTicks = 0;
+        }
+        boolean clinging = surface && this.clingTicks <= MAX_CLING_TICKS;
+
+        // 贴墙或贴顶时关闭重力；超时后恢复重力自然掉落
+        this.setNoGravity(clinging);
+        if (!clinging) {
+            wall = false;
+            ceiling = false;
+        }
 
         if (wall) {
             // 沿墙面向上爬（给一个恒定的向上速度）
