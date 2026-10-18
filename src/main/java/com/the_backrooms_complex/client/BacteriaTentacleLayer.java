@@ -45,10 +45,10 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
     public static final float TIP_LENGTH = 12.0F;
     /** 菌丝粗细（模型单位；0.5×2 = 1 像素）。 */
     public static final float THICKNESS = 0.5F;
-    /** 起点高度：史莱姆模型的视觉中心（格，从脚底算起）。 */
-    public static final float BODY_CENTER_Y = 1.5F;
-    /** 两种形态统一的额外抬高（格；3 像素 = 3/16 = 0.1875 格）。 */
-    public static final float EXTRA_LIFT = 0.1875F;
+    /** 起点高度（格，从脚底算起）。注意本模型的 Y 方向与直觉相反，数值越大越靠下。 */
+    public static final float BODY_CENTER_Y = 0.75F;
+    /** 两种形态统一的额外偏移（格）。0 = 不额外偏移。 */
+    public static final float EXTRA_LIFT = 0.0F;
 
     /** 横扫时额外抬高的高度（格；4 像素 = 4/16 = 0.25 格）。 */
     public static final float SWEEP_LIFT = 0.25F;
