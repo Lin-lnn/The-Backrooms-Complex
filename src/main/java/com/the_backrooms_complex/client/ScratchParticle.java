@@ -110,20 +110,27 @@ public class ScratchParticle extends TextureSheetParticle {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    /** 粒子提供者（持有 SpriteSet 里取出的贴图，传给粒子）。 */
+    /**
+     * 粒子提供者。
+     *
+     * <p><b>注意</b>：注册事件发生时贴图图集尚未加载，此时调用
+     * {@code spriteSet.get(...)} 会因内部 {@code sprites} 为 null 而崩溃。
+     * 所以这里只保存 {@link SpriteSet}，真正取贴图推迟到
+     * {@link #createParticle} —— 那时图集已就绪。</p>
+     */
     public static class Provider implements ParticleProvider<SimpleParticleType> {
 
-        private final net.minecraft.client.renderer.texture.TextureAtlasSprite sprite;
+        private final net.minecraft.client.particle.SpriteSet spriteSet;
 
         public Provider(net.minecraft.client.particle.SpriteSet spriteSet) {
-            this.sprite = spriteSet.get(0, 0);
+            this.spriteSet = spriteSet;
         }
 
         @Override
         public net.minecraft.client.particle.Particle createParticle(
                 SimpleParticleType type, ClientLevel level,
                 double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new ScratchParticle(level, x, y, z, this.sprite);
+            return new ScratchParticle(level, x, y, z, this.spriteSet.get(0, 0));
         }
     }
 }
