@@ -291,8 +291,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                                     + 7L;
                             net.minecraft.util.RandomSource carpetRnd =
                                     net.minecraft.util.RandomSource.create(carpetSeed);
-                            if (carpetRnd.nextDouble() < 0.15D) {   // 15%，稀疏分布
-                                int count = 2 + carpetRnd.nextInt(4);   // 2~5
+                            if (carpetRnd.nextDouble() < 0.005D) {   // 0.5%：世界坐标每列每层独立判定，整体呈零散斑块
+                                int count = 1 + carpetRnd.nextInt(3);   // 1~3（小块）
                                 int bx = worldX + carpetRnd.nextInt(11) - 5;
                                 int bz = worldZ + carpetRnd.nextInt(11) - 5;
                                 for (int k = 0; k < count; k++) {
