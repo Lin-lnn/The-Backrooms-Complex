@@ -253,7 +253,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                                 + (long) worldZ * 132897987541L
                                 + (long) layer * 9187L;
                         double r = net.minecraft.util.RandomSource.create(decorSeed).nextDouble();
-                        if (r < 0.003D) {   // 0.3%（原 0.01% 的 30 倍）
+                        if (r < 0.002D) {   // 0.2%：每列约 6% 概率出现一个蛛网
                             // 0.01% 蜘蛛网
                             chunk.setBlockState(mutable.set(worldX, y, worldZ),
                                     net.minecraft.world.level.block.Blocks.COBWEB.defaultBlockState(), false);
