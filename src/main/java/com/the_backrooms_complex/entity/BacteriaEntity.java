@@ -100,9 +100,14 @@ public class BacteriaEntity extends Monster {
         // 每 4 tick 在地面留下 1 粒（中量）
         if (this.tickCount % 4 == 0 && this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-5D) {
             if (this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-                serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.DRIPPING_DRIPSTONE_WATER,
+                // 灰黑色滴落：用 FALLING_DUST 并指定深灰方块，渲染出灰黑尘粒
+                net.minecraft.core.particles.BlockParticleOption dust =
+                        new net.minecraft.core.particles.BlockParticleOption(
+                                net.minecraft.core.particles.ParticleTypes.FALLING_DUST,
+                                net.minecraft.world.level.block.Blocks.GRAY_CONCRETE.defaultBlockState());
+                serverLevel.sendParticles(dust,
                         this.getX(), this.getY() + 0.15, this.getZ(),
-                        1, 0.22, 0.05, 0.22, 0.0);
+                        2, 0.22, 0.05, 0.22, 0.0);
             }
         }
     }
