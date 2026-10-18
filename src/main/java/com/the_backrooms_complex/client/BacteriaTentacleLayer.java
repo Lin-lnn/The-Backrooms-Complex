@@ -33,10 +33,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
         net.minecraft.client.model.SlimeModel<BacteriaEntity>> {
 
-    /** 触手最大伸出长度（格）。 */
-    public static final float MAX_LENGTH = 1.6F;
-    /** 触手粗细（格）。 */
-    public static final float THICKNESS = 0.18F;
+    /** 触手最大伸出长度（模型单位；16 = 1 格 ⇒ 26 ≈ 1.6 格）。 */
+    public static final float MAX_LENGTH = 26.0F;
+    /** 触手粗细（模型单位；6 ≈ 0.375 格）。 */
+    public static final float THICKNESS = 3.0F;
     /** 起点相对身体中心的横向偏移（格）。 */
     public static final float SIDE_OFFSET = 0.35F;
 
@@ -53,7 +53,7 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
         root.addOrReplaceChild("tentacle",
                 CubeListBuilder.create()
                         .texOffs(0, 0)
-                        .addBox(-THICKNESS, -THICKNESS, 0.0F, THICKNESS * 2, THICKNESS * 2, MAX_LENGTH),
+                        .addBox(-THICKNESS, -THICKNESS, 0.0F, THICKNESS * 2.0F, THICKNESS * 2.0F, MAX_LENGTH),
                 PartPose.ZERO);
         this.tentacle = LayerDefinition.create(mesh, 64, 32).bakeRoot();
     }
@@ -90,8 +90,6 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
         // 起点偏移 + 沿面朝方向伸出
         poseStack.translate(SIDE_OFFSET, entity.getBbHeight() * 0.5F, 0.0F);
         poseStack.scale(1.0F, 1.0F, extend);
-        // 缩放到实际尺寸（ModelPart 单位是 1/16 格）
-        poseStack.scale(1.0F / 16.0F, 1.0F / 16.0F, 1.0F / 16.0F);
         this.tentacle.render(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }
