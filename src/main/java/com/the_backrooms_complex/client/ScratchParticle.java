@@ -60,55 +60,9 @@ public class ScratchParticle extends TextureSheetParticle {
         this.quadSize = 0.55F + t * 0.25F;
     }
 
-    /** 贴地渲染：画一个水平四边形（不用摄像机朝向）。 */
-    @Override
-    public void render(VertexConsumer buffer, Camera camera, float partialTicks) {
-        // 顶点按"从上往下看逆时针"排列，避免被背面剔除
-        Vector3f[] corners = new Vector3f[]{
-                new Vector3f(-1.0F, 0.0F, -1.0F),
-                new Vector3f(1.0F, 0.0F, -1.0F),
-                new Vector3f(1.0F, 0.0F, 1.0F),
-                new Vector3f(-1.0F, 0.0F, 1.0F)
-        };
-        float size = this.getQuadSize(partialTicks);
-
-        // 绕 Y 轴按 roll 旋转，让每片划痕角度不同
-        float cos = Mth.cos(this.roll);
-        float sin = Mth.sin(this.roll);
-        for (Vector3f corner : corners) {
-            float x = corner.x() * cos - corner.z() * sin;
-            float z = corner.x() * sin + corner.z() * cos;
-            corner.set(x * size, 0.0F, z * size);
-        }
-
-        float minU = this.getU0();
-        float maxU = this.getU1();
-        float minV = this.getV0();
-        float maxV = this.getV1();
-
-        // 位置相对摄像机的偏移
-        float px = (float) (Mth.lerp(partialTicks, this.xo, this.x) - camera.getPosition().x);
-        float py = (float) (Mth.lerp(partialTicks, this.yo, this.y) - camera.getPosition().y);
-        float pz = (float) (Mth.lerp(partialTicks, this.zo, this.z) - camera.getPosition().z);
-
-        int light = LightTexture.FULL_BRIGHT;
-        buffer.addVertex(px + corners[0].x(), py, pz + corners[0].z())
-                .setUv(maxU, maxV).setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-                .setLight(light);
-        buffer.addVertex(px + corners[1].x(), py, pz + corners[1].z())
-                .setUv(maxU, minV).setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-                .setLight(light);
-        buffer.addVertex(px + corners[2].x(), py, pz + corners[2].z())
-                .setUv(minU, minV).setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-                .setLight(light);
-        buffer.addVertex(px + corners[3].x(), py, pz + corners[3].z())
-                .setUv(minU, maxV).setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-                .setLight(light);
-    }
-
     @Override
     public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+        return ParticleRenderType.PARTICLE_SHEET_LIT;
     }
 
     /**
