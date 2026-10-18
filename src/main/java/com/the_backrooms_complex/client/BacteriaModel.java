@@ -37,7 +37,7 @@ public class BacteriaModel extends EntityModel<BacteriaEntity> {
     /** 核心边长（模型单位）。 */
     public static final float CORE_SIZE = 5.0F;
     /** 核心中心高度（模型单位；16 = 1 格）。 */
-    public static final float CORE_Y = 3.0F;
+    public static final float CORE_Y = 21.0F;
     /** 摇摆幅度（弧度）。 */
     public static final float SWAY_AMPLITUDE = 0.45F;
     /** 摇摆速度。 */
