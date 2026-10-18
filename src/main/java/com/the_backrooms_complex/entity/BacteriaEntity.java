@@ -63,7 +63,7 @@ public class BacteriaEntity extends Monster {
             net.minecraft.network.syncher.SynchedEntityData.defineId(BacteriaEntity.class,
                     net.minecraft.network.syncher.EntityDataSerializers.INT);
     /** 一次攻击动画的总时长（tick）。 */
-    public static final int ATTACK_ANIM_TICKS = 10;
+    public static final int ATTACK_ANIM_TICKS = 7;
 
     /** 贴墙时的向上攀爬速度（格/tick）。 */
     public static final double CLIMB_SPEED = 0.10D;
@@ -165,7 +165,23 @@ public class BacteriaEntity extends Monster {
             }
         }
 
+        faceTarget();
+
         spawnTrailParticles();
+    }
+
+    /** 强制让身体与头部朝向当前目标（攻击时始终正对玩家）。 */
+    private void faceTarget() {
+        net.minecraft.world.entity.LivingEntity target = this.getTarget();
+        if (target == null) {
+            return;
+        }
+        double dx = target.getX() - this.getX();
+        double dz = target.getZ() - this.getZ();
+        float yaw = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90.0D);
+        this.setYRot(yaw);
+        this.setYBodyRot(yaw);
+        this.setYHeadRot(yaw);
     }
 
     /** 四邻 0.6 格内是否有实心方块。 */
