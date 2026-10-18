@@ -28,13 +28,16 @@ public class BacteriaModel extends EntityModel<BacteriaEntity> {
     /** 菌丝数量。 */
     public static final int FILAMENT_COUNT = 12;
     /** 菌丝最短长度（模型单位）。 */
-    public static final float FILAMENT_MIN = 6.0F;
+    public static final float FILAMENT_MIN = 3.0F;
     /** 菌丝最长长度（模型单位）。 */
-    public static final float FILAMENT_MAX = 14.0F;
+    public static final float FILAMENT_MAX = 7.0F;
+    /** 核心高度（模型单位）；宽度用 CORE_SIZE，高度用本值 —— 更扁。 */
+    public static final float CORE_HEIGHT = 2.5F;
+
     /** 核心边长（模型单位）。 */
-    public static final float CORE_SIZE = 6.0F;
+    public static final float CORE_SIZE = 5.0F;
     /** 核心中心高度（模型单位；16 = 1 格）。 */
-    public static final float CORE_Y = 12.0F;
+    public static final float CORE_Y = 3.0F;
     /** 摇摆幅度（弧度）。 */
     public static final float SWAY_AMPLITUDE = 0.45F;
     /** 摇摆速度。 */
@@ -66,8 +69,8 @@ public class BacteriaModel extends EntityModel<BacteriaEntity> {
         PartDefinition coreDef = root.addOrReplaceChild("core",
                 CubeListBuilder.create()
                         .texOffs(0, 0)
-                        .addBox(-CORE_SIZE / 2.0F, -CORE_SIZE / 2.0F, -CORE_SIZE / 2.0F,
-                                CORE_SIZE, CORE_SIZE, CORE_SIZE),
+                        .addBox(-CORE_SIZE / 2.0F, -CORE_HEIGHT / 2.0F, -CORE_SIZE / 2.0F,
+                                CORE_SIZE, CORE_HEIGHT, CORE_SIZE),
                 PartPose.offset(0.0F, CORE_Y, 0.0F));
 
         // 一圈菌丝：均匀分布在水平面，稍微向上/下倾斜
@@ -84,7 +87,7 @@ public class BacteriaModel extends EntityModel<BacteriaEntity> {
                             .texOffs(0, 0)
                             .addBox(-0.5F, -0.5F, 0.0F, 1.0F, 1.0F, length),
                     PartPose.offsetAndRotation(ox, 0.0F, oz,
-                            tilt, (float) -angle, (float) Math.cos(angle) * 0.25F));
+                            0.0F, (float) -angle, 0.0F));
         }
 
         return LayerDefinition.create(mesh, 64, 32);
