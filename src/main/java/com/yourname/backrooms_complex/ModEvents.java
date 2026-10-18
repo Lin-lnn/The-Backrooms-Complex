@@ -53,7 +53,7 @@ public final class ModEvents {
      */
     /** 玩家登录时补发一次数值，避免刚进服务器 HUD 显示默认值。 */
     /** 饮用类物品回复的饮水值。 */
-    public static final int DRINK_THIRST_RESTORE = 30;
+    public static final int DRINK_THIRST_RESTORE = ModBalance.DRINK_THIRST_RESTORE;
 
     /**
      * 所有原版药水 / 水瓶 / 牛奶，以及汤类（蘑菇煲、甜菜汤、兔肉煲、迷之炖菜）

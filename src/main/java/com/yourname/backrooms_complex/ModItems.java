@@ -211,13 +211,19 @@ public final class ModItems {
     public static final DeferredItem<Item> DAMP_CANNED_ALMOND_WATER =
             ITEMS.register("damp_canned_almond_water",
                     () -> new com.yourname.backrooms_complex.item.CannedAlmondWaterItem(
-                            new Item.Properties().stacksTo(16), 40, 20, 30, 2, true));
+                            new Item.Properties().stacksTo(16),
+                            ModBalance.DAMP_CAN_USE_TICKS, ModBalance.DAMP_CAN_SANITY,
+                            ModBalance.DAMP_CAN_THIRST, ModBalance.DAMP_CAN_HUNGER,
+                            ModBalance.DAMP_CAN_NAUSEA));
 
     /** 「保存完好的罐装杏仁水」：1.5 秒饮用，+40 精神 / +30 饮水 / +4 饥饿。 */
     public static final DeferredItem<Item> CANNED_ALMOND_WATER =
             ITEMS.register("canned_almond_water",
                     () -> new com.yourname.backrooms_complex.item.CannedAlmondWaterItem(
-                            new Item.Properties().stacksTo(16), 30, 40, 30, 4, false));
+                            new Item.Properties().stacksTo(16),
+                            ModBalance.PRISTINE_CAN_USE_TICKS, ModBalance.PRISTINE_CAN_SANITY,
+                            ModBalance.PRISTINE_CAN_THIRST, ModBalance.PRISTINE_CAN_HUNGER,
+                            ModBalance.PRISTINE_CAN_NAUSEA));
 
     /** 「易拉罐」：喝完留下的空罐。 */
     public static final DeferredItem<Item> EMPTY_CAN =

@@ -1,5 +1,7 @@
 package com.yourname.backrooms_complex.item;
 
+import com.yourname.backrooms_complex.ModBalance;
+
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -33,13 +35,13 @@ public class CarpetFiberItem extends Item {
     /** 食用时长：5 秒 = 100 tick。 */
     public static final int EAT_DURATION = 100;
     /** 食用造成的伤害。 */
-    public static final float EAT_DAMAGE = 6.0F;
+    public static final float EAT_DAMAGE = ModBalance.FIBER_DAMAGE;
     /** 食用回复的饥饿值。 */
-    public static final int EAT_NUTRITION = 1;   // 1 点 = 半格（0.5 格饥饿值）
+    public static final int EAT_NUTRITION = ModBalance.FIBER_NUTRITION;   // 1 点 = 半格（0.5 格饥饿值）
     /** 饥饿效果时长（10 秒）。 */
-    public static final int HUNGER_TICKS = 200;
+    public static final int HUNGER_TICKS = ModBalance.FIBER_HUNGER_TICKS;
     /** 反胃效果时长（3 秒）。 */
-    public static final int NAUSEA_TICKS = 60;
+    public static final int NAUSEA_TICKS = ModBalance.FIBER_NAUSEA_TICKS;
 
     public CarpetFiberItem(Properties properties) {
         super(properties.food(new FoodProperties.Builder()

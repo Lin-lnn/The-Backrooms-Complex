@@ -28,30 +28,30 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 public final class ModPlayerData {
 
     /** 满值。 */
-    public static final int MAX = 100;
+    public static final int MAX = ModBalance.STAT_MAX;
 
     // ---- 下降 / 恢复速率（每 20 tick = 1 秒结算一次）----
     /** 饮水值基础下降（每 20 秒 1 点）。 */
-    private static final int THIRST_BASE_INTERVAL = 400;
+    private static final int THIRST_BASE_INTERVAL = ModBalance.THIRST_BASE_INTERVAL;
     /** 奔跑时额外加快（每 8 秒 1 点）。 */
-    private static final int THIRST_SPRINT_INTERVAL = 160;
+    private static final int THIRST_SPRINT_INTERVAL = ModBalance.THIRST_SPRINT_INTERVAL;
     /** 潮湿环境额外加快（每 6 秒 1 点）。 */
-    private static final int THIRST_DAMP_INTERVAL = 120;
+    private static final int THIRST_DAMP_INTERVAL = ModBalance.THIRST_DAMP_INTERVAL;
     /** 精神值在潮湿走廊下降（每 10 秒 1 点）。 */
-    private static final int SANITY_DAMP_INTERVAL = 200;
+    private static final int SANITY_DAMP_INTERVAL = ModBalance.SANITY_DAMP_INTERVAL;
     /** 精神值在完全黑暗中下降（每 6 秒 1 点）。 */
-    private static final int SANITY_DARK_INTERVAL = 120;
+    private static final int SANITY_DARK_INTERVAL = ModBalance.SANITY_DARK_INTERVAL;
     /** 精神值在黄色房间恢复（每 5 秒 1 点）。 */
-    private static final int SANITY_YELLOW_INTERVAL = 100;
+    private static final int SANITY_YELLOW_INTERVAL = ModBalance.SANITY_YELLOW_INTERVAL;
 
     /** 污水瓶：恢复饮水值 / 扣精神值。 */
     /** 方块变暗红的精神值阈值（跨过此值瞬间给一次黑暗）。 */
-    public static final int DARK_RED_THRESHOLD = 5;
+    public static final int DARK_RED_THRESHOLD = ModBalance.DARK_RED_THRESHOLD;
     /** 跨越阈值时的黑暗时长：2 秒。 */
-    public static final int DARKNESS_TICKS = 40;
+    public static final int DARKNESS_TICKS = ModBalance.DARKNESS_TICKS;
 
-    public static final int SEWAGE_THIRST_RESTORE = 35;
-    public static final int SEWAGE_SANITY_COST = 12;
+    public static final int SEWAGE_THIRST_RESTORE = ModBalance.SEWAGE_THIRST_RESTORE;
+    public static final int SEWAGE_SANITY_COST = ModBalance.SEWAGE_SANITY_COST;
 
     public static final AttachmentType<Integer> THIRST = AttachmentType
             .builder(() -> MAX)
