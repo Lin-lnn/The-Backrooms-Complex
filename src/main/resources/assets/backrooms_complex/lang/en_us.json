@@ -39,5 +39,6 @@
     "item.backrooms_complex.canned_almond_water":  "Preserved Canned Almond Water",
     "item.backrooms_complex.empty_can":  "Empty Can",
     "item.backrooms_complex.damp_canned_almond_water":  "Damp Canned Almond Water",
-    "death.attack.intestinal_obstruction":  "%1$s died of intestinal obstruction"
+    "death.attack.intestinal_obstruction":  "%1$s died of intestinal obstruction",
+    "item.backrooms_complex.bacteria_tissue":  "Bacteria Tissue"
 }

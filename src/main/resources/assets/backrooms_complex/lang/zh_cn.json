@@ -39,5 +39,6 @@
     "item.backrooms_complex.canned_almond_water":  "保存完好的罐装杏仁水",
     "item.backrooms_complex.empty_can":  "易拉罐",
     "item.backrooms_complex.damp_canned_almond_water":  "受潮的罐装杏仁水",
-    "death.attack.intestinal_obstruction":  "%1$s 死于肠梗阻"
+    "death.attack.intestinal_obstruction":  "%1$s 死于肠梗阻",
+    "item.backrooms_complex.bacteria_tissue":  "细菌组织"
 }

@@ -190,6 +190,7 @@ public final class ModItems {
                         output.accept(ModItems.WALLPAPER_HAT.get());
                         output.accept(ModItems.UNKNOWN_SEWAGE_BOTTLE.get());
                         output.accept(ModItems.CARPET_FIBER.get());
+                        output.accept(ModItems.BACTERIA_TISSUE.get());
                         output.accept(ModItems.DAMP_CANNED_ALMOND_WATER.get());
                         output.accept(ModItems.CANNED_ALMOND_WATER.get());
                         output.accept(ModItems.EMPTY_CAN.get());
@@ -228,6 +229,10 @@ public final class ModItems {
     /** 「易拉罐」：喝完留下的空罐。 */
     public static final DeferredItem<Item> EMPTY_CAN =
             ITEMS.register("empty_can", () -> new Item(new Item.Properties().stacksTo(64)));
+
+    /** 「细菌组织」：击败细菌掉落，可用于合成。 */
+    public static final DeferredItem<Item> BACTERIA_TISSUE =
+            ITEMS.register("bacteria_tissue", () -> new Item(new Item.Properties()));
 
     private ModItems() {
     }
