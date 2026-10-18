@@ -71,6 +71,11 @@ public class BacteriaEntity extends Monster {
     /** 最长附着时间（tick）：5 秒后强制松手，避免卡在天花板下不来。 */
     public static final int MAX_CLING_TICKS = 100;
 
+    /** 生成它的菌毯位置（null = 不是从菌毯生成的）。距离超过 {@value #MAX_HOME_DISTANCE} 会选择离开。 */
+    private net.minecraft.core.BlockPos homeCarpet = null;
+    /** 与出生菌毯的最大允许距离（格）。 */
+    public static final double MAX_HOME_DISTANCE = 16.0D;
+
     /** 已持续附着的 tick 数。 */
     private int clingTicks = 0;
 
@@ -79,6 +84,27 @@ public class BacteriaEntity extends Monster {
 
     public BacteriaEntity(EntityType<? extends BacteriaEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        if (this.homeCarpet != null) {
+            tag.putLong("HomeCarpet", this.homeCarpet.asLong());
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("HomeCarpet")) {
+            this.homeCarpet = net.minecraft.core.BlockPos.of(tag.getLong("HomeCarpet"));
+        }
+    }
+
+    /** 记录出生菌毯。 */
+    public void setHomeCarpet(net.minecraft.core.BlockPos pos) {
+        this.homeCarpet = pos.immutable();
     }
 
     @Override
@@ -193,6 +219,13 @@ public class BacteriaEntity extends Monster {
             if (atk - 1 == 0) {
                 this.entityData.set(DATA_ATTACK_TYPE, 0);
             }
+        }
+
+        // 离出生菌毯太远 -> 自动消失（保持"细菌不会离开菌毯区"的设定）
+        if (this.homeCarpet != null
+                && this.homeCarpet.distToCenterSqr(this.position()) > MAX_HOME_DISTANCE * MAX_HOME_DISTANCE) {
+            this.discard();
+            return;
         }
 
         faceTarget();
