@@ -37,6 +37,9 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
     public static final float MAX_LENGTH = 26.0F;
     /** 触手粗细（模型单位；0.5*2 = 1 像素）。 */
     public static final float THICKNESS = 0.5F;
+    /** 起点高度：史莱姆模型的视觉中心（格，从脚底算起）。 */
+    public static final float BODY_CENTER_Y = 1.5F;
+
     /** 起点相对身体中心的横向偏移（格）。 */
     public static final float SIDE_OFFSET = 0.0F;
 
@@ -53,7 +56,7 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
         root.addOrReplaceChild("tentacle",
                 CubeListBuilder.create()
                         .texOffs(0, 0)
-                        .addBox(-THICKNESS, -THICKNESS, 0.0F, THICKNESS * 2.0F, THICKNESS * 2.0F, MAX_LENGTH),
+                        .addBox(-THICKNESS, -THICKNESS, -MAX_LENGTH, THICKNESS * 2.0F, THICKNESS * 2.0F, MAX_LENGTH),
                 PartPose.ZERO);
         this.tentacle = LayerDefinition.create(mesh, 64, 32).bakeRoot();
     }
@@ -88,7 +91,7 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
                 RenderType.entityTranslucent(BacteriaRenderer.TEXTURE));
         poseStack.pushPose();
         // 从细菌身体中心生出
-        poseStack.translate(SIDE_OFFSET, entity.getBbHeight() * 0.5F, 0.0F);
+        poseStack.translate(SIDE_OFFSET, BODY_CENTER_Y, 0.0F);
 
         int type = entity.getAttackType();
         if (type == 2) {
