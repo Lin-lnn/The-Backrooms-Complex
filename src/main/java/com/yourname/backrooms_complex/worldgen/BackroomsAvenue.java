@@ -20,9 +20,11 @@ public final class BackroomsAvenue {
     public static final int CELL = 160;
     /** 主干道宽度范围（必须 > 16）。 */
     public static final int MIN_WIDTH = 17;
+    /** 主厅走廊的最大宽度（格） */
     public static final int MAX_WIDTH = 24;
     /** 主干道长度范围（必须 ≥ 50）。 */
     public static final int MIN_LENGTH = 56;
+    /** 主厅走廊的最大长度（格） */
     public static final int MAX_LENGTH = 96;
     /** 侧廊间隔（格）。 */
     public static final int BRANCH_EVERY = 8;
@@ -33,6 +35,7 @@ public final class BackroomsAvenue {
     /** 单元命中率（百分比）。 */
     public static final int RATE = 40;
 
+    /** 哈希盐：用于把坐标打散成确定性随机数 */
     private static final long SALT = 0xA24BAED4963EE407L;
 
     /** (x,z) 是否属于宽阔走廊地带（主干道或侧廊）。 */

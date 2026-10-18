@@ -49,9 +49,13 @@ public final class BackroomsMaze {
 
     // 盐值（区分用途，避免相关性）
     private static final long SALT_TILE = 0x243F6A8885A308D3L;
+    /** 哈希盐：决定东西向走廊的宽度 */
     private static final long SALT_WIDTH_X = 0x13198A2E03707344L;
+    /** 哈希盐：决定南北向走廊的宽度 */
     private static final long SALT_WIDTH_Z = 0xA4093822299F31D0L;
+    /** 哈希盐：决定东西向走廊上门的分布 */
     private static final long SALT_DOOR_X = 0x082EFA98EC4E6C89L;
+    /** 哈希盐：决定南北向走廊上门的分布 */
     private static final long SALT_DOOR_Z = 0x452821E638D01377L;
 
     /**
@@ -228,6 +232,7 @@ public final class BackroomsMaze {
 
     /** 分档层数：第 1~12 层为一档，第 13~24 层为二档，第 25 层及往上为三档。 */
     public static final int WIDTH_BAND_LOW = 12;   // 层索引 0..11  -> 第 1~12 层
+    /** 宽度分档边界：层索引 < 该值时属于"中层档"（第 13~24 层），否则为高层档 */
     public static final int WIDTH_BAND_MID = 24;   // 层索引 12..23 -> 第 13~24 层（其余为第 25 层以上）
 
     /** 走廊宽度上限。 */
@@ -242,7 +247,9 @@ public final class BackroomsMaze {
      * <p>全部设为 0 即完全回到原始宽度分布。加宽只会多挖掉墙壁方块，<b>不会</b>破坏逐层连通性。</p>
      */
     public static final int WIDTH_BONUS_LOW = 1;   // 第 1~12 层
+    /** 中层档的额外宽度加成 */
     public static final int WIDTH_BONUS_MID = 2;   // 第 13~24 层
+    /** 高层档的额外宽度加成 */
     public static final int WIDTH_BONUS_HIGH = 2;  // 第 25 层及以上
 
     /** 取该层的宽度加成。 */

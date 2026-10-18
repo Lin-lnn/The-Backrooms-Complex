@@ -35,6 +35,7 @@ public final class BackroomsRooms {
     /** 门洞半宽（3 格宽 => 半宽 1）。 */
     public static final int DOOR_HALF = 1;
 
+    /** 哈希盐：用于把坐标打散成确定性随机数 */
     private static final long SALT = 0x9E3779B97F4A7C15L;
 
     /** 一个房间矩形（世界坐标，含边界）。 */
