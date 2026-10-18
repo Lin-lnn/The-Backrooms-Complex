@@ -80,6 +80,23 @@ public class BacteriaEntity extends Monster {
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
+    /** 经过的路径留下中量灰黑色滴落粒子。 */
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        if (this.level().isClientSide() || !this.isAlive()) {
+            return;
+        }
+        // 每 4 tick 在地面留下 1 粒（中量）
+        if (this.tickCount % 4 == 0 && this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-5D) {
+            if (this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.DRIPPING_DRIPSTONE_WATER,
+                        this.getX(), this.getY() + 0.15, this.getZ(),
+                        1, 0.22, 0.05, 0.22, 0.0);
+            }
+        }
+    }
+
     /** 接触玩家：持续伤害 + 减速。 */
     @Override
     public void playerTouch(Player player) {

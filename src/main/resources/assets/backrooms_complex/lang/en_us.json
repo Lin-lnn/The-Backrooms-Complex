@@ -42,5 +42,6 @@
     "death.attack.intestinal_obstruction":  "%1$s died of intestinal obstruction",
     "item.backrooms_complex.bacteria_tissue":  "Bacteria Tissue",
     "itemGroup.backrooms_complex.entities":  "BackroomsComplex: Entities",
-    "item.backrooms_complex.bacteria_spawn_egg":  "Bacteria Spawn Egg"
+    "item.backrooms_complex.bacteria_spawn_egg":  "Bacteria Spawn Egg",
+    "entity.backrooms_complex.bacteria":  "Bacteria"
 }
