@@ -27,6 +27,9 @@ jobs:
         with:
           gradle-version: '9.1.0'
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Build with Gradle
         run: ./gradlew build --no-daemon --stacktrace
 
