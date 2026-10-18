@@ -28,7 +28,7 @@ public class ScratchParticle extends TextureSheetParticle {
     /** 存在时长：60 tick = 3 秒。 */
     public static final int LIFETIME = 60;
     /** 初始透明度。 */
-    public static final float START_ALPHA = 0.55F;
+    public static final float START_ALPHA = 0.75F;
     /** 贴图路径。 */
     public static final ResourceLocation TEXTURE =
             ResourceLocation.fromNamespaceAndPath(
@@ -63,11 +63,12 @@ public class ScratchParticle extends TextureSheetParticle {
     /** 贴地渲染：画一个水平四边形（不用摄像机朝向）。 */
     @Override
     public void render(VertexConsumer buffer, Camera camera, float partialTicks) {
+        // 顶点按"从上往下看逆时针"排列，避免被背面剔除
         Vector3f[] corners = new Vector3f[]{
                 new Vector3f(-1.0F, 0.0F, -1.0F),
-                new Vector3f(-1.0F, 0.0F, 1.0F),
+                new Vector3f(1.0F, 0.0F, -1.0F),
                 new Vector3f(1.0F, 0.0F, 1.0F),
-                new Vector3f(1.0F, 0.0F, -1.0F)
+                new Vector3f(-1.0F, 0.0F, 1.0F)
         };
         float size = this.getQuadSize(partialTicks);
 

@@ -223,7 +223,7 @@ public class BacteriaEntity extends Monster {
         if (!(this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
             return;
         }
-        if (this.tickCount % 4 != 0) {
+        if (this.tickCount % 8 != 0) {
             return;
         }
         if (this.getDeltaMovement().horizontalDistanceSqr() <= 1.0E-5D
@@ -237,10 +237,10 @@ public class BacteriaEntity extends Monster {
                         net.minecraft.world.level.block.Blocks.GRAY_CONCRETE.defaultBlockState());
         serverLevel.sendParticles(dust,
                 this.getX(), this.getY() + 0.05D, this.getZ(),
-                2, 0.22D, 0.02D, 0.22D, 0.0D);
+                1, 0.22D, 0.02D, 0.22D, 0.0D);
 
-        // 地面划痕：每 10 tick 留一个（3 秒后消失由客户端处理）
-        if (this.tickCount % 10 == 0) {
+        // 地面划痕：每 15 tick 留一个（3 秒后消失由客户端处理）
+        if (this.tickCount % 15 == 0) {
             serverLevel.sendParticles(com.the_backrooms_complex.ModParticles.SCRATCH.get(),
                     this.getX(), this.getY() + 0.02D, this.getZ(),
                     1, 0.35D, 0.0D, 0.35D, 0.0D);
