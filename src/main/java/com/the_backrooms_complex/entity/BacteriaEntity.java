@@ -239,12 +239,6 @@ public class BacteriaEntity extends Monster {
                 this.getX(), this.getY() + 0.05D, this.getZ(),
                 1, 0.22D, 0.02D, 0.22D, 0.0D);
 
-        // 地面划痕：每 15 tick 留一个（3 秒后消失由客户端处理）
-        if (this.tickCount % 15 == 0) {
-            serverLevel.sendParticles(com.the_backrooms_complex.ModParticles.SCRATCH.get(),
-                    this.getX(), this.getY() + 0.02D, this.getZ(),
-                    1, 0.35D, 0.0D, 0.35D, 0.0D);
-        }
     }
 
     /** 接触玩家：持续伤害 + 减速。 */

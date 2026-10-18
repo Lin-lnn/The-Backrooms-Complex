@@ -33,11 +33,6 @@ public final class BacteriaClient {
         event.registerEntityRenderer(ModEntities.BACTERIA.get(), BacteriaRenderer::new);
     }
 
-    /** 注册「划痕」粒子的客户端提供者。 */
-    @SubscribeEvent
-    public static void onRegisterParticles(net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(com.the_backrooms_complex.ModParticles.SCRATCH.get(), ScratchParticle.Provider::new);
-    }
     private BacteriaClient() {
     }
 }

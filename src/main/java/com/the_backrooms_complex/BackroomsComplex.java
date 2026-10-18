@@ -55,7 +55,6 @@ public class BackroomsComplex {
         ModStructures.PROCESSOR_TYPES.register(modEventBus);
         ModStructures.PLACEMENT_TYPES.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
-        ModParticles.PARTICLE_TYPES.register(modEventBus);
 
         // 数据生成（仅 runData 时触发，mod bus 事件）
         modEventBus.addListener(DataGenerators::gatherData);
