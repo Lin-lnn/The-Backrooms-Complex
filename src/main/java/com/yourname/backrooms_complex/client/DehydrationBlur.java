@@ -70,7 +70,7 @@ public final class DehydrationBlur {
         int thirst = ModNetwork.clientThirst;
         float boost = Math.max(ItemHallucination.blurBoost,
                 Math.max(ShadowFigure.blurBoost, FakeBlockHallucination.blurBoost));   // 各事件的额外模糊 0~1
-        if (thirst >= THRESHOLD && boost <= 0.0F) {
+        if (thirst >= THRESHOLD && ModNetwork.clientSanity >= 60 && boost <= 0.0F) {
             return;
         }
 
@@ -90,14 +90,22 @@ public final class DehydrationBlur {
                 lastHeight = height;
                 chain.resize(width, height);
             }
-            // 三档模糊：<50 轻微 / <30 中度 / <10 严重
-            float radius;
+            // 三档模糊：按饮水值与精神值各自的档位取"更严重"的那个
+            int sanity = ModNetwork.clientSanity;
+            float radius = 0.0F;
+            // 饮水值：<50 轻微 / <30 中度 / <10 严重
             if (thirst < SEVERE_THRESHOLD) {
-                radius = SEVERE_RADIUS;
+                radius = Math.max(radius, SEVERE_RADIUS);
             } else if (thirst < MEDIUM_THRESHOLD) {
-                radius = MEDIUM_RADIUS;
-            } else {
-                radius = MILD_RADIUS;
+                radius = Math.max(radius, MEDIUM_RADIUS);
+            } else if (thirst < THRESHOLD) {
+                radius = Math.max(radius, MILD_RADIUS);
+            }
+            // 精神值：<60 轻微 / <40 中度
+            if (sanity < 40) {
+                radius = Math.max(radius, MEDIUM_RADIUS);
+            } else if (sanity < 60) {
+                radius = Math.max(radius, MILD_RADIUS);
             }
             // 幻视事件的极强模糊可以与饮水值模糊叠加（取较大值）
             radius = Math.max(radius, boost * MAX_RADIUS);

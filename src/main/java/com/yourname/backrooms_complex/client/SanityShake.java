@@ -61,6 +61,11 @@ public final class SanityShake {
         if (mc.player.isCreative() || mc.player.isSpectator()) {
             return;
         }
+        // 精神值 < 2：持续抖动（不消耗事件计时器，始终保持满幅度）
+        if (ModNetwork.clientSanity < 2) {
+            shakeTicks = DURATION;
+            return;
+        }
         if (ModNetwork.clientSanity >= THRESHOLD) {
             return;
         }

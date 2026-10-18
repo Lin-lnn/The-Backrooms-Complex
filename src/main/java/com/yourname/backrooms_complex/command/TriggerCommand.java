@@ -44,7 +44,7 @@ public final class TriggerCommand {
                                                     if (!isKnown(name)) {
                                                         ctx.getSource().sendFailure(
                                                                 Component.literal("未知事件: " + name
-                                                                        + "（可用: hallucination / shadow / fake_block / sound / shake）"));
+                                                                        + "（可用: hallucination / shadow / fake_block / sound / control_loss / shake）"));
                                                         return 0;
                                                     }
                                                     ModNetwork.sendTrigger(player, name);
@@ -57,7 +57,7 @@ public final class TriggerCommand {
 
     private static boolean isKnown(String name) {
         return "hallucination".equals(name) || "shadow".equals(name)
-                || "fake_block".equals(name) || "sound".equals(name)
+                || "fake_block".equals(name) || "sound".equals(name) || "control_loss".equals(name)
                 || "shake".equals(name);
     }
 
