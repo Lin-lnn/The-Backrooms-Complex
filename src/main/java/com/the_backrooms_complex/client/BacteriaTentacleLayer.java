@@ -47,8 +47,8 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
     public static final float THICKNESS = 0.5F;
     /** 起点高度：史莱姆模型的视觉中心（格，从脚底算起）。 */
     public static final float BODY_CENTER_Y = 1.5F;
-    /** 两种形态统一的额外抬高（格；6 像素 = 6/16 = 0.375 格）。 */
-    public static final float EXTRA_LIFT = 0.375F;
+    /** 两种形态统一的额外抬高（格；3 像素 = 3/16 = 0.1875 格）。 */
+    public static final float EXTRA_LIFT = 0.1875F;
 
     /** 横扫时额外抬高的高度（格；4 像素 = 4/16 = 0.25 格）。 */
     public static final float SWEEP_LIFT = 0.25F;
@@ -113,17 +113,13 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
 
         if (type == 2) {
             // ======================= 横扫 =======================
-            if (p > SWEEP_VISIBLE_PCT) {
-                poseStack.popPose();
-                return;                              // 收尾阶段收回
-            }
             // 抬高 4 像素
             poseStack.translate(0.0F, BODY_CENTER_Y + SWEEP_LIFT + EXTRA_LIFT, 0.0F);
             // 只扫一次：-60° -> +60°
-            float angle = -SWEEP_HALF_ANGLE + SWEEP_HALF_ANGLE * 2.0F * (p / SWEEP_VISIBLE_PCT);
+            float angle = -SWEEP_HALF_ANGLE + SWEEP_HALF_ANGLE * 2.0F * p;
             poseStack.mulPose(Axis.YP.rotationDegrees(angle));
             // 末段背向扫动方向弯曲（扫得越远弯得越多）
-            this.tip.yRot = (float) Math.toRadians(SWEEP_BEND * (p / SWEEP_VISIBLE_PCT));
+            this.tip.yRot = (float) Math.toRadians(SWEEP_BEND * p);
         } else {
             // ======================= 突刺 =======================
             // 伸出 0~40%，保持 40~60%，缩回 60~100%
@@ -145,6 +141,8 @@ public class BacteriaTentacleLayer extends RenderLayer<BacteriaEntity,
             this.tip.yRot = 0.0F;
         }
 
+        this.root.visible = true;
+        this.tip.visible = true;
         this.root.render(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }
