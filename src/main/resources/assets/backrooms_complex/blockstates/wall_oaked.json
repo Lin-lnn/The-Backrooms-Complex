@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "variant=yellow": {
+      "model": "backrooms_complex:block/wall_oaked"
+    },
+    "variant=concrete": {
+      "model": "backrooms_complex:block/wall_oaked"
+    },
+    "variant=damp": {
+      "model": "backrooms_complex:block/wall_oaked"
+    }
+  }
+}

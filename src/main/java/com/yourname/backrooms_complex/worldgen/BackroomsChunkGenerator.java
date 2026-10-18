@@ -1,0 +1,454 @@
+package com.yourname.backrooms_complex.worldgen;
+
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.yourname.backrooms_complex.ModBiomes;
+import com.yourname.backrooms_complex.ModBlocks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * 后室 Level 0 自定义区块生成器。
+ *
+ * <h2>多层结构（每层周期 7 格）</h2>
+ * <pre>
+ * Y 偏移   内容
+ * +0       地板（floor_tile，整层满铺）
+ * +1       踢脚线（wall_*_plinth，仅墙壁列） / 通道空气
+ * +2..+5   墙壁主体（wall_*，仅墙壁列） / 通道空气
+ * +6       天花板（ceiling_tile，整层满铺；间隔位置替换为荧光灯）
+ * </pre>
+ * 每层 = 地板 1 + 墙壁 5 + 天花板 1 = 7 格；净空 5 格（+1..+5）。
+ * 从 Y=0 向上堆叠 36 层，顶部残层（Y≥252）用天花板封顶。
+ *
+ * <h2>走廊布局（可变宽度 1~7 格）</h2>
+ * <p>由 {@link BackroomsMaze} 计算：逻辑单元格间距 8 格，先生成迷宫拓扑（整个平面上的随机
+ * 生成树），再按概率分布给每条走廊段分配宽度（1→1%、2→1.5%、3→10%、4→75%、5→10%、
+ * 6→1.5%、7→1%），最后按宽度铺设通道。连通性在逻辑单元格层面用并查集复核。</p>
+ * <p>本区块的 16×16 布局由 {@link BackroomsMaze#generateWallGrid(int, int)} 独立计算，
+ * 结果只依赖区块 XZ 坐标，因此任何时刻生成结果一致。</p>
+ *
+ * <h2>3×3 竖井</h2>
+ * <p>由 {@link BackroomsMaze#shaftMask(int, int)} 计算。竖井 3×3 范围内：</p>
+ * <ul>
+ *   <li>Y+1..Y+5 的墙壁<b>全部跳过</b>（上下层对应位置均不生成墙壁）；</li>
+ *   <li>地板与天花板在 3×3 范围内打通（仅最底层地板保留，避免露出虚空）；</li>
+ *   <li>荧光灯不生成（该处无天花板）。</li>
+ * </ul>
+ * <p>竖井锚点平均每 120 个区块 1 个（约每 175×175 格 1 个），满足"每 200×200 格至少 1 个"。</p>
+ *
+ * <h2>确定性</h2>
+ * <p>所有随机性均由坐标哈希决定，不依赖世界种子与区块加载顺序，完全可复现。</p>
+ *
+ * <p><b>本模组不生成任何战利品箱、物资或战利品表。</b></p>
+ */
+public class BackroomsChunkGenerator extends ChunkGenerator {
+
+    // ==================== 常量 ====================
+    /** 每层周期高度（格）：地板 1 + 墙壁 5 + 天花板 1。 */
+    public static final int LAYER_HEIGHT = 8;
+    /** 世界高度。 */
+    private static final int WORLD_HEIGHT = 256;
+    /** 世界最小 Y。 */
+    private static final int MIN_Y = 0;
+    /** 完整层数（0..35），第 36 层为顶部 4 格残层。 */
+    private static final int FULL_LAYERS = 32;
+    /** 荧光灯间隔（格）。 */
+    private static final int LAMP_SPACING = 5;
+
+    // ==================== 编解码器 ====================
+    /** 静态 CODEC，供维度 JSON 反序列化（"type": "backrooms_complex:backrooms"）。 */
+    public static final MapCodec<BackroomsChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    BiomeSource.CODEC.fieldOf("biome_source").forGetter(BackroomsChunkGenerator::getBiomeSource)
+            ).apply(instance, BackroomsChunkGenerator::new));
+
+    // ==================== 字段 ====================
+    private final BackroomsBiomeSource backroomsBiomeSource;
+
+    // 缓存的方块状态（避免每格重复分配）
+    private final BlockState floorState;
+    private final BlockState ceilingState;
+    private final BlockState lampState;
+    private final BlockState airState = Blocks.AIR.defaultBlockState();
+
+    private final BlockState yellowWall;
+    private final BlockState yellowPlinth;
+    private final BlockState concreteWall;
+    private final BlockState concretePlinth;
+    private final BlockState dampWall;
+    private final BlockState dampPlinth;
+
+    // ===== 混凝土大厅群系专用方块状态 =====
+    private final BlockState strippedCarpetFloor;
+    private final BlockState ruinedCeiling;
+    private final BlockState ruinedVent;
+    private final BlockState crackedWall;
+    private final BlockState warningWall;
+    private final BlockState dampFloor;
+    private final BlockState dampCeiling;
+
+    public BackroomsChunkGenerator(BiomeSource biomeSource) {
+        super(biomeSource);
+        // 本模组的维度 JSON 始终使用 BackroomsBiomeSource，因此此处强制转换安全
+        this.backroomsBiomeSource = (BackroomsBiomeSource) biomeSource;
+
+        this.floorState = ModBlocks.FLOOR_TILE.get().defaultBlockState();
+        this.ceilingState = ModBlocks.CEILING_TILE.get().defaultBlockState();
+        this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
+        this.yellowWall = ModBlocks.WALL_YELLOW.get().defaultBlockState();
+        this.yellowPlinth = ModBlocks.WALL_YELLOW_PLINTH.get().defaultBlockState();
+        this.concreteWall = ModBlocks.WALL_CONCRETE.get().defaultBlockState();
+        this.concretePlinth = ModBlocks.WALL_CONCRETE_PLINTH.get().defaultBlockState();
+        this.dampWall = ModBlocks.WALL_DAMP.get().defaultBlockState();
+        this.dampPlinth = ModBlocks.WALL_DAMP_PLINTH.get().defaultBlockState();
+        this.strippedCarpetFloor = ModBlocks.STRIPPED_CARPET_FLOOR.get().defaultBlockState();
+        this.ruinedCeiling = ModBlocks.RUINED_CEILING.get().defaultBlockState();
+        this.ruinedVent = ModBlocks.RUINED_VENT.get().defaultBlockState();
+        this.crackedWall = ModBlocks.CRACKED_CONCRETE_WALL.get().defaultBlockState();
+        this.warningWall = ModBlocks.WARNING_CONCRETE_WALL.get().defaultBlockState();
+        this.dampFloor = ModBlocks.DAMP_FLOOR.get().defaultBlockState();
+        this.dampCeiling = ModBlocks.DAMP_CEILING.get().defaultBlockState();
+    }
+
+    // ==================== ChunkGenerator 核心：填充方块与群系 ====================
+
+    /**
+     * 填充噪声阶段（对应规格中的 populateNoise + populateBiomes）。
+     */
+    /** 供客户端染色器使用：直接按 (x, z, 层) 查群系，与生成器完全一致。 */
+    public BackroomsBiomeSource biomeSource() {
+        return this.backroomsBiomeSource;
+    }
+
+    @Override
+    public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState randomState,
+                                                        StructureManager structureManager, ChunkAccess chunk) {
+        this.populateNoise(chunk);
+        this.populateBiomes(chunk, randomState);
+        return CompletableFuture.completedFuture(chunk);
+    }
+
+    /**
+     * 生成地牢结构方块：地板、踢脚线、墙壁、天花板、荧光灯，以及 3×3 竖井。
+     * 不生成任何战利品箱或物资。
+     */
+    private void populateNoise(ChunkAccess chunk) {
+        ChunkPos chunkPos = chunk.getPos();
+        int chunkX = chunkPos.x;
+        int chunkZ = chunkPos.z;
+        int minY = chunk.getMinBuildHeight();
+        int maxY = chunk.getMaxBuildHeight();
+
+        // 1. 走廊布局：逐层独立种子（每层一套完全不同的布局），只依赖区块坐标 + 层索引
+        boolean[][][] wall = BackroomsMaze.generateWallGrids(chunkX, chunkZ, FULL_LAYERS);
+
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+
+        // 2. 逐列生成
+        for (int lx = 0; lx < 16; lx++) {
+            for (int lz = 0; lz < 16; lz++) {
+                int worldX = chunkX * 16 + lx;
+                int worldZ = chunkZ * 16 + lz;
+
+
+                for (int y = minY; y < maxY; y++) {
+                    int layer = y / LAYER_HEIGHT;
+                    int offset = y - layer * LAYER_HEIGHT; // 0..6
+                // 三维群系：本层的群系决定本层的墙壁花纹 / 地板 / 天花板 / 通风口
+                // baseBiome = 未抖动的原始群系；踢脚线用它，避免墙脚出现黄/黑斑块
+                Holder<Biome> baseBiome = backroomsBiomeSource.biomeAt(worldX, worldZ, layer);
+                Holder<Biome> biome = backroomsBiomeSource.biomeAt(worldX, worldZ, layer);
+                boolean hall = backroomsBiomeSource.isConcreteHalls(biome);
+                boolean damp = backroomsBiomeSource.isDampCorridors(biome);
+                BlockState plinthState = plinthForBiome(biome);   // 踢脚线也参与渐变
+                BlockState columnFloor = hall ? strippedCarpetFloor : (damp ? dampFloor : floorState);
+                BlockState columnCeiling = hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState);
+                BlockState columnLamp = hall ? ruinedVent : lampState;
+                // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
+                boolean inHall = hall && inHallRoom(worldX, worldZ);
+                boolean pillar = hall && !inHall && onPillarColumn(worldX, worldZ)
+                        // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
+                        && lx > 0 && lx < 15 && lz > 0 && lz < 15
+                        && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
+                        && !wall[layer][lx][lz - 1] && !wall[layer][lx][lz + 1];
+
+                    if (layer >= FULL_LAYERS) {
+                        // 顶部残层（Y >= 252）：用天花板封顶，闭合维度
+                        chunk.setBlockState(mutable.set(worldX, y, worldZ), ceilingState, false);
+                        continue;
+                    }
+
+                    // 本层自己的布局（逐层种子不同）
+                    boolean isWall = wall[layer][lx][lz];
+
+                    // 大厅房间：整块清空（大厅状空地）
+                    // 独立柱子：在没有墙的通道列上立起 1x1 柱
+                    if (inHall) {
+                        isWall = false;
+                    } else if (pillar && !isWall) {
+                        isWall = true;
+                    }
+
+                    // ===== 房间（长宽 11~49 的矩形空间，由走廊相连）=====
+                    // 宽阔走廊地带（主干道 >16 格宽、>50 格长；两侧每 8 格一条 3 格宽支廊）
+                    if (!inHall && BackroomsAvenue.isWideArea(worldX, worldZ, layer)) {
+                        isWall = false;
+                    }
+
+                    BackroomsRooms.Room room = BackroomsRooms.roomAt(worldX, worldZ, layer, hall);
+                    if (room != null) {
+                        if (BackroomsRooms.isInterior(room, worldX, worldZ)) {
+                            // 房间内部整块清空
+                            isWall = false;
+                            // 大房间内的 1x1 柱子：用同样的踢脚线 + 墙壁格式
+                            if (BackroomsRooms.isPillar(room, worldX, worldZ)) {
+                                isWall = true;
+                            }
+                        } else if (BackroomsRooms.isDoorway(room, worldX, worldZ)) {
+                            // 四边中点各开一个 3 格宽门洞
+                            isWall = false;
+                    } else if (BackroomsRooms.isPerimeter(room, worldX, worldZ)) {
+                        // 房间边界强制为墙（门洞除外）=> 房间内部成为规整矩形
+                        isWall = true;
+                    }
+                    }
+
+                    if (offset == 0) {
+                        // 地板：整层满铺（层间不再有竖井连接）
+                        chunk.setBlockState(mutable.set(worldX, y, worldZ), columnFloor, false);
+                    } else if (offset <= 6) {
+                        // 墙壁区（+1..+5）：墙壁列放踢脚线/墙，通道列留空气
+                        if (isWall) {
+                            // offset == 1 使用踢脚线方块（四边凸出裙边），其余为普通墙壁
+                            BlockState state = (offset == 1) ? plinthState : wallForBiome(biome, worldX, y, worldZ);
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
+                        } else {
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
+                    // ===== 混凝土大厅的地物：紧贴地面的熄灭篝火 / 蜘蛛网 =====
+                    if (hall && offset == 1) {
+                        long decorSeed = (long) worldX * 341873128712L
+                                + (long) worldZ * 132897987541L
+                                + (long) layer * 9187L;
+                        double r = net.minecraft.util.RandomSource.create(decorSeed).nextDouble();
+                        if (r < 0.0001D) {
+                            // 0.01% 蜘蛛网
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                                    net.minecraft.world.level.block.Blocks.COBWEB.defaultBlockState(), false);
+                        } else if (r < 0.00003D) {
+                            // 0.003% 贴墙的燧石堆：原版没有燧石方块，用"砂砾"表现（燧石即从砂砾中获得）
+                            net.minecraft.world.level.block.state.BlockState wallProbe =
+                                    chunk.getBlockState(mutable.set(worldX + 1, y, worldZ));
+                            boolean nextToWall = chunk.getBlockState(mutable.set(worldX + 1, y, worldZ)).isSolidRender(null, null)
+                                    || chunk.getBlockState(mutable.set(worldX - 1, y, worldZ)).isSolidRender(null, null)
+                                    || chunk.getBlockState(mutable.set(worldX, y, worldZ + 1)).isSolidRender(null, null)
+                                    || chunk.getBlockState(mutable.set(worldX, y, worldZ - 1)).isSolidRender(null, null);
+                            if (nextToWall) {
+                                net.minecraft.world.level.block.state.BlockState pile =
+                                        net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
+                                chunk.setBlockState(mutable.set(worldX, y, worldZ), pile, false);
+                                // 第二块堆在斜上方，形成"自然堆积"感
+                                if (r < 0.00001D) {
+                                    chunk.setBlockState(mutable.set(worldX, y + 1, worldZ), pile, false);
+                                }
+                            }
+                        } else if (r < 0.00015D) {
+                            // 0.005% 熄灭的篝火
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                                    net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState()
+                                            .setValue(net.minecraft.world.level.block.CampfireBlock.LIT, Boolean.FALSE),
+                                    false);
+                        }
+                    }
+                        }
+                    } else {
+                        // offset == 6：天花板（间隔处放荧光灯）
+                        if (isLamp(worldX, worldZ)) {
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ), columnLamp, false);
+                        } else {
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ), columnCeiling, false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 混凝土墙壁的差分变种：破败(10%) / 警示(1%)。
+     *
+     * <p>用 {@code (x + 2z) mod 10 == 0} 与 {@code mod 100 == 5} 判定，
+     * 相邻列（相差 1 或 2）不可能同时命中，因此<b>同种变种永不相邻</b>，同时概率精确。</p>
+     */
+    private BlockState wallForBiome(Holder<Biome> biome, int x, int y, int z) {
+        if (backroomsBiomeSource.isConcreteHalls(biome)) {
+            // 三轴都参与：相邻方块（x±1 / z±1 / y±1）的 k 值分别相差 1 / 2 / 3，
+            // 不可能同时命中同一余数 => 同种变种在三维上永不相邻。
+            // 加入 y 之后变种以"单个方块"散布，而不是整条 5 格高的竖柱。
+            int k = Math.floorMod(x + 2 * z + 3 * y, 10000);
+            // 警示墙只出现在"每层地板与天花板之间的 Y 轴中点"（offset == 3）；仍在混凝土大厅、概率仍为 0.01%
+            int offsetInLayer = y - Math.floorDiv(y, LAYER_HEIGHT) * LAYER_HEIGHT;
+            if (k == 5 && offsetInLayer == 3) {
+                return warningWall;
+            }
+            if (k % 10 == 0) {
+                return crackedWall;
+            }
+        }
+        return wallForBiome(biome);
+    }
+
+    /** 大厅房间：每 32 格一个单元，命中则清出 11x11 的空地。 */
+    private static boolean inHallRoom(int x, int z) {
+        int cx = Math.floorDiv(x, 32);
+        int cz = Math.floorDiv(z, 32);
+        if (!hallHash(cx, cz)) {
+            return false;
+        }
+        int ox = Math.floorMod(x, 32) - 16;
+        int oz = Math.floorMod(z, 32) - 16;
+        return Math.abs(ox) <= 5 && Math.abs(oz) <= 5;
+    }
+
+    /** 独立柱子：每 16 格一个候选点，命中且该处原本是通道时立一根 1x1 柱。 */
+    private static boolean onPillarColumn(int x, int z) {
+        if (Math.floorMod(x, 16) != 8 || Math.floorMod(z, 16) != 8) {
+            return false;
+        }
+        return pillarHash(Math.floorDiv(x, 16), Math.floorDiv(z, 16));
+    }
+
+    private static boolean hallHash(int cx, int cz) {
+        long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x5DEECE66DL;
+        h ^= h >>> 33; h *= 0xFF51AFD7ED558CCDL; h ^= h >>> 33;
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.55;
+    }
+
+    private static boolean pillarHash(int cx, int cz) {
+        long h = (long) cx * 0x94D049BB133111EBL ^ (long) cz * 0x2545F4914F6CDD1DL ^ 0x2545F4914F6CDD1DL;
+        h ^= h >>> 33; h *= 0xC4CEB9FE1A85EC53L; h ^= h >>> 33;
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.30;
+    }
+
+    /**
+     * 为每个方块列分配群系。
+     *
+     * <p>1.21.1 中 {@link ChunkAccess} 没有公开的 {@code setBiome} 方法，群系填充应使用
+     * {@link ChunkAccess#fillBiomesFromNoise(net.minecraft.world.level.biome.BiomeResolver,
+     * net.minecraft.world.level.biome.Climate.Sampler)}。本群系源实现了 {@code BiomeResolver}，
+     * 其 {@code getNoiseBiome} 忽略采样器、只按 XZ 坐标确定性返回。</p>
+     */
+    private void populateBiomes(ChunkAccess chunk, RandomState randomState) {
+        chunk.fillBiomesFromNoise(this.getBiomeSource(), randomState.sampler());
+    }
+
+    // ==================== 荧光灯 ====================
+
+    /** 荧光灯：每 {@link #LAMP_SPACING} 格一个（间隔 4~6 格）。 */
+    private boolean isLamp(int worldX, int worldZ) {
+        return Math.floorMod(worldX, LAMP_SPACING) == 2 && Math.floorMod(worldZ, LAMP_SPACING) == 2;
+    }
+
+    // ==================== 群系 → 方块映射 ====================
+
+    private BlockState wallForBiome(Holder<Biome> biome) {
+        ResourceLocation key = biomeKey(biome);
+        if (ModBiomes.CONCRETE_HALLS.location().equals(key)) return concreteWall;
+        if (ModBiomes.DAMP_CORRIDORS.location().equals(key)) return dampWall;
+        return yellowWall; // 默认黄色
+    }
+
+    private BlockState plinthForBiome(Holder<Biome> biome) {
+        ResourceLocation key = biomeKey(biome);
+        if (ModBiomes.CONCRETE_HALLS.location().equals(key)) return concretePlinth;
+        if (ModBiomes.DAMP_CORRIDORS.location().equals(key)) return dampPlinth;
+        return yellowPlinth;
+    }
+
+    private ResourceLocation biomeKey(Holder<Biome> biome) {
+        return biome.unwrapKey().map(ResourceKey::location).orElse(ModBiomes.YELLOW_ROOMS.location());
+    }
+
+    // ==================== 其余 ChunkGenerator 抽象方法 ====================
+
+    @Override
+    protected MapCodec<? extends ChunkGenerator> codec() {
+        return CODEC;
+    }
+
+    @Override
+    public void buildSurface(WorldGenRegion level, StructureManager structureManager,
+                             RandomState random, ChunkAccess chunk) {
+        // 地表已在 fillFromNoise 中构建，无需额外处理
+    }
+
+    @Override
+    public void applyCarvers(WorldGenRegion level, long seed, RandomState random,
+                             BiomeManager biomeManager, StructureManager structureManager,
+                             ChunkAccess chunk, GenerationStep.Carving step) {
+        // 不雕刻洞穴/峡谷
+    }
+
+    @Override
+    public void spawnOriginalMobs(WorldGenRegion level) {
+        // 无怪物生成
+    }
+
+    @Override
+    public int getGenDepth() {
+        return WORLD_HEIGHT;
+    }
+
+    @Override
+    public int getMinY() {
+        return MIN_Y;
+    }
+
+    @Override
+    public int getSeaLevel() {
+        return 0;
+    }
+
+    @Override
+    public int getBaseHeight(int x, int z, Heightmap.Types type,
+                             LevelHeightAccessor level, RandomState random) {
+        return 0; // 基高为 0（地板位于 Y=0）
+    }
+
+    @Override
+    public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor height, RandomState random) {
+        int minY = height.getMinBuildHeight();
+        int maxY = height.getMaxBuildHeight();
+        BlockState[] column = new BlockState[maxY - minY];
+        Arrays.fill(column, Blocks.AIR.defaultBlockState());
+        column[0] = floorState; // Y=0 处放一层地板，其余为空气
+        return new NoiseColumn(minY, column);
+    }
+
+    @Override
+    public void addDebugScreenInfo(List<String> info, RandomState random, BlockPos pos) {
+        info.add("Backrooms Level 0");
+    }
+}

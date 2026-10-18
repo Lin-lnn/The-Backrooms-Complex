@@ -1,0 +1,6 @@
+{
+  "parent": "backrooms_complex:block/tinted_cube",
+  "textures": {
+    "all": "backrooms_complex:block/warning_concrete_wall"
+  }
+}

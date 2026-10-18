@@ -1,0 +1,91 @@
+import org.gradle.language.jvm.tasks.ProcessResources
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    // ModDevGradle 2.x（NeoForge 1.21.1 官方构建插件）
+    id 'net.neoforged.moddev' version '2.0.107'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+// 使用 Java 21 工具链（Minecraft 1.21.1 要求）。
+// 建议使用较新的 JDK 21（21.0.3+ / Temurin）。早期 JDK 21.0.0（build 35）的 javac
+// 存在已知 bug，会导致 NeoForm 反编译源码重编译失败（"null in package-info.java"）。
+java.toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+
+// ===== ModDevGradle 2.x 配置 =====
+neoForge {
+    // NeoForge 版本（21.1.190，与本地缓存一致）
+    version = neo_version
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all',
+                    '--output', file('src/generated/resources/').getAbsolutePath(),
+                    '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+// 将数据生成目录纳入资源路径
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    mavenLocal()
+    // Curse Maven（如需 TerraBlender 等依赖）
+    maven { url = 'https://cursemaven.com' }
+    // NeoForge 官方仓库
+    maven { url = 'https://maven.neoforged.net/releases' }
+}
+
+dependencies {
+    // NeoForge 依赖由上面的 neoForge { version } 自动引入，无需显式声明。
+    // TerraBlender（可选，本模组未使用）：
+    // implementation "curse.maven:terrablender-neoforge-940057:5673063"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // 强制产出 Java 21 字节码
+    options.release = 21
+}
+
+// ===== 资源处理：将 neoforge.mods.toml 中的 ${...} 占位符替换为实际值 =====
+// 注意：若不配置此处，JAR 里的 mods.toml 会残留 ${mod_id} 等占位符，导致模组无法加载。
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version: minecraft_version,
+            neo_version      : neo_version,
+            mod_id           : mod_id,
+            mod_name         : mod_name,
+            mod_license      : mod_license,
+            mod_version      : mod_version,
+            mod_group_id     : mod_group_id,
+            mod_authors      : mod_authors,
+            mod_description  : mod_description
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}

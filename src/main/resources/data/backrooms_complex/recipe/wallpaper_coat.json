@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "W W",
+    "WWW",
+    "WWW"
+  ],
+  "key": {
+    "W": {
+      "item": "backrooms_complex:wallpaper"
+    }
+  },
+  "result": {
+    "id": "backrooms_complex:wallpaper_coat",
+    "count": 1
+  }
+}

@@ -1,0 +1,28 @@
+# Gradle / 构建产物
+build/
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# 运行目录（开发测试用）
+run/
+logs/
+crash-reports/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.ipr
+*.iws
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 打包产物（通过 Release 发布，不进仓库）
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# 本地配置
+local.properties

@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "backrooms_complex:level0",
+    "salt": 987654321,
+    "spacing_blocks": 90,
+    "offset_range": 28
+  },
+  "structures": [
+    {
+      "structure": "backrooms_complex:level0",
+      "weight": 1
+    }
+  ]
+}
