@@ -42,7 +42,7 @@ public final class BackroomsMaze {
     public static final int TILE_CELLS = 12;
 
     /** 节点房间半径：房间尺寸 = (2*ROOM_HALF+1) = 5×5（原 3×3，更开阔）。 */
-    private static final int ROOM_HALF = 2;
+    private static final int ROOM_HALF = 1;
 
     /** 瓦片生成树缓存的容量上限（超过则整体清空，避免无限增长）。 */
     private static final int TILE_CACHE_LIMIT = 8192;
@@ -431,7 +431,7 @@ public final class BackroomsMaze {
 
                     // 2) 节点房间尺寸随最宽走廊扩展：
                     //    宽走廊接入节点时不再错出台阶 => 消除转角锯齿
-                    int half = Math.max(ROOM_HALF, (maxW - 1) / 2);
+                    int half = Math.min(2, Math.max(ROOM_HALF, (maxW - 1) / 2));   // 上限 2，避免房间过大相互吞并
                     // 房间形状按权重抽取：正方形:长条形:矩形 = 1:5:2（共 8 份）
                     int shapeRoll = (int) (hash3(ci, cj, layer, SALT_ROOM_SHAPE) & 7L);
                     int rx0, rz0, rx1, rz1;
@@ -443,21 +443,21 @@ public final class BackroomsMaze {
                         // 长条形（5 份）：沿 X 或 Z 拉长 3 倍
                         boolean alongX = (hash3(ci, cj, layer, SALT_ROOM_AXIS) & 1L) == 0L;
                         if (alongX) {
-                            rx0 = nx - half * 3; rx1 = nx + half * 3;
+                            rx0 = nx - half - 1; rx1 = nx + half + 1;
                             rz0 = nz - half;     rz1 = nz + half;
                         } else {
                             rx0 = nx - half;     rx1 = nx + half;
-                            rz0 = nz - half * 3; rz1 = nz + half * 3;
+                            rz0 = nz - half - 1; rz1 = nz + half + 1;
                         }
                     } else {
                         // 矩形（2 份）：2:1 的长宽比
                         boolean wideX = (hash3(ci, cj, layer, SALT_ROOM_AXIS) & 1L) == 0L;
                         if (wideX) {
-                            rx0 = nx - half * 2; rx1 = nx + half * 2;
+                            rx0 = nx - half - 1; rx1 = nx + half + 1;
                             rz0 = nz - half;     rz1 = nz + half;
                         } else {
                             rx0 = nx - half;     rx1 = nx + half;
-                            rz0 = nz - half * 2; rz1 = nz + half * 2;
+                            rz0 = nz - half - 1; rz1 = nz + half + 1;
                         }
                     }
                     carveRect(open, rx0, rz0, rx1, rz1, minX, minZ);
