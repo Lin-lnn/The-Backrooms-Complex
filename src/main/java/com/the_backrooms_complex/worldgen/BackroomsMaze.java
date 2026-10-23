@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BackroomsMaze {
 
     /** 逻辑单元格间距（格）：可容纳最宽 7 格走廊 + 1 格墙。 */
-    public static final int CELL_PITCH = 48;
+    public static final int CELL_PITCH = 32;
 
     /** 每个瓦片每轴的单元格数（瓦片 = 64×64 格）。 */
     public static final int TILE_CELLS = 12;
@@ -59,7 +59,7 @@ public final class BackroomsMaze {
     private static final long SALT_DOOR_Z = 0x452821E638D01377L;
     /** 房间边长范围（格）。 */
     private static final int ROOM_MIN = 3;
-    private static final int ROOM_MAX = 40;
+    private static final int ROOM_MAX = 24;
     private static final long SALT_ROOM_W = 0x9E3779B185EBCA87L;
     private static final long SALT_ROOM_D = 0xC2B2AE3D27D4EB4FL;
     private static final long SALT_ROOM_SHAPE = 0x3F84D5B5B5470917L;
@@ -266,7 +266,7 @@ public final class BackroomsMaze {
     public static final int WIDTH_BAND_MID = 24;   // 层索引 12..23 -> 第 13~24 层（其余为第 25 层以上）
 
     /** 走廊宽度上限。 */
-    public static final int MAX_CORRIDOR_WIDTH = 14;
+    public static final int MAX_CORRIDOR_WIDTH = 11;
 
     /**
      * 走廊宽度<b>统一加成</b>（格），用于把 Level 0 的空气占比整体抬高约 20%。
