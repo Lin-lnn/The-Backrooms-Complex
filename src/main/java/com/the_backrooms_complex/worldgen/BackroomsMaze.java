@@ -60,8 +60,8 @@ public final class BackroomsMaze {
     private static final long SALT_EXTRA_X = 0x1BE2C8A3F5D96701L;
     private static final long SALT_EXTRA_Z = 0x77A3D9C21B4E5068L;
 
-    /** 额外通道阈值（0xFFFF 的 18% ≈ 11796）；越大越开阔。 */
-    private static final long EXTRA_EDGE_THRESHOLD = 11796L;
+    /** 额外通道阈值（0xFFFF 的 8% ≈ 5243）；越大越开阔、越小越封闭。 */
+    private static final long EXTRA_EDGE_THRESHOLD = 5243L;
 
     /**
      * 瓦片生成树缓存：key = (tileX, tileZ, layer)。
@@ -452,9 +452,9 @@ public final class BackroomsMaze {
             }
         }
 
-        // ===== 清理孤立短墙：墙格若上下左右加起来只有 ≤1 个墙邻居，就填成地板 =====
+        // ===== 清理孤立短墙：墙格若上下左右加起来 ≤2 个墙邻居，就填成地板 =====
         //
-        // 目的：去掉"孤立的方块柱子"和"只有一格长的墙头"，让墙壁变成连续的长墙，
+        // 目的：去掉"孤立方块柱子"、"一格长墙头"和"L 形短拐角"，让墙壁变成连续的长墙，
         // 从而自然形成"墙壁半包围房间"的储藏后室结构，而不是零碎的小障碍物。
         for (int layer = 0; layer < layerCount; layer++) {
             boolean[][] w = walls[layer];
@@ -475,7 +475,7 @@ public final class BackroomsMaze {
                     if (lx < 15 && src[lx + 1][lz]) n++;
                     if (lz > 0 && src[lx][lz - 1]) n++;
                     if (lz < 15 && src[lx][lz + 1]) n++;
-                    if (n <= 1) {
+                    if (n <= 2) {
                         w[lx][lz] = false;   // 孤立墙 -> 变成地板
                     }
                 }
