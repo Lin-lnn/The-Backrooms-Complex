@@ -54,10 +54,10 @@ public class Level0Structure extends Structure {
             instance.group(settingsCodec(instance)).apply(instance, Level0Structure::new));
 
     /** 每层周期（格），与 {@code BackroomsChunkGenerator.LAYER_HEIGHT} 一致。 */
-    public static final int LAYER_PERIOD = 7;
+    public static final int LAYER_PERIOD = 8;   // 必须等于 BackroomsChunkGenerator.LAYER_HEIGHT
 
     /** 允许的最高层索引：0..32，对应 Y = 0 .. 32*7+6 = 230。 */
-    public static final int MAX_LAYER_INDEX = 32;
+    public static final int MAX_LAYER_INDEX = 31;
 
     /** 结构可占据的最高 Y 坐标。 */
     public static final int MAX_STRUCTURE_Y = MAX_LAYER_INDEX * LAYER_PERIOD + 6;
