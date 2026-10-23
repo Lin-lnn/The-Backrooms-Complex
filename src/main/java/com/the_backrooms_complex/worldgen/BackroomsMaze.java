@@ -57,6 +57,8 @@ public final class BackroomsMaze {
     private static final long SALT_DOOR_X = 0x082EFA98EC4E6C89L;
     /** 哈希盐：决定南北向走廊上门的分布 */
     private static final long SALT_DOOR_Z = 0x452821E638D01377L;
+    private static final long SALT_ROOM_SHAPE = 0x3F84D5B5B5470917L;
+    private static final long SALT_ROOM_AXIS = 0x6A09E667F3BCC909L;
     private static final long SALT_EXTRA_X = 0x1BE2C8A3F5D96701L;
     private static final long SALT_EXTRA_Z = 0x77A3D9C21B4E5068L;
 
@@ -259,7 +261,7 @@ public final class BackroomsMaze {
     public static final int WIDTH_BAND_MID = 24;   // 层索引 12..23 -> 第 13~24 层（其余为第 25 层以上）
 
     /** 走廊宽度上限。 */
-    public static final int MAX_CORRIDOR_WIDTH = 10;
+    public static final int MAX_CORRIDOR_WIDTH = 8;
 
     /**
      * 走廊宽度<b>统一加成</b>（格），用于把 Level 0 的空气占比整体抬高约 20%。
@@ -430,8 +432,35 @@ public final class BackroomsMaze {
                     // 2) 节点房间尺寸随最宽走廊扩展：
                     //    宽走廊接入节点时不再错出台阶 => 消除转角锯齿
                     int half = Math.max(ROOM_HALF, (maxW - 1) / 2);
-                    carveRect(open, nx - half, nz - half,
-                            nx + half, nz + half, minX, minZ);
+                    // 房间形状按权重抽取：正方形:长条形:矩形 = 1:5:2（共 8 份）
+                    int shapeRoll = (int) (hash3(ci, cj, layer, SALT_ROOM_SHAPE) & 7L);
+                    int rx0, rz0, rx1, rz1;
+                    if (shapeRoll == 0) {
+                        // 正方形（1 份）
+                        rx0 = nx - half; rx1 = nx + half;
+                        rz0 = nz - half; rz1 = nz + half;
+                    } else if (shapeRoll <= 5) {
+                        // 长条形（5 份）：沿 X 或 Z 拉长 3 倍
+                        boolean alongX = (hash3(ci, cj, layer, SALT_ROOM_AXIS) & 1L) == 0L;
+                        if (alongX) {
+                            rx0 = nx - half * 3; rx1 = nx + half * 3;
+                            rz0 = nz - half;     rz1 = nz + half;
+                        } else {
+                            rx0 = nx - half;     rx1 = nx + half;
+                            rz0 = nz - half * 3; rz1 = nz + half * 3;
+                        }
+                    } else {
+                        // 矩形（2 份）：2:1 的长宽比
+                        boolean wideX = (hash3(ci, cj, layer, SALT_ROOM_AXIS) & 1L) == 0L;
+                        if (wideX) {
+                            rx0 = nx - half * 2; rx1 = nx + half * 2;
+                            rz0 = nz - half;     rz1 = nz + half;
+                        } else {
+                            rx0 = nx - half;     rx1 = nx + half;
+                            rz0 = nz - half * 2; rz1 = nz + half * 2;
+                        }
+                    }
+                    carveRect(open, rx0, rz0, rx1, rz1, minX, minZ);
 
                     // 3) 铺设走廊段（按本层分配的宽度）
                     for (int[] nb : neighbors) {
