@@ -261,7 +261,7 @@ public final class BackroomsMaze {
     public static final int WIDTH_BAND_MID = 24;   // 层索引 12..23 -> 第 13~24 层（其余为第 25 层以上）
 
     /** 走廊宽度上限。 */
-    public static final int MAX_CORRIDOR_WIDTH = 8;
+    public static final int MAX_CORRIDOR_WIDTH = 3;
 
     /**
      * 走廊宽度<b>统一加成</b>（格），用于把 Level 0 的空气占比整体抬高约 20%。
@@ -271,11 +271,11 @@ public final class BackroomsMaze {
      *
      * <p>全部设为 0 即完全回到原始宽度分布。加宽只会多挖掉墙壁方块，<b>不会</b>破坏逐层连通性。</p>
      */
-    public static final int WIDTH_BONUS_LOW = 2;   // 第 1~12 层
+    public static final int WIDTH_BONUS_LOW = 0;   // 第 1~12 层
     /** 中层档的额外宽度加成 */
-    public static final int WIDTH_BONUS_MID = 3;   // 第 13~24 层
+    public static final int WIDTH_BONUS_MID = 0;   // 第 13~24 层
     /** 高层档的额外宽度加成 */
-    public static final int WIDTH_BONUS_HIGH = 3;  // 第 25 层及以上
+    public static final int WIDTH_BONUS_HIGH = 1;  // 第 25 层及以上
 
     /** 取该层的宽度加成。 */
     public static int widthBonus(int layer) {
