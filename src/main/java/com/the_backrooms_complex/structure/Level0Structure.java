@@ -75,7 +75,7 @@ public class Level0Structure extends Structure {
     @Override
     public Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
         ChunkPos chunkPos = context.chunkPos();
-        final boolean DIAG = true;   // 临时诊断开关，排查完删掉
+        final boolean DIAG = false;  // 诊断开关已关闭
         if (DIAG) {
             System.out.println("[BC-DIAG] findGenerationPoint chunk=" + chunkPos.x + "," + chunkPos.z);
         }
