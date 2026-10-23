@@ -36,10 +36,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BackroomsMaze {
 
     /** 逻辑单元格间距（格）：可容纳最宽 7 格走廊 + 1 格墙。 */
-    public static final int CELL_PITCH = 8;
+    public static final int CELL_PITCH = 6;
 
     /** 每个瓦片每轴的单元格数（瓦片 = 64×64 格）。 */
-    public static final int TILE_CELLS = 8;
+    public static final int TILE_CELLS = 12;
 
     /** 节点房间半径：房间尺寸 = (2*ROOM_HALF+1) = 5×5（原 3×3，更开阔）。 */
     private static final int ROOM_HALF = 2;

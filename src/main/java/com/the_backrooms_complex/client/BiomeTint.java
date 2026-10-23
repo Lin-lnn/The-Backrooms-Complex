@@ -36,7 +36,7 @@ public final class BiomeTint {
 
     /** 群系过渡采样半径（格），(2r+1)^2 个采样点求平均 */
     public static final int BLEND_RADIUS = 4;
-    /** 保留原贴图颜色所用的 tintIndex（裙边等部位） */
+    /** 裙边使用的 tintIndex（现已与墙身统一着色） */
     public static final int TINT_KEEP = 1;
 
     /** 精神值低于此值时，所有后室方块统一着暗红色（仅该玩家客户端可见）。 */
@@ -86,7 +86,7 @@ public final class BiomeTint {
     }
 
     public static int getItemColor(net.minecraft.world.item.ItemStack stack, int tintIndex) {
-        return tintIndex == TINT_KEEP ? 0xFFFFFF : HUE_YELLOW;
+        return HUE_YELLOW;   // 裙边与墙身统一着色（原来裙边返回纯白 0xFFFFFF）
     }
 
     /** 取该位置的群系：优先 LevelReader，区块编译期回退到客户端世界。 */
