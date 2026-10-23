@@ -41,8 +41,8 @@ public final class BackroomsMaze {
     /** 每个瓦片每轴的单元格数（瓦片 = 64×64 格）。 */
     public static final int TILE_CELLS = 8;
 
-    /** 节点房间半径：房间尺寸 = (2*ROOM_HALF+1) = 3×3。 */
-    private static final int ROOM_HALF = 1;
+    /** 节点房间半径：房间尺寸 = (2*ROOM_HALF+1) = 5×5（原 3×3，更开阔）。 */
+    private static final int ROOM_HALF = 2;
 
     /** 瓦片生成树缓存的容量上限（超过则整体清空，避免无限增长）。 */
     private static final int TILE_CACHE_LIMIT = 8192;
@@ -236,7 +236,7 @@ public final class BackroomsMaze {
     public static final int WIDTH_BAND_MID = 24;   // 层索引 12..23 -> 第 13~24 层（其余为第 25 层以上）
 
     /** 走廊宽度上限。 */
-    public static final int MAX_CORRIDOR_WIDTH = 7;
+    public static final int MAX_CORRIDOR_WIDTH = 10;
 
     /**
      * 走廊宽度<b>统一加成</b>（格），用于把 Level 0 的空气占比整体抬高约 20%。
@@ -246,11 +246,11 @@ public final class BackroomsMaze {
      *
      * <p>全部设为 0 即完全回到原始宽度分布。加宽只会多挖掉墙壁方块，<b>不会</b>破坏逐层连通性。</p>
      */
-    public static final int WIDTH_BONUS_LOW = 1;   // 第 1~12 层
+    public static final int WIDTH_BONUS_LOW = 2;   // 第 1~12 层
     /** 中层档的额外宽度加成 */
-    public static final int WIDTH_BONUS_MID = 2;   // 第 13~24 层
+    public static final int WIDTH_BONUS_MID = 3;   // 第 13~24 层
     /** 高层档的额外宽度加成 */
-    public static final int WIDTH_BONUS_HIGH = 2;  // 第 25 层及以上
+    public static final int WIDTH_BONUS_HIGH = 3;  // 第 25 层及以上
 
     /** 取该层的宽度加成。 */
     public static int widthBonus(int layer) {
