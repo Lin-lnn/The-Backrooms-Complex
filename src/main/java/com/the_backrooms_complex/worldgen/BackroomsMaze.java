@@ -57,6 +57,11 @@ public final class BackroomsMaze {
     private static final long SALT_DOOR_X = 0x082EFA98EC4E6C89L;
     /** 哈希盐：决定南北向走廊上门的分布 */
     private static final long SALT_DOOR_Z = 0x452821E638D01377L;
+    private static final long SALT_EXTRA_X = 0x1BE2C8A3F5D96701L;
+    private static final long SALT_EXTRA_Z = 0x77A3D9C21B4E5068L;
+
+    /** 额外通道阈值（0xFFFF 的 18% ≈ 11796）；越大越开阔。 */
+    private static final long EXTRA_EDGE_THRESHOLD = 11796L;
 
     /**
      * 瓦片生成树缓存：key = (tileX, tileZ, layer)。
@@ -124,6 +129,24 @@ public final class BackroomsMaze {
             TILE_CACHE.clear();
         }
         TILE_CACHE.put(key, conn);
+
+        // ===== 额外通道：再打通约 18% 的相邻单元，产生回路 =====
+        // 完美迷宫（生成树）没有回路、死胡同极多，观感像"迷宫"而非"储藏后室"。
+        // 这里按确定性哈希额外打通一部分相邻单元，制造 L 形 / T 形交叉与可绕圈的通路，
+        // 死胡同数量大幅下降、空间更开阔；因为仍在同一张 8 格正交网格上，转角保持 90°。
+        for (int ei = 0; ei < TILE_CELLS; ei++) {
+            for (int ej = 0; ej < TILE_CELLS; ej++) {
+                if (ei < TILE_CELLS - 1 && !conn[ei][ej][0]
+                        && (hash3(ei, ej, layer, SALT_EXTRA_X) & 0xFFFFL) < EXTRA_EDGE_THRESHOLD) {
+                    conn[ei][ej][0] = true;   // 东向额外边
+                }
+                if (ej < TILE_CELLS - 1 && !conn[ei][ej][1]
+                        && (hash3(ei, ej, layer, SALT_EXTRA_Z) & 0xFFFFL) < EXTRA_EDGE_THRESHOLD) {
+                    conn[ei][ej][1] = true;   // 南向额外边
+                }
+            }
+        }
+
         return conn;
     }
 
