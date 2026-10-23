@@ -451,6 +451,37 @@ public final class BackroomsMaze {
                 }
             }
         }
+
+        // ===== 清理孤立短墙：墙格若上下左右加起来只有 ≤1 个墙邻居，就填成地板 =====
+        //
+        // 目的：去掉"孤立的方块柱子"和"只有一格长的墙头"，让墙壁变成连续的长墙，
+        // 从而自然形成"墙壁半包围房间"的储藏后室结构，而不是零碎的小障碍物。
+        for (int layer = 0; layer < layerCount; layer++) {
+            boolean[][] w = walls[layer];
+            // 先复制一份，避免"边清理边影响判定"
+            boolean[][] src = new boolean[16][16];
+            for (int lx = 0; lx < 16; lx++) {
+                for (int lz = 0; lz < 16; lz++) {
+                    src[lx][lz] = w[lx][lz];
+                }
+            }
+            for (int lx = 0; lx < 16; lx++) {
+                for (int lz = 0; lz < 16; lz++) {
+                    if (!w[lx][lz]) {
+                        continue;
+                    }
+                    int n = 0;
+                    if (lx > 0 && src[lx - 1][lz]) n++;
+                    if (lx < 15 && src[lx + 1][lz]) n++;
+                    if (lz > 0 && src[lx][lz - 1]) n++;
+                    if (lz < 15 && src[lx][lz + 1]) n++;
+                    if (n <= 1) {
+                        w[lx][lz] = false;   // 孤立墙 -> 变成地板
+                    }
+                }
+            }
+        }
+
         return walls;
     }
 
