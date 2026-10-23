@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BackroomsMaze {
 
     /** 逻辑单元格间距（格）：可容纳最宽 7 格走廊 + 1 格墙。 */
-    public static final int CELL_PITCH = 4;
+    public static final int CELL_PITCH = 48;
 
     /** 每个瓦片每轴的单元格数（瓦片 = 64×64 格）。 */
     public static final int TILE_CELLS = 12;
@@ -57,6 +57,11 @@ public final class BackroomsMaze {
     private static final long SALT_DOOR_X = 0x082EFA98EC4E6C89L;
     /** 哈希盐：决定南北向走廊上门的分布 */
     private static final long SALT_DOOR_Z = 0x452821E638D01377L;
+    /** 房间边长范围（格）。 */
+    private static final int ROOM_MIN = 3;
+    private static final int ROOM_MAX = 40;
+    private static final long SALT_ROOM_W = 0x9E3779B185EBCA87L;
+    private static final long SALT_ROOM_D = 0xC2B2AE3D27D4EB4FL;
     private static final long SALT_ROOM_SHAPE = 0x3F84D5B5B5470917L;
     private static final long SALT_ROOM_AXIS = 0x6A09E667F3BCC909L;
     private static final long SALT_EXTRA_X = 0x1BE2C8A3F5D96701L;
@@ -261,7 +266,7 @@ public final class BackroomsMaze {
     public static final int WIDTH_BAND_MID = 24;   // 层索引 12..23 -> 第 13~24 层（其余为第 25 层以上）
 
     /** 走廊宽度上限。 */
-    public static final int MAX_CORRIDOR_WIDTH = 2;
+    public static final int MAX_CORRIDOR_WIDTH = 14;
 
     /**
      * 走廊宽度<b>统一加成</b>（格），用于把 Level 0 的空气占比整体抬高约 20%。
@@ -431,33 +436,37 @@ public final class BackroomsMaze {
 
                     // 2) 节点房间尺寸随最宽走廊扩展：
                     //    宽走廊接入节点时不再错出台阶 => 消除转角锯齿
-                    int half = Math.min(1, Math.max(ROOM_HALF, (maxW - 1) / 2));   // 上限 2，避免房间过大相互吞并
+                    // 房间尺寸逐格采样：3~40 格，r^3 偏斜让峰值落在 7~14
+                    int roomW = sampleRoomSize(ci, cj, layer, SALT_ROOM_W);
+                    int roomD = sampleRoomSize(ci, cj, layer, SALT_ROOM_D);
+                    int hx = roomW / 2;
+                    int hz = roomD / 2;
                     // 房间形状按权重抽取：正方形:长条形:矩形 = 1:5:2（共 8 份）
                     int shapeRoll = (int) (hash3(ci, cj, layer, SALT_ROOM_SHAPE) & 7L);
                     int rx0, rz0, rx1, rz1;
                     if (shapeRoll == 0) {
                         // 正方形（1 份）
-                        rx0 = nx - half; rx1 = nx + half;
-                        rz0 = nz - half; rz1 = nz + half;
+                        rx0 = nx - hx; rx1 = nx + hx;
+                        rz0 = nz - hz; rz1 = nz + hz;
                     } else if (shapeRoll <= 5) {
                         // 长条形（5 份）：沿 X 或 Z 拉长 3 倍
                         boolean alongX = (hash3(ci, cj, layer, SALT_ROOM_AXIS) & 1L) == 0L;
                         if (alongX) {
-                            rx0 = nx - half - 1; rx1 = nx + half + 1;
-                            rz0 = nz - half;     rz1 = nz + half;
+                            rx0 = nx - hx - 1; rx1 = nx + hx + 1;
+                            rz0 = nz - hz;     rz1 = nz + hz;
                         } else {
-                            rx0 = nx - half;     rx1 = nx + half;
-                            rz0 = nz - half - 1; rz1 = nz + half + 1;
+                            rx0 = nx - hx;     rx1 = nx + hx;
+                            rz0 = nz - hz - 1; rz1 = nz + hz + 1;
                         }
                     } else {
                         // 矩形（2 份）：2:1 的长宽比
                         boolean wideX = (hash3(ci, cj, layer, SALT_ROOM_AXIS) & 1L) == 0L;
                         if (wideX) {
-                            rx0 = nx - half - 1; rx1 = nx + half + 1;
-                            rz0 = nz - half;     rz1 = nz + half;
+                            rx0 = nx - hx - 1; rx1 = nx + hx + 1;
+                            rz0 = nz - hz;     rz1 = nz + hz;
                         } else {
-                            rx0 = nx - half;     rx1 = nx + half;
-                            rz0 = nz - half - 1; rz1 = nz + half + 1;
+                            rx0 = nx - hx;     rx1 = nx + hx;
+                            rz0 = nz - hz - 1; rz1 = nz + hz + 1;
                         }
                     }
                     carveRect(open, rx0, rz0, rx1, rz1, minX, minZ);
@@ -531,6 +540,17 @@ public final class BackroomsMaze {
         }
     }
 
+    /**
+     * 房间尺寸采样：范围 {@value #ROOM_MIN}~{@value #ROOM_MAX} 格，
+     * 用 r³ 偏斜让分布**峰值落在 7~14 格**，越往大越稀少。
+     *
+     * <p>r³ 的期望是 1/4，因此平均尺寸 ≈ 3 + 37/4 ≈ 12 格，正好落在峰值区间内。</p>
+     */
+    private static int sampleRoomSize(int ci, int cj, int layer, long salt) {
+        double r = (hash3(ci, cj, layer, salt) >>> 11) / (double) (1L << 53);
+        int size = ROOM_MIN + (int) ((ROOM_MAX - ROOM_MIN) * r * r * r);
+        return Math.max(ROOM_MIN, Math.min(ROOM_MAX, size));
+    }
     /** 在节点 A 与节点 B 之间铺设一条宽度为 {@code width} 的走廊段。 */
     private static void carveCorridor(boolean[][] open, int ax, int az, int bx, int bz,
                                       int width, int minX, int minZ) {
