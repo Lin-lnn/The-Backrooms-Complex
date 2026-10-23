@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BackroomsMaze {
 
     /** 逻辑单元格间距（格）：可容纳最宽 7 格走廊 + 1 格墙。 */
-    public static final int CELL_PITCH = 6;
+    public static final int CELL_PITCH = 4;
 
     /** 每个瓦片每轴的单元格数（瓦片 = 64×64 格）。 */
     public static final int TILE_CELLS = 12;
@@ -261,7 +261,7 @@ public final class BackroomsMaze {
     public static final int WIDTH_BAND_MID = 24;   // 层索引 12..23 -> 第 13~24 层（其余为第 25 层以上）
 
     /** 走廊宽度上限。 */
-    public static final int MAX_CORRIDOR_WIDTH = 3;
+    public static final int MAX_CORRIDOR_WIDTH = 2;
 
     /**
      * 走廊宽度<b>统一加成</b>（格），用于把 Level 0 的空气占比整体抬高约 20%。
@@ -431,7 +431,7 @@ public final class BackroomsMaze {
 
                     // 2) 节点房间尺寸随最宽走廊扩展：
                     //    宽走廊接入节点时不再错出台阶 => 消除转角锯齿
-                    int half = Math.min(2, Math.max(ROOM_HALF, (maxW - 1) / 2));   // 上限 2，避免房间过大相互吞并
+                    int half = Math.min(1, Math.max(ROOM_HALF, (maxW - 1) / 2));   // 上限 2，避免房间过大相互吞并
                     // 房间形状按权重抽取：正方形:长条形:矩形 = 1:5:2（共 8 份）
                     int shapeRoll = (int) (hash3(ci, cj, layer, SALT_ROOM_SHAPE) & 7L);
                     int rx0, rz0, rx1, rz1;
