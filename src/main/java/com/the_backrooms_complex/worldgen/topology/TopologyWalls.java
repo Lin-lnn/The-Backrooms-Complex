@@ -131,42 +131,12 @@ public final class TopologyWalls {
             }
         }
 
-        // ② 走廊：宽度带（每格一个宽度值，交界处直接陡变，不做平滑过渡）
-        int d = graph.parentDir(x, z, layer);
-        if (d < 0) {
-            return false;
-        }
-        // 最近主干节点所在格子
-        long i0 = Math.floorDiv(x, RoomGraph.CELL);
-        long j0 = Math.floorDiv(z, RoomGraph.CELL);
-        long bestD = Long.MAX_VALUE;
-        long bx = 0;
-        long bz = 0;
-        for (long i = i0 - 1; i <= i0 + 1; i++) {
-            for (long j = j0 - 1; j <= j0 + 1; j++) {
-                long tx = graph.spineX((int) i, (int) j, layer);
-                long tz = graph.spineZ((int) i, (int) j, layer);
-                long dd = Math.abs(tx - x) + Math.abs(tz - z);
-                if (dd < bestD) {
-                    bestD = dd;
-                    bx = tx;
-                    bz = tz;
-                }
-            }
-        }
-        // 本格的走廊宽度（3~14，由格子坐标哈希决定，交界处陡变）
-        int width = corridorWidth(graph, (int) i0, (int) j0, layer);
-        int half = width / 2;
-        // 垂直于"指向主干"方向的偏移
-        long dx = bx - x;
-        long dz = bz - z;
-        int offset;
-        if (Math.abs(dx) >= Math.abs(dz)) {
-            offset = (int) Math.abs(dz);   // 主干在东西向 -> 南北偏移
-        } else {
-            offset = (int) Math.abs(dx);   // 主干在南北向 -> 东西偏移
-        }
-        return offset <= half;
+        // ② 走廊：到最近主干【线段】的距离 <= 半宽
+        //    围绕线段画带 -> 走廊笔直，转角是一次完整的 90°（不再有台阶）
+        int width = corridorWidth(graph, (int) Math.floorDiv(x, RoomGraph.CELL),
+                (int) Math.floorDiv(z, RoomGraph.CELL), layer);
+        int dist = graph.spineDistance(x, z, layer);
+        return dist <= width / 2;
     }
 
     /** 走廊宽度（3~14 格），由格子坐标哈希决定 —— 每格独立，故交界处陡变。 */

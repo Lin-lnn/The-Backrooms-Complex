@@ -225,6 +225,61 @@ public final class RoomGraph {
         return z == bz && x >= ax && x <= bx;
     }
 
+    /**
+     * 到最近主干<b>线段</b>的垂直距离（格）。
+     *
+     * <p>关键：这里量的是到<b>线段</b>的距离，而不是到<b>节点</b>的距离。
+     * 围绕节点画带会在转角处产生多级台阶；围绕线段画带则得到
+     * <b>一条条笔直的走廊</b>，转角是<b>一次完整的 90°</b>。</p>
+     *
+     * @return 距离；若 3×3 范围内没有主干线段则返回 {@link Integer#MAX_VALUE}
+     */
+    public int spineDistance(long x, long z, int floor) {
+        int best = Integer.MAX_VALUE;
+        long i0 = Math.floorDiv(x, CELL);
+        long j0 = Math.floorDiv(z, CELL);
+        for (long i = i0 - 1; i <= i0 + 1; i++) {
+            for (long j = j0 - 1; j <= j0 + 1; j++) {
+                best = Math.min(best, distToCellSegments(x, z, (int) i, (int) j, floor));
+            }
+        }
+        return best;
+    }
+
+    /** 到格子 (i,j) 四条 L 形线段的最近距离。 */
+    private int distToCellSegments(long x, long z, int i, int j, int floor) {
+        int best = Integer.MAX_VALUE;
+        best = Math.min(best, segDist(x, z, i, j, i + 1, j, floor, "ldir"));
+        best = Math.min(best, segDist(x, z, i - 1, j, i, j, floor, "ldir"));
+        best = Math.min(best, segDist(x, z, i, j, i, j + 1, floor, "ldirNS"));
+        best = Math.min(best, segDist(x, z, i, j - 1, i, j, floor, "ldirNS"));
+        return best;
+    }
+
+    /** 到一条 L 形折线（两段轴对齐线段取最近）的距离。 */
+    private int segDist(long x, long z, int ai, int aj, int bi, int bj, int floor, String salt) {
+        long ax = spineX(ai, aj, floor);
+        long az = spineZ(ai, aj, floor);
+        long bx = spineX(bi, bj, floor);
+        long bz = spineZ(bi, bj, floor);
+        int ldir = (int) Math.floorMod(hashCoord(seed, ai, aj, floor, salt), 2);
+        if (ax > bx || (ax == bx && az > bz)) {
+            long t = ax; ax = bx; bx = t;
+            t = az; az = bz; bz = t;
+        }
+        int d1;
+        int d2;
+        if (ldir == 0) {
+            // 水平段 z=az, x∈[ax,bx]；垂直段 x=bx, z∈[az,bz]
+            d1 = (x >= ax && x <= bx) ? (int) Math.abs(z - az) : Integer.MAX_VALUE;
+            d2 = (z >= Math.min(az, bz) && z <= Math.max(az, bz)) ? (int) Math.abs(x - bx) : Integer.MAX_VALUE;
+        } else {
+            // 垂直段 x=ax, z∈[az,bz]；水平段 z=bz, x∈[ax,bx]
+            d1 = (z >= Math.min(az, bz) && z <= Math.max(az, bz)) ? (int) Math.abs(x - ax) : Integer.MAX_VALUE;
+            d2 = (x >= ax && x <= bx) ? (int) Math.abs(z - bz) : Integer.MAX_VALUE;
+        }
+        return Math.min(d1, d2);
+    }
     // ==================== 父方向 ====================
 
     /**
