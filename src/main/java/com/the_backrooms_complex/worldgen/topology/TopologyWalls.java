@@ -183,9 +183,28 @@ public final class TopologyWalls {
     private static boolean inRoom(RoomGraph graph, long x, long z, int i, int j, int layer) {
         long cx = graph.spineX(i, j, layer);
         long cz = graph.spineZ(i, j, layer);
-        int w = roomSize(graph, i, j, layer, "roomW");
-        int d = roomSize(graph, i, j, layer, "roomD");
+        int w = roomSizeCached(graph, i, j, layer, "roomW");
+        int d = roomSizeCached(graph, i, j, layer, "roomD");
         return Math.abs(x - cx) <= w / 2 && Math.abs(z - cz) <= d / 2;
+    }
+
+    /** 房间边长缓存（直接映射，避免同一格重复哈希）。 */
+    private static final int ROOM_CACHE_SLOTS = 256;
+    private static final long[] ROOM_CACHE_KEYS = new long[ROOM_CACHE_SLOTS];
+    private static final int[] ROOM_CACHE_VALS = new int[ROOM_CACHE_SLOTS];
+
+    /** 房间边长采样：7 + 2k（k=0..8），并与走廊宽度对称。 */
+    private static int roomSizeCached(RoomGraph graph, int i, int j, int layer, String salt) {
+        long key = ((long) (i & 0xFFFFF) << 40) | ((long) (j & 0xFFFFF) << 18) | (layer & 0x3FFFF);
+        if (salt.equals("roomD")) { key ^= 0x5DEECE66DL; }
+        int slot = (int) ((key * 0x9E3779B97F4A7C15L) >>> 56) & (ROOM_CACHE_SLOTS - 1);
+        if (ROOM_CACHE_KEYS[slot] == key && key != 0L) {
+            return ROOM_CACHE_VALS[slot];
+        }
+        int v = roomSize(graph, i, j, layer, salt);
+        ROOM_CACHE_KEYS[slot] = key;
+        ROOM_CACHE_VALS[slot] = v;
+        return v;
     }
 
     /** 房间边长采样：3~24，r³ 偏斜（峰值 3~10）。 */

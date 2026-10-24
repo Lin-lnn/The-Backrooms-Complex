@@ -266,14 +266,31 @@ public final class RoomGraph {
      * @return 距离；若 3×3 范围内没有主干线段则返回 {@link Integer#MAX_VALUE}
      */
     public int spineDistance(long x, long z, int floor) {
-        int best = Integer.MAX_VALUE;
         long i0 = Math.floorDiv(x, CELL);
         long j0 = Math.floorDiv(z, CELL);
+
+        // 先用缓存的节点坐标找出最近的格点（9 次查表，几乎全命中）
+        long bestDist = Long.MAX_VALUE;
+        int bi = (int) i0;
+        int bj = (int) j0;
         for (long i = i0 - 1; i <= i0 + 1; i++) {
             for (long j = j0 - 1; j <= j0 + 1; j++) {
-                best = Math.min(best, distToCellSegments(x, z, (int) i, (int) j, floor));
+                long[] n = spineCached((int) i, (int) j, floor);
+                long d = Math.abs(n[0] - x) + Math.abs(n[1] - z);
+                if (d < bestDist) {
+                    bestDist = d;
+                    bi = (int) i;
+                    bj = (int) j;
+                }
             }
         }
+
+        // 只算"最近格子"及其 4 邻的线段（5 个格子 × 4 段 = 20 段，比原来少一半）
+        int best = distToCellSegments(x, z, bi, bj, floor);
+        best = Math.min(best, distToCellSegments(x, z, bi + 1, bj, floor));
+        best = Math.min(best, distToCellSegments(x, z, bi - 1, bj, floor));
+        best = Math.min(best, distToCellSegments(x, z, bi, bj + 1, floor));
+        best = Math.min(best, distToCellSegments(x, z, bi, bj - 1, floor));
         return best;
     }
 
