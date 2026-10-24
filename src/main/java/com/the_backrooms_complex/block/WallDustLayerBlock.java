@@ -69,14 +69,24 @@ public class WallDustLayerBlock extends Block {
         return isFullSupport(level, pos.below());
     }
 
-    /** 判定某个位置是否是"完整方块"（能托住墙灰）。 */
+    /**
+     * 判定某个位置是否提供<b>完整的平面</b>（能托住墙灰）。
+     *
+     * <p>用 {@code isFaceFull} 检查"支撑形状的顶面是不是完整的 16×16 正方形"。
+     * 因此：</p>
+     * <ul>
+     *   <li>完整方块 → ✅ 可以放；</li>
+     *   <li><b>倒置楼梯</b>（顶面是满的）→ ✅ 可以放；</li>
+     *   <li>正置楼梯 / 台阶 / 栅栏 / 半砖 → ❌ 不能放（顶面不是完整平面）。</li>
+     * </ul>
+     */
     private static boolean isFullSupport(net.minecraft.world.level.BlockGetter level, BlockPos pos) {
         BlockState below = level.getBlockState(pos);
         if (below.isAir()) {
             return false;
         }
-        net.minecraft.world.phys.shapes.VoxelShape shape = below.getBlockSupportShape(level, pos);
-        return shape.isEmpty() || shape.max(net.minecraft.core.Direction.Axis.Y) >= 0.99D;
+        VoxelShape support = below.getBlockSupportShape(level, pos);
+        return Block.isFaceFull(support, Direction.UP);
     }
 
     /** 邻居变化时刷新连接状态；相邻的墙灰也要一起刷新。 */
