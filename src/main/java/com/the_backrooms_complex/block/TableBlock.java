@@ -74,6 +74,12 @@ public class TableBlock extends FurnitureBlock {
 
     /** 碰撞箱：桌面部分 + 仍然显示的桌腿，合并成一个盒子范围（保证完全包络）。 */
     @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos,
+                                           CollisionContext ctx) {
+        return FurnitureShapes.get(this.furnitureId);
+    }
+
+    @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
         VoxelShape base = FurnitureShapes.get(this.furnitureId);
         return Shapes.or(base, Shapes.empty());

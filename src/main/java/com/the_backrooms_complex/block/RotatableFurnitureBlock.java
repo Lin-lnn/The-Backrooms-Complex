@@ -46,6 +46,12 @@ public class RotatableFurnitureBlock extends FurnitureBlock {
         return rotate(base, state.getValue(FACING));
     }
 
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos,
+                                          CollisionContext ctx) {
+        return rotate(FurnitureShapes.get(this.furnitureId), state.getValue(FACING));
+    }
+
     /** 取本方块在 {@link FurnitureShapes} 里登记的名字。 */
     private String furnitureIdOf() {
         return this.furnitureId;

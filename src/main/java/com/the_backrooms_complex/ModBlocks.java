@@ -134,39 +134,39 @@ public final class ModBlocks {
      * 创造模式可正常破坏；同时不产生掉落表，音效为石头。
      */
     // ===== 家具（木凳/桌/椅/梯/篱笆 及各 11 种木材 + 办公椅 + 工地照明灯）=====
-    public static final DeferredBlock<Block> STOOL_JUNGLE = BLOCKS.register("stool_jungle", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_jungle", 0.5D));
-    public static final DeferredBlock<Block> STOOL_SPRUCE = BLOCKS.register("stool_spruce", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_spruce", 0.5D));
-    public static final DeferredBlock<Block> STOOL_CHERRY = BLOCKS.register("stool_cherry", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_cherry", 0.5D));
-    public static final DeferredBlock<Block> STOOL_OAK = BLOCKS.register("stool_oak", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_oak", 0.5D));
-    public static final DeferredBlock<Block> STOOL_DARK_OAK = BLOCKS.register("stool_dark_oak", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_dark_oak", 0.5D));
-    public static final DeferredBlock<Block> STOOL_BIRCH = BLOCKS.register("stool_birch", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_birch", 0.5D));
-    public static final DeferredBlock<Block> STOOL_BAMBOO = BLOCKS.register("stool_bamboo", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_bamboo", 0.5D));
-    public static final DeferredBlock<Block> STOOL_MANGROVE = BLOCKS.register("stool_mangrove", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_mangrove", 0.5D));
-    public static final DeferredBlock<Block> STOOL_CRIMSON = BLOCKS.register("stool_crimson", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_crimson", 0.5D));
-    public static final DeferredBlock<Block> STOOL_WARPED = BLOCKS.register("stool_warped", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_warped", 0.5D));
-    public static final DeferredBlock<Block> STOOL_ACACIA = BLOCKS.register("stool_acacia", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_acacia", 0.5D));
-    public static final DeferredBlock<Block> TABLE_JUNGLE = BLOCKS.register("table_jungle", () -> new TableBlock(unbreakable().noOcclusion(), "table_jungle"));
-    public static final DeferredBlock<Block> TABLE_SPRUCE = BLOCKS.register("table_spruce", () -> new TableBlock(unbreakable().noOcclusion(), "table_spruce"));
-    public static final DeferredBlock<Block> TABLE_BIRCH = BLOCKS.register("table_birch", () -> new TableBlock(unbreakable().noOcclusion(), "table_birch"));
-    public static final DeferredBlock<Block> TABLE_CHERRY = BLOCKS.register("table_cherry", () -> new TableBlock(unbreakable().noOcclusion(), "table_cherry"));
-    public static final DeferredBlock<Block> TABLE_OAK = BLOCKS.register("table_oak", () -> new TableBlock(unbreakable().noOcclusion(), "table_oak"));
-    public static final DeferredBlock<Block> TABLE_DARK_OAK = BLOCKS.register("table_dark_oak", () -> new TableBlock(unbreakable().noOcclusion(), "table_dark_oak"));
-    public static final DeferredBlock<Block> TABLE_BAMBOO = BLOCKS.register("table_bamboo", () -> new TableBlock(unbreakable().noOcclusion(), "table_bamboo"));
-    public static final DeferredBlock<Block> TABLE_MANGROVE = BLOCKS.register("table_mangrove", () -> new TableBlock(unbreakable().noOcclusion(), "table_mangrove"));
-    public static final DeferredBlock<Block> TABLE_CRIMSON = BLOCKS.register("table_crimson", () -> new TableBlock(unbreakable().noOcclusion(), "table_crimson"));
-    public static final DeferredBlock<Block> TABLE_WARPED = BLOCKS.register("table_warped", () -> new TableBlock(unbreakable().noOcclusion(), "table_warped"));
-    public static final DeferredBlock<Block> TABLE_ACACIA = BLOCKS.register("table_acacia", () -> new TableBlock(unbreakable().noOcclusion(), "table_acacia"));
-    public static final DeferredBlock<Block> CHAIR_JUNGLE = BLOCKS.register("chair_jungle", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_jungle", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_SPRUCE = BLOCKS.register("chair_spruce", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_spruce", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_BIRCH = BLOCKS.register("chair_birch", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_birch", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_CHERRY = BLOCKS.register("chair_cherry", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_cherry", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_OAK = BLOCKS.register("chair_oak", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_oak", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_DARK_OAK = BLOCKS.register("chair_dark_oak", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_dark_oak", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_BAMBOO = BLOCKS.register("chair_bamboo", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_bamboo", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_MANGROVE = BLOCKS.register("chair_mangrove", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_mangrove", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_CRIMSON = BLOCKS.register("chair_crimson", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_crimson", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_WARPED = BLOCKS.register("chair_warped", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_warped", 0.5D));
-    public static final DeferredBlock<Block> CHAIR_ACACIA = BLOCKS.register("chair_acacia", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_acacia", 0.5D));
+    public static final DeferredBlock<Block> STOOL_JUNGLE = BLOCKS.register("stool_jungle", () -> new SeatBlock(unbreakable(), "stool_jungle", 0.5D));
+    public static final DeferredBlock<Block> STOOL_SPRUCE = BLOCKS.register("stool_spruce", () -> new SeatBlock(unbreakable(), "stool_spruce", 0.5D));
+    public static final DeferredBlock<Block> STOOL_CHERRY = BLOCKS.register("stool_cherry", () -> new SeatBlock(unbreakable(), "stool_cherry", 0.5D));
+    public static final DeferredBlock<Block> STOOL_OAK = BLOCKS.register("stool_oak", () -> new SeatBlock(unbreakable(), "stool_oak", 0.5D));
+    public static final DeferredBlock<Block> STOOL_DARK_OAK = BLOCKS.register("stool_dark_oak", () -> new SeatBlock(unbreakable(), "stool_dark_oak", 0.5D));
+    public static final DeferredBlock<Block> STOOL_BIRCH = BLOCKS.register("stool_birch", () -> new SeatBlock(unbreakable(), "stool_birch", 0.5D));
+    public static final DeferredBlock<Block> STOOL_BAMBOO = BLOCKS.register("stool_bamboo", () -> new SeatBlock(unbreakable(), "stool_bamboo", 0.5D));
+    public static final DeferredBlock<Block> STOOL_MANGROVE = BLOCKS.register("stool_mangrove", () -> new SeatBlock(unbreakable(), "stool_mangrove", 0.5D));
+    public static final DeferredBlock<Block> STOOL_CRIMSON = BLOCKS.register("stool_crimson", () -> new SeatBlock(unbreakable(), "stool_crimson", 0.5D));
+    public static final DeferredBlock<Block> STOOL_WARPED = BLOCKS.register("stool_warped", () -> new SeatBlock(unbreakable(), "stool_warped", 0.5D));
+    public static final DeferredBlock<Block> STOOL_ACACIA = BLOCKS.register("stool_acacia", () -> new SeatBlock(unbreakable(), "stool_acacia", 0.5D));
+    public static final DeferredBlock<Block> TABLE_JUNGLE = BLOCKS.register("table_jungle", () -> new TableBlock(unbreakable(), "table_jungle"));
+    public static final DeferredBlock<Block> TABLE_SPRUCE = BLOCKS.register("table_spruce", () -> new TableBlock(unbreakable(), "table_spruce"));
+    public static final DeferredBlock<Block> TABLE_BIRCH = BLOCKS.register("table_birch", () -> new TableBlock(unbreakable(), "table_birch"));
+    public static final DeferredBlock<Block> TABLE_CHERRY = BLOCKS.register("table_cherry", () -> new TableBlock(unbreakable(), "table_cherry"));
+    public static final DeferredBlock<Block> TABLE_OAK = BLOCKS.register("table_oak", () -> new TableBlock(unbreakable(), "table_oak"));
+    public static final DeferredBlock<Block> TABLE_DARK_OAK = BLOCKS.register("table_dark_oak", () -> new TableBlock(unbreakable(), "table_dark_oak"));
+    public static final DeferredBlock<Block> TABLE_BAMBOO = BLOCKS.register("table_bamboo", () -> new TableBlock(unbreakable(), "table_bamboo"));
+    public static final DeferredBlock<Block> TABLE_MANGROVE = BLOCKS.register("table_mangrove", () -> new TableBlock(unbreakable(), "table_mangrove"));
+    public static final DeferredBlock<Block> TABLE_CRIMSON = BLOCKS.register("table_crimson", () -> new TableBlock(unbreakable(), "table_crimson"));
+    public static final DeferredBlock<Block> TABLE_WARPED = BLOCKS.register("table_warped", () -> new TableBlock(unbreakable(), "table_warped"));
+    public static final DeferredBlock<Block> TABLE_ACACIA = BLOCKS.register("table_acacia", () -> new TableBlock(unbreakable(), "table_acacia"));
+    public static final DeferredBlock<Block> CHAIR_JUNGLE = BLOCKS.register("chair_jungle", () -> new SeatBlock(unbreakable(), "chair_jungle", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_SPRUCE = BLOCKS.register("chair_spruce", () -> new SeatBlock(unbreakable(), "chair_spruce", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_BIRCH = BLOCKS.register("chair_birch", () -> new SeatBlock(unbreakable(), "chair_birch", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_CHERRY = BLOCKS.register("chair_cherry", () -> new SeatBlock(unbreakable(), "chair_cherry", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_OAK = BLOCKS.register("chair_oak", () -> new SeatBlock(unbreakable(), "chair_oak", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_DARK_OAK = BLOCKS.register("chair_dark_oak", () -> new SeatBlock(unbreakable(), "chair_dark_oak", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_BAMBOO = BLOCKS.register("chair_bamboo", () -> new SeatBlock(unbreakable(), "chair_bamboo", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_MANGROVE = BLOCKS.register("chair_mangrove", () -> new SeatBlock(unbreakable(), "chair_mangrove", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_CRIMSON = BLOCKS.register("chair_crimson", () -> new SeatBlock(unbreakable(), "chair_crimson", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_WARPED = BLOCKS.register("chair_warped", () -> new SeatBlock(unbreakable(), "chair_warped", 0.5D));
+    public static final DeferredBlock<Block> CHAIR_ACACIA = BLOCKS.register("chair_acacia", () -> new SeatBlock(unbreakable(), "chair_acacia", 0.5D));
 
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()

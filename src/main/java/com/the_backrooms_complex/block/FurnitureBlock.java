@@ -40,6 +40,13 @@ public class FurnitureBlock extends Block {
         return FurnitureShapes.get(this.furnitureId);
     }
 
+    /** 碰撞用同一个包围盒 —— 显式覆写，确保一定参与实体碰撞。 */
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos,
+                                           CollisionContext ctx) {
+        return FurnitureShapes.get(this.furnitureId);
+    }
+
     /** 光照遮挡用同一个复合形状，避免整块挡光。 */
     @Override
     protected boolean useShapeForLightOcclusion(BlockState state) {
