@@ -119,7 +119,7 @@ public final class ModItems {
             ARMOR_MATERIALS.register("wallpaper", () -> new ArmorMaterial(
                     Map.of(
                             ArmorItem.Type.HELMET, 0,
-                            ArmorItem.Type.CHESTPLATE, 0,
+                            ArmorItem.Type.CHESTPLATE, 1,
                             ArmorItem.Type.LEGGINGS, 0,
                             ArmorItem.Type.BOOTS, 0),
                     0,
@@ -145,7 +145,7 @@ public final class ModItems {
     public static final DeferredHolder<ArmorMaterial, ArmorMaterial> WALLPAPER_HAT_MATERIAL =
             ARMOR_MATERIALS.register("wallpaper_hat", () -> new ArmorMaterial(
                     Map.of(
-                            ArmorItem.Type.HELMET, 0,
+                            ArmorItem.Type.HELMET, 1,
                             ArmorItem.Type.CHESTPLATE, 0,
                             ArmorItem.Type.LEGGINGS, 0,
                             ArmorItem.Type.BOOTS, 0),

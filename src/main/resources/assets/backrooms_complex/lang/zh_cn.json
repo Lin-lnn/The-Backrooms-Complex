@@ -47,7 +47,6 @@
     "block.backrooms_complex.mycelium_carpet":  "菌毯",
     "block.backrooms_complex.lamp_off":  "熄灭的荧光灯",
     "item.backrooms_complex.wallpaper_hat.line1":  "同材质的小檐礼帽，帽檐略有弧度",
-    "item.backrooms_complex.wallpaper_hat.line2":  "遮住视线死角，稍微延缓精神值下降",
     "item.backrooms_complex.wallpaper_hat.line3":  "配合大衣凑成一套伪装",
     "item.backrooms_complex.threshold_key.line1":  "黄铜钥匙，齿形怪异且微微发烫",
     "item.backrooms_complex.threshold_key.line2":  "开启阈界的层级入口",
@@ -86,7 +85,6 @@
     "item.backrooms_complex.unknown_sewage_bottle.line2":  "喝下回复口渴，但会污染精神",
     "item.backrooms_complex.unknown_sewage_bottle.line3":  "比渴死强一点的选择",
     "item.backrooms_complex.wallpaper_coat.line1":  "用整张墙纸缝成的大衣，长袖及腕、下摆过膝",
-    "item.backrooms_complex.wallpaper_coat.line2":  "穿戴后融入环境，降低被注视的概率",
     "item.backrooms_complex.wallpaper_coat.line3":  "在回廊中潜行时的伪装",
     "item.backrooms_complex.mycelium_carpet.line1":  "贴地的灰黑菌毯，边缘向四周蔓延",
     "item.backrooms_complex.mycelium_carpet.line2":  "会不断长出新的细菌",
@@ -150,5 +148,7 @@
     "item.backrooms_complex.stool_dark_oak.line3":  "右键可坐下",
     "item.backrooms_complex.chair_mangrove.line3":  "右键可坐下",
     "item.backrooms_complex.chair_dark_oak.line3":  "右键可坐下",
-    "block.backrooms_complex.ceiling_manila":  "马尼拉天花板"
+    "block.backrooms_complex.ceiling_manila":  "马尼拉天花板",
+    "item.backrooms_complex.wallpaper_coat.line2":  "穿戴后 +1 护甲，精神值下降速度 -10%",
+    "item.backrooms_complex.wallpaper_hat.line2":  "穿戴后 +1 护甲，精神值下降速度 -10%"
 }

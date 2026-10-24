@@ -162,10 +162,12 @@ public final class ModPlayerData {
         }
 
         // ---- 精神值 ----
-        if (damp && t % SANITY_DAMP_INTERVAL == 0L) {
+        // 墙纸大衣 / 墙纸帽：每件降低 10% 精神值减少速率（两件 = 20%）
+        float sanityMul = sanityDrainMultiplier(player);
+        if (damp && t % SANITY_DAMP_INTERVAL == 0L && player.getRandom().nextFloat() < sanityMul) {
             addSanity(player, -1);
         }
-        if (dark && t % SANITY_DARK_INTERVAL == 0L) {
+        if (dark && t % SANITY_DARK_INTERVAL == 0L && player.getRandom().nextFloat() < sanityMul) {
             addSanity(player, -1);
         }
         if (yellow && t % SANITY_YELLOW_INTERVAL == 0L) {
@@ -174,6 +176,24 @@ public final class ModPlayerData {
 
         // 结算完毕后把最新数值同步给客户端（HUD 依赖这个包刷新）
         ModNetwork.sendTo(player);
+    }
+
+    /**
+     * 精神值消耗倍率：穿墙纸大衣 -10%，戴墙纸帽再 -10%（最多 -20%）。
+     *
+     * @return 1.0（没穿）~ 0.8（两件都穿）
+     */
+    private static float sanityDrainMultiplier(net.minecraft.world.entity.player.Player player) {
+        float mul = 1.0F;
+        if (player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST)
+                .is(ModItems.WALLPAPER_COAT.get())) {
+            mul -= 0.10F;
+        }
+        if (player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD)
+                .is(ModItems.WALLPAPER_HAT.get())) {
+            mul -= 0.10F;
+        }
+        return mul;
     }
 
     private ModPlayerData() {
