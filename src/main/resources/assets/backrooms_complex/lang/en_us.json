@@ -150,5 +150,6 @@
     "block.backrooms_complex.fence_warped":  "Warped Fence",
     "block.backrooms_complex.fence_acacia":  "Acacia Fence",
     "block.backrooms_complex.office_chair":  "Office Chair",
-    "block.backrooms_complex.site_light":  "Site Light"
+    "block.backrooms_complex.site_light":  "Site Light",
+    "itemGroup.backrooms_complex.furniture":  "Backrooms Complex: Furniture"
 }

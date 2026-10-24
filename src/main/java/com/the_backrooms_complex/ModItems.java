@@ -183,63 +183,6 @@ public final class ModItems {
                         output.accept(ModBlocks.WALL_MANILA.get());
                         output.accept(ModBlocks.WALL_MANILA_PLINTH.get());
                         output.accept(ModBlocks.FLOOR_MANILA.get());
-                        output.accept(ModItems.STOOL_JUNGLE.get());
-                        output.accept(ModItems.STOOL_SPRUCE.get());
-                        output.accept(ModItems.STOOL_CHERRY.get());
-                        output.accept(ModItems.STOOL_OAK.get());
-                        output.accept(ModItems.STOOL_DARK_OAK.get());
-                        output.accept(ModItems.STOOL_BIRCH.get());
-                        output.accept(ModItems.STOOL_BAMBOO.get());
-                        output.accept(ModItems.STOOL_MANGROVE.get());
-                        output.accept(ModItems.STOOL_CRIMSON.get());
-                        output.accept(ModItems.STOOL_WARPED.get());
-                        output.accept(ModItems.STOOL_ACACIA.get());
-                        output.accept(ModItems.TABLE_JUNGLE.get());
-                        output.accept(ModItems.TABLE_SPRUCE.get());
-                        output.accept(ModItems.TABLE_BIRCH.get());
-                        output.accept(ModItems.TABLE_CHERRY.get());
-                        output.accept(ModItems.TABLE_OAK.get());
-                        output.accept(ModItems.TABLE_DARK_OAK.get());
-                        output.accept(ModItems.TABLE_BAMBOO.get());
-                        output.accept(ModItems.TABLE_MANGROVE.get());
-                        output.accept(ModItems.TABLE_CRIMSON.get());
-                        output.accept(ModItems.TABLE_WARPED.get());
-                        output.accept(ModItems.TABLE_ACACIA.get());
-                        output.accept(ModItems.LADDER_JUNGLE.get());
-                        output.accept(ModItems.LADDER_SPRUCE.get());
-                        output.accept(ModItems.LADDER_CHERRY.get());
-                        output.accept(ModItems.LADDER_OAK.get());
-                        output.accept(ModItems.LADDER_DARK_OAK.get());
-                        output.accept(ModItems.LADDER_BIRCH.get());
-                        output.accept(ModItems.LADDER_BAMBOO.get());
-                        output.accept(ModItems.LADDER_MANGROVE.get());
-                        output.accept(ModItems.LADDER_CRIMSON.get());
-                        output.accept(ModItems.LADDER_WARPED.get());
-                        output.accept(ModItems.LADDER_ACACIA.get());
-                        output.accept(ModItems.CHAIR_JUNGLE.get());
-                        output.accept(ModItems.CHAIR_SPRUCE.get());
-                        output.accept(ModItems.CHAIR_BIRCH.get());
-                        output.accept(ModItems.CHAIR_CHERRY.get());
-                        output.accept(ModItems.CHAIR_OAK.get());
-                        output.accept(ModItems.CHAIR_DARK_OAK.get());
-                        output.accept(ModItems.CHAIR_BAMBOO.get());
-                        output.accept(ModItems.CHAIR_MANGROVE.get());
-                        output.accept(ModItems.CHAIR_CRIMSON.get());
-                        output.accept(ModItems.CHAIR_WARPED.get());
-                        output.accept(ModItems.CHAIR_ACACIA.get());
-                        output.accept(ModItems.FENCE_JUNGLE.get());
-                        output.accept(ModItems.FENCE_SPRUCE.get());
-                        output.accept(ModItems.FENCE_CHERRY.get());
-                        output.accept(ModItems.FENCE_OAK.get());
-                        output.accept(ModItems.FENCE_DARK_OAK.get());
-                        output.accept(ModItems.FENCE_BIRCH.get());
-                        output.accept(ModItems.FENCE_BAMBOO.get());
-                        output.accept(ModItems.FENCE_MANGROVE.get());
-                        output.accept(ModItems.FENCE_CRIMSON.get());
-                        output.accept(ModItems.FENCE_WARPED.get());
-                        output.accept(ModItems.FENCE_ACACIA.get());
-                        output.accept(ModItems.OFFICE_CHAIR.get());
-                        output.accept(ModItems.SITE_LIGHT.get());
                         output.accept(ModBlocks.WALL_CONCRETE.get());
                         output.accept(ModBlocks.WALL_CONCRETE_PLINTH.get());
                         output.accept(ModBlocks.WALL_DAMP.get());
@@ -316,6 +259,71 @@ public final class ModItems {
                     ModEntities.BACTERIA.get(), 0x3A3836, 0x1E1C1A, new Item.Properties().stacksTo(64)));
 
     /** 实体标签页：后室综合体：实体。 */
+    /** 家具标签页。 */
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FURNITURE_TAB =
+            CREATIVE_MODE_TABS.register("backrooms_furniture", () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.backrooms_complex.furniture"))
+                    .icon(() -> new ItemStack(ModItems.CHAIR_OAK.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(ModItems.STOOL_JUNGLE.get());
+                        output.accept(ModItems.STOOL_SPRUCE.get());
+                        output.accept(ModItems.STOOL_CHERRY.get());
+                        output.accept(ModItems.STOOL_OAK.get());
+                        output.accept(ModItems.STOOL_DARK_OAK.get());
+                        output.accept(ModItems.STOOL_BIRCH.get());
+                        output.accept(ModItems.STOOL_BAMBOO.get());
+                        output.accept(ModItems.STOOL_MANGROVE.get());
+                        output.accept(ModItems.STOOL_CRIMSON.get());
+                        output.accept(ModItems.STOOL_WARPED.get());
+                        output.accept(ModItems.STOOL_ACACIA.get());
+                        output.accept(ModItems.TABLE_JUNGLE.get());
+                        output.accept(ModItems.TABLE_SPRUCE.get());
+                        output.accept(ModItems.TABLE_BIRCH.get());
+                        output.accept(ModItems.TABLE_CHERRY.get());
+                        output.accept(ModItems.TABLE_OAK.get());
+                        output.accept(ModItems.TABLE_DARK_OAK.get());
+                        output.accept(ModItems.TABLE_BAMBOO.get());
+                        output.accept(ModItems.TABLE_MANGROVE.get());
+                        output.accept(ModItems.TABLE_CRIMSON.get());
+                        output.accept(ModItems.TABLE_WARPED.get());
+                        output.accept(ModItems.TABLE_ACACIA.get());
+                        output.accept(ModItems.LADDER_JUNGLE.get());
+                        output.accept(ModItems.LADDER_SPRUCE.get());
+                        output.accept(ModItems.LADDER_CHERRY.get());
+                        output.accept(ModItems.LADDER_OAK.get());
+                        output.accept(ModItems.LADDER_DARK_OAK.get());
+                        output.accept(ModItems.LADDER_BIRCH.get());
+                        output.accept(ModItems.LADDER_BAMBOO.get());
+                        output.accept(ModItems.LADDER_MANGROVE.get());
+                        output.accept(ModItems.LADDER_CRIMSON.get());
+                        output.accept(ModItems.LADDER_WARPED.get());
+                        output.accept(ModItems.LADDER_ACACIA.get());
+                        output.accept(ModItems.CHAIR_JUNGLE.get());
+                        output.accept(ModItems.CHAIR_SPRUCE.get());
+                        output.accept(ModItems.CHAIR_BIRCH.get());
+                        output.accept(ModItems.CHAIR_CHERRY.get());
+                        output.accept(ModItems.CHAIR_OAK.get());
+                        output.accept(ModItems.CHAIR_DARK_OAK.get());
+                        output.accept(ModItems.CHAIR_BAMBOO.get());
+                        output.accept(ModItems.CHAIR_MANGROVE.get());
+                        output.accept(ModItems.CHAIR_CRIMSON.get());
+                        output.accept(ModItems.CHAIR_WARPED.get());
+                        output.accept(ModItems.CHAIR_ACACIA.get());
+                        output.accept(ModItems.FENCE_JUNGLE.get());
+                        output.accept(ModItems.FENCE_SPRUCE.get());
+                        output.accept(ModItems.FENCE_CHERRY.get());
+                        output.accept(ModItems.FENCE_OAK.get());
+                        output.accept(ModItems.FENCE_DARK_OAK.get());
+                        output.accept(ModItems.FENCE_BIRCH.get());
+                        output.accept(ModItems.FENCE_BAMBOO.get());
+                        output.accept(ModItems.FENCE_MANGROVE.get());
+                        output.accept(ModItems.FENCE_CRIMSON.get());
+                        output.accept(ModItems.FENCE_WARPED.get());
+                        output.accept(ModItems.FENCE_ACACIA.get());
+                        output.accept(ModItems.OFFICE_CHAIR.get());
+                        output.accept(ModItems.SITE_LIGHT.get());
+                    })
+                    .build());
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ENTITIES_TAB =
             CREATIVE_MODE_TABS.register("backrooms_entities", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.backrooms_complex.entities"))

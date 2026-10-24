@@ -150,5 +150,6 @@
     "block.backrooms_complex.fence_mangrove":  "红木篱笆",
     "block.backrooms_complex.fence_crimson":  "绯红木篱笆",
     "block.backrooms_complex.fence_warped":  "诡异木篱笆",
-    "block.backrooms_complex.fence_acacia":  "金合欢木篱笆"
+    "block.backrooms_complex.fence_acacia":  "金合欢木篱笆",
+    "itemGroup.backrooms_complex.furniture":  "后室综合体：家具"
 }
