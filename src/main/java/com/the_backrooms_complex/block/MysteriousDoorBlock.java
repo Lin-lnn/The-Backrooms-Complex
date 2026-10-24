@@ -66,9 +66,9 @@ public class MysteriousDoorBlock extends Block {
     }
 
     /** 水平搜索半径（格）。 */
-    private static final int SEARCH_RADIUS = 32;
+    private static final int SEARCH_RADIUS = 12;
     /** 垂直搜索范围（格，向上/向下各这么多）。 */
-    private static final int SEARCH_HEIGHT = 48;
+    private static final int SEARCH_HEIGHT = 24;
 
     /**
      * 以 base 为中心，在 <b>±{@value #SEARCH_RADIUS} 格的水平范围</b>、
@@ -93,6 +93,11 @@ public class MysteriousDoorBlock extends Block {
                                 continue;
                             }
                             BlockPos feet = new BlockPos(base.getX() + dx, y, base.getZ() + dz);
+                            // 只检查已加载的区块：否则 getBlockState 会触发同步生成，
+                            // 数千次探测会把服务器线程彻底堵死（表现为"服务器已关闭"并卡死）。
+                            if (!level.isLoaded(feet)) {
+                                continue;
+                            }
                             if (level.getBlockState(feet.below()).isSolidRender(level, feet.below())
                                     && level.getBlockState(feet).isAir()
                                     && level.getBlockState(feet.above()).isAir()) {
