@@ -1,5 +1,7 @@
 package com.the_backrooms_complex.worldgen;
 
+import com.the_backrooms_complex.worldgen.topology.RoomGraph;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,6 +38,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BackroomsMaze {
 
     /** 逻辑单元格间距（格）：可容纳最宽 7 格走廊 + 1 格墙。 */
+    /** 拓扑生成用的固定种子（确定性）。 */
+    private static final long TOPOLOGY_SEED = 0x5EED_BACC_0001L;
+
+    /** 是否使用新的拓扑生成（true = 拓扑，false = 旧的值网格迷宫）。非 final 以免"不可达语句"。 */
+    public static boolean TOPOLOGY_ENABLED = true;
+
     public static final int CELL_PITCH = 32;
 
     /** 每个瓦片每轴的单元格数（瓦片 = 64×64 格）。 */
@@ -412,6 +420,18 @@ public final class BackroomsMaze {
         final int cj0 = Math.floorDiv(minZ - margin, CELL_PITCH);
         final int cj1 = Math.floorDiv(maxZ + margin, CELL_PITCH);
 
+        // ===== 拓扑生成（RoomGraph + TopologyWalls）=====
+        // 主干由哈希抖动的格子节点 + L 形折线构成，走廊 = 主干的加宽带，
+        // 房间 = 主干节点周围的矩形。由此保证：无周期、无死路、无限连通。
+        boolean[][][] topoWalls = new boolean[layerCount][16][16];
+        RoomGraph graph = new RoomGraph(TOPOLOGY_SEED);
+        for (int layer = 0; layer < layerCount; layer++) {
+            topoWalls[layer] = com.the_backrooms_complex.worldgen.topology.TopologyWalls
+                    .wallGrid(graph, chunkX, chunkZ, layer);
+        }
+        if (TOPOLOGY_ENABLED) {
+            return topoWalls;
+        }
         boolean[][][] walls = new boolean[layerCount][16][16];
         java.util.List<int[]> neighbors = new java.util.ArrayList<>(4);
 
