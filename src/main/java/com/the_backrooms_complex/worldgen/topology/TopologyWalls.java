@@ -93,21 +93,11 @@ public final class TopologyWalls {
 
     /** 判断一个方块位置是否可走（走廊或房间）。 */
     public static boolean isOpen(RoomGraph graph, long x, long z, int layer) {
-        // ① 房间：只取"最近主干节点"所在格子的矩形（只扫 3x3 找最近，不叠加多个房间）
-        long gi = Math.floorDiv(x, RoomGraph.CELL);
-        long gj = Math.floorDiv(z, RoomGraph.CELL);
-        int bestRoom = Integer.MAX_VALUE;
-        boolean inAnyRoom = false;
-        for (long i = gi - 1; i <= gi + 1; i++) {
-            for (long j = gj - 1; j <= gj + 1; j++) {
-                if (inRoom(graph, x, z, (int) i, (int) j, layer)) {
-                    inAnyRoom = true;
-                }
-            }
-        }
-        if (inAnyRoom) {
-            return true;
-        }
+        // ① 房间：已停用。
+        //    原因：房间是 3~24 格的矩形，贴在 7 格宽的走廊上，房间边缘与走廊边缘
+        //    必然不对齐 => 每次贴边都会产生一级台阶。要让墙线完全笔直，房间必须
+        //    与走廊同宽（那就不是房间了），所以这里整体关掉，只保留走廊。
+        //    需要房间时请改用"走廊尽头扩宽"的做法，而不是侧向矩形。
 
         // ② 走廊：到最近主干【线段】的距离 <= 半宽
         //    围绕线段画带 -> 走廊笔直，转角是一次完整的 90°（不再有台阶）
