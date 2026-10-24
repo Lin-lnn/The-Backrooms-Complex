@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "backrooms_complex:block/chair_dark_oak"
-    }
+    "facing=north": { "model": "backrooms_complex:block/chair_dark_oak" },
+    "facing=south": { "model": "backrooms_complex:block/chair_dark_oak", "y": 180 },
+    "facing=east":  { "model": "backrooms_complex:block/chair_dark_oak", "y": 90 },
+    "facing=west":  { "model": "backrooms_complex:block/chair_dark_oak", "y": 270 }
   }
 }

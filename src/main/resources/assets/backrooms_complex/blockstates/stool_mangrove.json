@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "backrooms_complex:block/stool_mangrove"
-    }
+    "facing=north": { "model": "backrooms_complex:block/stool_mangrove" },
+    "facing=south": { "model": "backrooms_complex:block/stool_mangrove", "y": 180 },
+    "facing=east":  { "model": "backrooms_complex:block/stool_mangrove", "y": 90 },
+    "facing=west":  { "model": "backrooms_complex:block/stool_mangrove", "y": 270 }
   }
 }

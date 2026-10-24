@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "backrooms_complex:block/stool_birch"
-    }
+    "facing=north": { "model": "backrooms_complex:block/stool_birch" },
+    "facing=south": { "model": "backrooms_complex:block/stool_birch", "y": 180 },
+    "facing=east":  { "model": "backrooms_complex:block/stool_birch", "y": 90 },
+    "facing=west":  { "model": "backrooms_complex:block/stool_birch", "y": 270 }
   }
 }

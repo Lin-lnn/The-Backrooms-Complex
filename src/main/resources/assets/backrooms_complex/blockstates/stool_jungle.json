@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "backrooms_complex:block/stool_jungle"
-    }
+    "facing=north": { "model": "backrooms_complex:block/stool_jungle" },
+    "facing=south": { "model": "backrooms_complex:block/stool_jungle", "y": 180 },
+    "facing=east":  { "model": "backrooms_complex:block/stool_jungle", "y": 90 },
+    "facing=west":  { "model": "backrooms_complex:block/stool_jungle", "y": 270 }
   }
 }

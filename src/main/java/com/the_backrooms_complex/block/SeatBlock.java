@@ -14,7 +14,7 @@ import net.minecraft.world.phys.BlockHitResult;
  * <p>右键时把玩家<b>传送到家具表面</b>并让他保持坐在原地的状态（不骑乘实体，
  * 因此不需要额外的 EntityType，也不会有实体残留问题）。玩家潜行或移动时会自动站起。</p>
  */
-public class SeatBlock extends FurnitureBlock {
+public class SeatBlock extends RotatableFurnitureBlock {
 
     /** 座位高度（方块坐标），按模型顶面估算。 */
     private final double seatHeight;

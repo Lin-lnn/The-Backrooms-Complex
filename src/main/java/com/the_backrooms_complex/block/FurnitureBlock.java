@@ -20,7 +20,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class FurnitureBlock extends Block {
 
     /** 供 {@link FurnitureShapes} 查询的 id（= 方块注册名）。 */
-    private final String furnitureId;
+    protected final String furnitureId;
 
     /** 是否可攀爬。 */
     private final boolean climbable;

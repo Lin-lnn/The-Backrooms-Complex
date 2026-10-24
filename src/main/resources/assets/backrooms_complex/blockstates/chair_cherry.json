@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "backrooms_complex:block/chair_cherry"
-    }
+    "facing=north": { "model": "backrooms_complex:block/chair_cherry" },
+    "facing=south": { "model": "backrooms_complex:block/chair_cherry", "y": 180 },
+    "facing=east":  { "model": "backrooms_complex:block/chair_cherry", "y": 90 },
+    "facing=west":  { "model": "backrooms_complex:block/chair_cherry", "y": 270 }
   }
 }
