@@ -25,8 +25,19 @@ public class MysteriousDoorBlock extends Block {
     /** 传送目标层级的基准高度（层 0 的地板）。 */
     private static final int TARGET_Y = 1;
 
+    /** 门板碰撞箱：宽 1 格、高 2 格、厚 3 像素。 */
+    private static final net.minecraft.world.phys.shapes.VoxelShape SHAPE =
+            net.minecraft.world.phys.shapes.Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, 2.0D, 0.1875D);
+
     public MysteriousDoorBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected net.minecraft.world.phys.shapes.VoxelShape getShape(
+            BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos,
+            net.minecraft.world.phys.shapes.CollisionContext ctx) {
+        return SHAPE;
     }
 
     @Override
