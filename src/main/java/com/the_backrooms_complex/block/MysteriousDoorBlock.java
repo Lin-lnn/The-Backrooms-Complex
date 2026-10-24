@@ -54,19 +54,41 @@ public class MysteriousDoorBlock extends Block {
         return InteractionResult.CONSUME;
     }
 
-    /** 向下/向上各找 8 格，返回一个脚下实心、身体为空的位置。 */
+    /** 水平搜索半径（格）。 */
+    private static final int SEARCH_RADIUS = 32;
+    /** 垂直搜索范围（格，向上/向下各这么多）。 */
+    private static final int SEARCH_HEIGHT = 48;
+
+    /**
+     * 以 base 为中心，在 <b>±{@value #SEARCH_RADIUS} 格的水平范围</b>、
+     * <b>±{@value #SEARCH_HEIGHT} 格的垂直范围</b>内，螺旋式寻找
+     * 「脚下实心 + 身体与头部为空气」的安全落点。
+     *
+     * <p>先搜中心附近（距离短的优先），保证落点尽量靠近门在 Level 0 的位置。</p>
+     */
     private static BlockPos findLanding(ServerLevel level, BlockPos base) {
-        for (int dy = 0; dy <= 8; dy++) {
-            for (int sign = 0; sign <= 1; sign++) {
-                int y = base.getY() + (sign == 0 ? dy : -dy);
-                BlockPos feet = new BlockPos(base.getX(), y, base.getZ());
-                if (y < level.getMinBuildHeight() + 1 || y > level.getMaxBuildHeight() - 3) {
-                    continue;
-                }
-                if (level.getBlockState(feet.below()).isSolidRender(level, feet.below())
-                        && level.getBlockState(feet).isAir()
-                        && level.getBlockState(feet.above()).isAir()) {
-                    return feet;
+        // 按"距离平方"从小到大枚举偏移，找到即返回
+        for (int r = 0; r <= SEARCH_RADIUS; r++) {
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    // 只处理"恰好在这一圈"的位置，避免重复扫描
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+                        continue;
+                    }
+                    for (int dy = 0; dy <= SEARCH_HEIGHT; dy++) {
+                        for (int sign = 0; sign <= 1; sign++) {
+                            int y = base.getY() + (sign == 0 ? dy : -dy);
+                            if (y < level.getMinBuildHeight() + 1 || y > level.getMaxBuildHeight() - 3) {
+                                continue;
+                            }
+                            BlockPos feet = new BlockPos(base.getX() + dx, y, base.getZ() + dz);
+                            if (level.getBlockState(feet.below()).isSolidRender(level, feet.below())
+                                    && level.getBlockState(feet).isAir()
+                                    && level.getBlockState(feet.above()).isAir()) {
+                                return feet;
+                            }
+                        }
+                    }
                 }
             }
         }
