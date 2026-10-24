@@ -154,6 +154,42 @@ public final class RoomGraph {
         return (int) Math.floorMod(hashCoord(seed, i, j, floor, "ldirNS"), 2);
     }
 
+    // ==================== 缓存（性能） ====================
+
+    /**
+     * spineX / spineZ 的缓存。
+     *
+     * <p>{@code spineX/spineZ} 每次都要做一次 FNV-1a 哈希（跨 21 字节）✓ 而
+     * {@code TopologyWalls} 每个方块要查 9~25 次同样的格点 ✓ 一个区块层就是数十万次
+     * 重复哈希 ✗ 这是进入维度卡顿的主要原因 ✓</p>
+     *
+     * <p>这里用一个简单的数组缓存（键 = (i,j,floor) 折叠成 long），命中即 O(1) ✓
+     * 容量固定 {@value #CACHE_SIZE} ✓ 满了直接清空（生成是分块的，清空代价很小）✓</p>
+     */
+    private static final int CACHE_SIZE = 8192;
+    private final long[] cacheKey = new long[CACHE_SIZE];
+    private final long[] cacheVal = new long[CACHE_SIZE];
+    private int cacheCount = 0;
+
+    /** 取(或在缓存中查)格子 (i,j,floor) 的主干节点坐标 [x, z]。 */
+    private long[] spineCached(int i, int j, int floor) {
+        long key = ((long) i & 0x1FFFFFL) << 42 | ((long) j & 0x1FFFFFL) << 21 | (floor & 0x1FFFFFL);
+        for (int k = 0; k < this.cacheCount; k++) {
+            if (this.cacheKey[k] == key) {
+                long v = this.cacheVal[k];
+                return new long[]{v >> 32, v & 0xFFFFFFFFL};
+            }
+        }
+        long x = spineX(i, j, floor);
+        long z = spineZ(i, j, floor);
+        if (this.cacheCount >= CACHE_SIZE) {
+            this.cacheCount = 0;
+        }
+        this.cacheKey[this.cacheCount] = key;
+        this.cacheVal[this.cacheCount] = ((x & 0xFFFFFFFFL) << 32) | (z & 0xFFFFFFFFL);
+        this.cacheCount++;
+        return new long[]{x, z};
+    }
     // ==================== 主干判定 ====================
 
     /**
@@ -200,10 +236,12 @@ public final class RoomGraph {
      */
     private boolean onLPath(long x, long z, int ai, int aj, int bi, int bj,
                             int floor, String salt) {
-        long ax = spineX(ai, aj, floor);
-        long az = spineZ(ai, aj, floor);
-        long bx = spineX(bi, bj, floor);
-        long bz = spineZ(bi, bj, floor);
+        long[] a = spineCached(ai, aj, floor);
+        long[] b = spineCached(bi, bj, floor);
+        long ax = a[0];
+        long az = a[1];
+        long bx = b[0];
+        long bz = b[1];
         int ldir = (int) Math.floorMod(hashCoord(seed, ai, aj, floor, salt), 2);
 
         if (ax > bx || (ax == bx && az > bz)) {
@@ -258,10 +296,12 @@ public final class RoomGraph {
 
     /** 到一条 L 形折线（两段轴对齐线段取最近）的距离。 */
     private int segDist(long x, long z, int ai, int aj, int bi, int bj, int floor, String salt) {
-        long ax = spineX(ai, aj, floor);
-        long az = spineZ(ai, aj, floor);
-        long bx = spineX(bi, bj, floor);
-        long bz = spineZ(bi, bj, floor);
+        long[] a = spineCached(ai, aj, floor);
+        long[] b = spineCached(bi, bj, floor);
+        long ax = a[0];
+        long az = a[1];
+        long bx = b[0];
+        long bz = b[1];
         int ldir = (int) Math.floorMod(hashCoord(seed, ai, aj, floor, salt), 2);
         if (ax > bx || (ax == bx && az > bz)) {
             long t = ax; ax = bx; bx = t;
