@@ -175,6 +175,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 // 列级常量：只依赖 (worldX, worldZ)，提到 y 循环外避免每个方块重算
                 final boolean colInHallRoom = inHallRoom(worldX, worldZ);
                 final boolean colOnPillarColumn = onPillarColumn(worldX, worldZ);
+                final boolean colIsLamp = isLamp(worldX, worldZ);
 
 
                 for (int y = minY; y < maxY; y++) {
@@ -298,7 +299,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         }
                     } else {
                         // offset == 6：天花板（间隔处放荧光灯）
-                        if (isLamp(worldX, worldZ)) {
+                        if (colIsLamp) {
                             chunk.setBlockState(mutable.set(worldX, y, worldZ), columnLamp, false);
                         } else {
                             chunk.setBlockState(mutable.set(worldX, y, worldZ), columnCeiling, false);
