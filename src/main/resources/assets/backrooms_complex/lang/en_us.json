@@ -44,5 +44,6 @@
     "itemGroup.backrooms_complex.entities":  "BackroomsComplex: Entities",
     "item.backrooms_complex.bacteria_spawn_egg":  "Bacteria Spawn Egg",
     "entity.backrooms_complex.bacteria":  "Bacteria",
-    "block.backrooms_complex.mycelium_carpet":  "Mycelium Carpet"
+    "block.backrooms_complex.mycelium_carpet":  "Mycelium Carpet",
+    "block.backrooms_complex.lamp_off":  "Extinguished Fluorescent Lamp"
 }

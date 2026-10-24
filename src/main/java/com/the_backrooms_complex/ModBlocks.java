@@ -132,6 +132,13 @@ public final class ModBlocks {
     public static final DeferredBlock<MyceliumCarpetBlock> MYCELIUM_CARPET =
             BLOCKS.register("mycelium_carpet", MyceliumCarpetBlock::new);
 
+    /** 「熄灭的荧光灯」：灯光异常闪烁时的替身方块。 */
+    public static final DeferredBlock<net.minecraft.world.level.block.Block> LAMP_OFF =
+            BLOCKS.register("lamp_off", () -> new net.minecraft.world.level.block.Block(
+                    net.minecraft.world.level.block.state.BlockBehaviour.Properties.of()
+                            .strength(-1.0F, 3600000.0F)
+                            .lightLevel(state -> 0)));
+
     private ModBlocks() {
     }
 }

@@ -72,6 +72,8 @@ public final class TopologyRuntime {
         if (level.random.nextFloat() >= chance) {
             return;
         }
+        // 前兆：先让附近灯闪一下
+        flickerLamps(level, player);
         if (openOneWallBehindPlayer(level, player)) {
             int next = (int) (COOLDOWN_MAX + (COOLDOWN_MIN - COOLDOWN_MAX) * dread);
             COOLDOWN.put(player.getUUID(), Math.max(COOLDOWN_MIN, next));
@@ -121,6 +123,66 @@ public final class TopologyRuntime {
         return false;
     }
 
+    /** 待复原的灯：pos -> 剩余 tick。 */
+    private static final Map<BlockPos, Integer> LAMP_RESTORE = new HashMap<>();
+    /** 闪烁持续的 tick 数。 */
+    public static final int FLICKER_TICKS = 40;
+    /** 一次闪烁影响的灯数量上限。 */
+    public static final int FLICKER_LAMPS = 6;
+    /** 闪烁影响的半径（格）。 */
+    public static final int FLICKER_RADIUS = 24;
+
+    /**
+     * 前兆特效：把玩家附近的荧光灯换成「熄灭的荧光灯」，{@value #FLICKER_TICKS} tick 后复原。
+     *
+     * <p>这不是装饰 —— 它在"墙被打开"之前给玩家一次听觉与视觉的预警，
+     * 让改变显得"有因果"而不是凭空发生。</p>
+     */
+    public static void flickerLamps(ServerLevel level, ServerPlayer player) {
+        BlockPos origin = player.blockPosition();
+        int changed = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(
+                origin.offset(-FLICKER_RADIUS, -8, -FLICKER_RADIUS),
+                origin.offset(FLICKER_RADIUS, 8, FLICKER_RADIUS))) {
+            if (changed >= FLICKER_LAMPS) {
+                break;
+            }
+            if (!level.isLoaded(pos)) {
+                continue;
+            }
+            if (!level.getBlockState(pos).is(ModBlocks.FLUORESCENT_LAMP.get())) {
+                continue;
+            }
+            if (level.random.nextFloat() > 0.35F) {
+                continue;   // 只闪一部分灯
+            }
+            level.setBlockAndUpdate(pos, ModBlocks.LAMP_OFF.get().defaultBlockState());
+            LAMP_RESTORE.put(pos.immutable(), FLICKER_TICKS);
+            level.playSound(null, pos, SoundEvents.LANTERN_BREAK, SoundSource.BLOCKS, 0.5F, 0.7F);
+            changed++;
+        }
+    }
+
+    /** 每 tick 推进灯光的复原计时。 */
+    public static void tickLampRestore(ServerLevel level) {
+        if (LAMP_RESTORE.isEmpty()) {
+            return;
+        }
+        var it = LAMP_RESTORE.entrySet().iterator();
+        while (it.hasNext()) {
+            var e = it.next();
+            int left = e.getValue() - 1;
+            if (left > 0) {
+                e.setValue(left);
+                continue;
+            }
+            BlockPos pos = e.getKey();
+            if (level.isLoaded(pos) && level.getBlockState(pos).is(ModBlocks.LAMP_OFF.get())) {
+                level.setBlockAndUpdate(pos, ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState());
+            }
+            it.remove();
+        }
+    }
     /** 是否为本模组的墙壁方块。 */
     private static boolean isWall(net.minecraft.world.level.block.state.BlockState state) {
         return state.is(ModBlocks.WALL_YELLOW.get())

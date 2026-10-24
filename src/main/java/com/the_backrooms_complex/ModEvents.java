@@ -170,6 +170,7 @@ public final class ModEvents {
                 }
                 float dread = 1.0F - com.the_backrooms_complex.ModPlayerData.getSanity(sp) / 100.0F;
                 com.the_backrooms_complex.worldgen.topology.TopologyRuntime.tick(level, sp, dread);
+                com.the_backrooms_complex.worldgen.topology.TopologyRuntime.tickLampRestore(level);
             }
         }
     }

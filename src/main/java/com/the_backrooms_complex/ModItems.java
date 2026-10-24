@@ -76,6 +76,10 @@ public final class ModItems {
             ITEMS.register("chiseled_concrete_wall", () -> new BlockItem(ModBlocks.CHISELED_CONCRETE_WALL.get(), new Item.Properties()));
 
     /** 「菌毯」的方块物品。 */
+    /** 「熄灭的荧光灯」的方块物品。 */
+    public static final DeferredItem<BlockItem> LAMP_OFF =
+            ITEMS.register("lamp_off", () -> new BlockItem(ModBlocks.LAMP_OFF.get(), new Item.Properties()));
+
     public static final DeferredItem<BlockItem> MYCELIUM_CARPET =
             ITEMS.register("mycelium_carpet", () -> new BlockItem(ModBlocks.MYCELIUM_CARPET.get(), new Item.Properties()));
 
@@ -175,6 +179,7 @@ public final class ModItems {
                         output.accept(ModBlocks.WALL_DAMP.get());
                         output.accept(ModBlocks.WALL_DAMP_PLINTH.get());
                         output.accept(ModBlocks.FLUORESCENT_LAMP.get());
+                        output.accept(ModItems.LAMP_OFF.get());
                         output.accept(ModBlocks.HUB_DOOR.get());
                         output.accept(ModBlocks.WALL_OAKED.get());
                         output.accept(ModBlocks.STRIPPED_CARPET_FLOOR.get());
