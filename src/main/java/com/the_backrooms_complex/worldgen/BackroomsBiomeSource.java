@@ -49,7 +49,35 @@ public class BackroomsBiomeSource extends BiomeSource {
     /**
      * 按 XZ 坐标确定性返回群系（供 ChunkGenerator 直接调用，无需 Climate.Sampler）。
      */
+    // ==================== 缓存（性能） ====================
+
+    /** 缓存槽位（2 的幂）。 */
+    private static final int BIOME_CACHE_SLOTS = 4096;
+    private static final long[] BIOME_CACHE_KEYS = new long[BIOME_CACHE_SLOTS];
+    private static final Holder<Biome>[] BIOME_CACHE_VALS =
+            (Holder<Biome>[]) new Holder<?>[BIOME_CACHE_SLOTS];
+
+    /**
+     * 带缓存的群系查询。
+     *
+     * <p>{@code biomeAt} 内部要做值噪声 + 双线性插值，是逐方块生成里最贵的操作之一。
+     * 同一次区块生成会对<b>同一个 (x, z, layer)</b> 反复查询 8 次（一层 8 格高），
+     * 这里直接映射缓存，命中即 O(1)。</p>
+     */
     public Holder<Biome> biomeAt(int x, int z, int layer) {
+        long key = ((long) (x & 0xFFFFFF) << 34) | ((long) (z & 0xFFFFFF) << 10) | (layer & 0x3FF);
+        int slot = (int) ((key * 0x9E3779B97F4A7C15L) >>> 52) & (BIOME_CACHE_SLOTS - 1);
+        if (BIOME_CACHE_KEYS[slot] == key && key != 0L) {
+            return BIOME_CACHE_VALS[slot];
+        }
+        Holder<Biome> v = computeBiomeAt(x, z, layer);
+        BIOME_CACHE_KEYS[slot] = key;
+        BIOME_CACHE_VALS[slot] = v;
+        return v;
+    }
+
+    /** 真正的群系计算（无缓存）。 */
+    private Holder<Biome> computeBiomeAt(int x, int z, int layer) {
         // 三个群系都以 256x256 格（面积 65536）为单元整体分配，远超"单个 >= 40000 格"。
         // 整单元分配 => 每个群系斑块都是完整的 65536 格。
         // 先把坐标吸附到 16 格区块网格，再划分群系单元：
