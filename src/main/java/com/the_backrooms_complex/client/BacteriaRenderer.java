@@ -2,11 +2,9 @@ package com.the_backrooms_complex.client;
 
 import com.the_backrooms_complex.entity.BacteriaEntity;
 
-import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.SlimeOuterLayer;
 import net.minecraft.resources.ResourceLocation;
 
 /**

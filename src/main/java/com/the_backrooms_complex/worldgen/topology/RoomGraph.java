@@ -144,16 +144,6 @@ public final class RoomGraph {
         return (long) j * CELL + Math.floorMod(hashCoord(seed, i, j, floor, "gz"), CELL);
     }
 
-    /** L 形折线走向：0 = 先水平后垂直，1 = 反之。 */
-    public int lDirEW(int i, int j, int floor) {
-        return (int) Math.floorMod(hashCoord(seed, i, j, floor, "ldir"), 2);
-    }
-
-    /** 南北方向折线走向。 */
-    public int lDirNS(int i, int j, int floor) {
-        return (int) Math.floorMod(hashCoord(seed, i, j, floor, "ldirNS"), 2);
-    }
-
     // ==================== 缓存（性能） ====================
 
     /**

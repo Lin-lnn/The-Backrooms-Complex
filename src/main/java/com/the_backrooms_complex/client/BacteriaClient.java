@@ -2,7 +2,6 @@ package com.the_backrooms_complex.client;
 
 import com.the_backrooms_complex.BackroomsComplex;
 import com.the_backrooms_complex.ModEntities;
-import net.minecraft.client.model.SlimeModel;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
