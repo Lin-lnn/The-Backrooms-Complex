@@ -202,19 +202,19 @@ public final class ModBlocks {
 
     // ===== 墙 / 台阶 / 楼梯 / 栅栏 变体（7 种基础材质 × 4 种形状）=====
     public static final DeferredBlock<WallBlock> WALL_YELLOW_WALL =
-            BLOCKS.register("wall_yellow_wall", () -> new WallBlock(unbreakable()));
+            BLOCKS.register("wall_yellow_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
     public static final DeferredBlock<WallBlock> WALL_DAMP_WALL =
-            BLOCKS.register("wall_damp_wall", () -> new WallBlock(unbreakable()));
+            BLOCKS.register("wall_damp_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
     public static final DeferredBlock<WallBlock> WALL_CONCRETE_WALL =
-            BLOCKS.register("wall_concrete_wall", () -> new WallBlock(unbreakable()));
+            BLOCKS.register("wall_concrete_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
     public static final DeferredBlock<WallBlock> CRACKED_CONCRETE_WALL_WALL =
-            BLOCKS.register("cracked_concrete_wall_wall", () -> new WallBlock(unbreakable()));
+            BLOCKS.register("cracked_concrete_wall_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
     public static final DeferredBlock<WallBlock> FLOOR_TILE_WALL =
-            BLOCKS.register("floor_tile_wall", () -> new WallBlock(unbreakable()));
+            BLOCKS.register("floor_tile_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
     public static final DeferredBlock<WallBlock> DAMP_FLOOR_WALL =
-            BLOCKS.register("damp_floor_wall", () -> new WallBlock(unbreakable()));
+            BLOCKS.register("damp_floor_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
     public static final DeferredBlock<WallBlock> STRIPPED_CARPET_FLOOR_WALL =
-            BLOCKS.register("stripped_carpet_floor_wall", () -> new WallBlock(unbreakable()));
+            BLOCKS.register("stripped_carpet_floor_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
     public static final DeferredBlock<SlabBlock> WALL_YELLOW_SLAB =
             BLOCKS.register("wall_yellow_slab", () -> new SlabBlock(unbreakable()));
     public static final DeferredBlock<SlabBlock> WALL_DAMP_SLAB =
