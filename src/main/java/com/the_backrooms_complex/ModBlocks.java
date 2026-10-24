@@ -244,19 +244,19 @@ public final class ModBlocks {
     public static final DeferredBlock<StairBlock> STRIPPED_CARPET_FLOOR_STAIRS =
             BLOCKS.register("stripped_carpet_floor_stairs", () -> new StairBlock(STRIPPED_CARPET_FLOOR.get().defaultBlockState(), unbreakable()));
     public static final DeferredBlock<FenceBlock> WALL_YELLOW_FENCE =
-            BLOCKS.register("wall_yellow_fence", () -> new FenceBlock(unbreakable()));
+            BLOCKS.register("wall_yellow_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     public static final DeferredBlock<FenceBlock> WALL_DAMP_FENCE =
-            BLOCKS.register("wall_damp_fence", () -> new FenceBlock(unbreakable()));
+            BLOCKS.register("wall_damp_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     public static final DeferredBlock<FenceBlock> WALL_CONCRETE_FENCE =
-            BLOCKS.register("wall_concrete_fence", () -> new FenceBlock(unbreakable()));
+            BLOCKS.register("wall_concrete_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     public static final DeferredBlock<FenceBlock> CRACKED_CONCRETE_WALL_FENCE =
-            BLOCKS.register("cracked_concrete_wall_fence", () -> new FenceBlock(unbreakable()));
+            BLOCKS.register("cracked_concrete_wall_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     public static final DeferredBlock<FenceBlock> FLOOR_TILE_FENCE =
-            BLOCKS.register("floor_tile_fence", () -> new FenceBlock(unbreakable()));
+            BLOCKS.register("floor_tile_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     public static final DeferredBlock<FenceBlock> DAMP_FLOOR_FENCE =
-            BLOCKS.register("damp_floor_fence", () -> new FenceBlock(unbreakable()));
+            BLOCKS.register("damp_floor_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     public static final DeferredBlock<FenceBlock> STRIPPED_CARPET_FLOOR_FENCE =
-            BLOCKS.register("stripped_carpet_floor_fence", () -> new FenceBlock(unbreakable()));
+            BLOCKS.register("stripped_carpet_floor_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)
