@@ -36,6 +36,11 @@ public final class BiomeTint {
 
     /** 群系过渡采样半径（格），(2r+1)^2 个采样点求平均 */
     public static final int BLEND_RADIUS = 4;
+
+    /** 着色结果缓存槽位（2 的幂）。 */
+    private static final int TINT_CACHE_SLOTS = 8192;
+    private static final long[] TINT_CACHE_KEYS = new long[TINT_CACHE_SLOTS];
+    private static final int[] TINT_CACHE_VALS = new int[TINT_CACHE_SLOTS];
     /** 裙边使用的 tintIndex（现已与墙身统一着色） */
     public static final int TINT_KEEP = 1;
 
@@ -60,6 +65,15 @@ public final class BiomeTint {
         }
         int layerBaseY = Math.floorDiv(pos.getY(), BackroomsChunkGenerator.LAYER_HEIGHT)
                 * BackroomsChunkGenerator.LAYER_HEIGHT;
+
+        // 结果缓存：同一方块位置在一次网格重建内会被询问多次（每个面一次），
+        // 每次都要做 25 次群系采样，是客户端最热的方法之一。
+        long ck = ((long) (pos.getX() & 0xFFFFFFF) << 34)
+                | ((long) (pos.getZ() & 0xFFFFFFF) << 6) | ((layerBaseY >> 3) & 0x3F);
+        int slot = (int) ((ck * 0x9E3779B97F4A7C15L) >>> 52) & (TINT_CACHE_SLOTS - 1);
+        if (TINT_CACHE_KEYS[slot] == ck && ck != 0L) {
+            return TINT_CACHE_VALS[slot];
+        }
         int r = 0;
         int g = 0;
         int b = 0;
@@ -82,7 +96,10 @@ public final class BiomeTint {
         if (n == 0) {
             return HUE_YELLOW;
         }
-        return ((r / n) << 16) | ((g / n) << 8) | (b / n);
+        int result = ((r / n) << 16) | ((g / n) << 8) | (b / n);
+        TINT_CACHE_KEYS[slot] = ck;
+        TINT_CACHE_VALS[slot] = result;
+        return result;
     }
 
     public static int getItemColor(net.minecraft.world.item.ItemStack stack, int tintIndex) {
