@@ -75,6 +75,13 @@ public final class TopologyWalls {
                 if (reachesOpen(before, lx, lz, MAX_WALL_THICKNESS)) {
                     continue;
                 }
+                // 只打通「不与任何房间相邻」的厚墙：
+                // 若四邻中存在属于房间的格子，则保留该墙，避免把房间边缘掏空。
+                long wx = minX + lx;
+                long wz = minZ + lz;
+                if (adjacentToRoom(graph, wx, wz, layer)) {
+                    continue;
+                }
                 walls[lx][lz] = false;   // 厚墙内部 -> 打通
             }
         }
@@ -170,6 +177,25 @@ public final class TopologyWalls {
 
     /** 墙壁最大厚度（格）；超厚的部分会被打通。 */
     public static final int MAX_WALL_THICKNESS = 2;
+
+    /** (x,z) 的四邻中是否有属于房间的格子（用于保护房间边缘不被掏空）。 */
+    private static boolean adjacentToRoom(RoomGraph graph, long x, long z, int layer) {
+        long[][] dirs = {{0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (long[] d : dirs) {
+            long px = x + d[0];
+            long pz = z + d[1];
+            long gi = Math.floorDiv(px, RoomGraph.CELL);
+            long gj = Math.floorDiv(pz, RoomGraph.CELL);
+            for (long i = gi - 1; i <= gi + 1; i++) {
+                for (long j = gj - 1; j <= gj + 1; j++) {
+                    if (inRoom(graph, px, pz, (int) i, (int) j, layer)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     /** 该墙格沿四个方向 maxThickness 步内是否能碰到通道。 */
     private static boolean reachesOpen(boolean[][] walls, int lx, int lz, int maxThickness) {
