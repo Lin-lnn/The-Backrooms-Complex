@@ -63,6 +63,9 @@ public class WallDustLayerBlock extends Block {
             case WEST -> WEST;
             default -> null;
         };
+        if (level instanceof net.minecraft.world.level.Level realLevel) {
+            this.checkWashAway(realLevel, pos);
+        }
         if (prop == null) {
             return state;
         }
@@ -86,6 +89,30 @@ public class WallDustLayerBlock extends Block {
     @Override
     protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
+    }
+
+    /**
+     * 被水冲走：上方或所在位置变成水时，掉落自身并消失（与红石粉一致）。
+     */
+    @Override
+    protected void onPlace(BlockState state, net.minecraft.world.level.Level level, BlockPos pos,
+                           BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        this.checkWashAway(level, pos);
+    }
+
+
+    /** 若被水覆盖则掉落自身并清除。 */
+    private void checkWashAway(net.minecraft.world.level.Level level, BlockPos pos) {
+        if (level.isClientSide()) {
+            return;
+        }
+        boolean washed = !level.getFluidState(pos).isEmpty()
+                || !level.getFluidState(pos.above()).isEmpty();
+        if (washed) {
+            dropResources(level.getBlockState(pos), level, pos);
+            level.removeBlock(pos, false);
+        }
     }
 
     /** 不是红石信号源 —— 也不参与任何红石连接。 */

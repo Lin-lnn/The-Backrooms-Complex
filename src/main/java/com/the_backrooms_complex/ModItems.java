@@ -188,7 +188,6 @@ public final class ModItems {
                         output.accept(ModBlocks.WALL_MANILA_PLINTH.get());
                         output.accept(ModBlocks.FLOOR_MANILA.get());
                         output.accept(ModBlocks.CEILING_MANILA.get());
-                        output.accept(ModBlocks.WALL_DUST_LAYER.get());
                         output.accept(ModBlocks.WALL_CONCRETE.get());
                         output.accept(ModBlocks.WALL_CONCRETE_PLINTH.get());
                         output.accept(ModBlocks.WALL_DAMP.get());
