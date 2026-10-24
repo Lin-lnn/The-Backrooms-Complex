@@ -74,7 +74,16 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     /** 世界最小 Y。 */
     private static final int MIN_Y = 0;
     /** 完整层数（0..35），第 36 层为顶部 4 格残层。 */
-    private static final int FULL_LAYERS = 32;
+    /**
+     * 实际可用层数 —— <b>按维度高度动态计算</b>。
+     *
+     * <p>原来写死 32 层，而 Level 1 的高度是 288（36 层）⇒ 访问第 33 层时越界，
+     * 区块生成抛异常，玩家看到的就是虚空。现在改为 {@code getGenDepth() / LAYER_HEIGHT}，
+     * 任何高度的维度都能正确工作。</p>
+     */
+    private int fullLayers() {
+        return Math.max(1, this.getGenDepth() / LAYER_HEIGHT);
+    }
     /** 荧光灯间隔（格）。 */
     private static final int LAMP_SPACING = 5;
 
@@ -163,7 +172,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         int maxY = chunk.getMaxBuildHeight();
 
         // 1. 走廊布局：逐层独立种子（每层一套完全不同的布局），只依赖区块坐标 + 层索引
-        boolean[][][] wall = BackroomsMaze.generateWallGrids(chunkX, chunkZ, FULL_LAYERS);
+        boolean[][][] wall = BackroomsMaze.generateWallGrids(chunkX, chunkZ, fullLayers());
 
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
@@ -198,7 +207,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
                         && !wall[layer][lx][lz - 1] && !wall[layer][lx][lz + 1];
 
-                    if (layer >= FULL_LAYERS) {
+                    if (layer >= fullLayers()) {
                         // 顶部残层（Y >= 252）：用天花板封顶，闭合维度
                         chunk.setBlockState(mutable.set(worldX, y, worldZ), ceilingState, false);
                         continue;
