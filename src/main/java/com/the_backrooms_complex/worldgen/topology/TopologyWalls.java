@@ -19,11 +19,11 @@ public final class TopologyWalls {
 
     /** 走廊宽度范围（格，奇数）：每条走廊段取一个值，段内恒定。 */
     public static final int CORRIDOR_MIN = 3;
-    public static final int CORRIDOR_MAX = 13;
+    public static final int CORRIDOR_MAX = 11;
 
     /** 房间最小/最大边长（格），均为奇数。 */
-    public static final int ROOM_MIN = 13;
-    public static final int ROOM_MAX = 21;
+    public static final int ROOM_MIN = 11;
+    public static final int ROOM_MAX = 19;
 
     /** 计算区块墙网格时向外扩展的格数（保证跨区块边界的线段被完整绘制）。 */
     private static final int CELL_MARGIN = 2;
