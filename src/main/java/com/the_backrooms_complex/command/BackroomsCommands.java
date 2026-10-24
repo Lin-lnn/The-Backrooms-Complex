@@ -85,7 +85,6 @@ public final class BackroomsCommands {
         var pos = player.blockPosition();
         int layer = Math.floorDiv(pos.getY(), com.the_backrooms_complex.worldgen.BackroomsChunkGenerator.LAYER_HEIGHT);
         var graph = new com.the_backrooms_complex.worldgen.topology.RoomGraph(0x5EEDBACC0001L);
-        var overlay = new com.the_backrooms_complex.worldgen.topology.RoomOverlay(graph);
 
         boolean onSpine = graph.isOnSpine(pos.getX(), pos.getZ(), layer);
         int parent = graph.parentDir(pos.getX(), pos.getZ(), layer);
@@ -94,13 +93,10 @@ public final class BackroomsCommands {
         String[] dirNames = {"北", "东", "南", "西", "上", "下"};
         String parentName = parent < 0 ? "（已在主干节点）" : dirNames[parent];
 
-        long room = com.the_backrooms_complex.worldgen.topology.RoomGraph
-                .coord(pos.getX(), pos.getZ(), layer);
-        int reachable = overlay.reachableCount(room, 14);
 
         source.sendSuccess(() -> Component.literal(String.format(
-                "§e[拓扑] §f层=%d 主干=%s 可走=%s 父方向=%s 覆盖层=%d 可达房间=%d",
-                layer, onSpine, open, parentName, overlay.overlaySize(), reachable)), false);
+                "§e[拓扑] §f层=%d 主干=%s 可走=%s 父方向=%s",
+                layer, onSpine, open, parentName)), false);
         return 1;
     }
     private static int check(CommandSourceStack source) {
