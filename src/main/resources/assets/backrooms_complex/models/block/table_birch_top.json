@@ -1,5 +1,9 @@
 {
     "parent":  "minecraft:block/block",
+    "textures":  {
+                     "tex":  "minecraft:block/birch_planks",
+                     "particle":  "minecraft:block/birch_planks"
+                 },
     "elements":  [
                      {
                          "from":  [
@@ -75,9 +79,5 @@
                                                 }
                                    }
                      }
-                 ],
-    "textures":  {
-                     "particle":  "minecraft:block/birch_planks",
-                     "tex":  "minecraft:block/birch_planks"
-                 }
+                 ]
 }

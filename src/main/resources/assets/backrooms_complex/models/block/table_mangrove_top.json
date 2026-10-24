@@ -1,5 +1,9 @@
 {
     "parent":  "minecraft:block/block",
+    "textures":  {
+                     "tex":  "minecraft:block/mangrove_planks",
+                     "particle":  "minecraft:block/mangrove_planks"
+                 },
     "elements":  [
                      {
                          "from":  [
@@ -75,9 +79,5 @@
                                                 }
                                    }
                      }
-                 ],
-    "textures":  {
-                     "particle":  "minecraft:block/mangrove_planks",
-                     "tex":  "minecraft:block/mangrove_planks"
-                 }
+                 ]
 }

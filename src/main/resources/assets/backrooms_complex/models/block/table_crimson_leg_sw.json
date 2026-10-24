@@ -1,5 +1,9 @@
 {
     "parent":  "minecraft:block/block",
+    "textures":  {
+                     "tex":  "minecraft:block/crimson_planks",
+                     "particle":  "minecraft:block/crimson_planks"
+                 },
     "elements":  [
                      {
                          "from":  [
@@ -149,9 +153,5 @@
                                                 }
                                    }
                      }
-                 ],
-    "textures":  {
-                     "particle":  "minecraft:block/crimson_planks",
-                     "tex":  "minecraft:block/crimson_planks"
-                 }
+                 ]
 }

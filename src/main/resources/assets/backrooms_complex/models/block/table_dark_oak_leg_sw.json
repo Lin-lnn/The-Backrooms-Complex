@@ -1,5 +1,9 @@
 {
     "parent":  "minecraft:block/block",
+    "textures":  {
+                     "tex":  "minecraft:block/dark_oak_planks",
+                     "particle":  "minecraft:block/dark_oak_planks"
+                 },
     "elements":  [
                      {
                          "from":  [
@@ -149,9 +153,5 @@
                                                 }
                                    }
                      }
-                 ],
-    "textures":  {
-                     "particle":  "minecraft:block/dark_oak_planks",
-                     "tex":  "minecraft:block/dark_oak_planks"
-                 }
+                 ]
 }
