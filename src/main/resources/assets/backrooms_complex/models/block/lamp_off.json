@@ -1,7 +1,6 @@
 {
-  "parent": "backrooms_complex:block/fluorescent_lamp",
+  "parent": "minecraft:block/cube_all",
   "textures": {
-    "0": "backrooms_complex:block/lamp_off",
-    "particle": "backrooms_complex:block/lamp_off"
+    "all": "backrooms_complex:block/lamp_off"
   }
 }
