@@ -166,28 +166,31 @@ public final class RoomGraph {
      * <p>这里用一个简单的数组缓存（键 = (i,j,floor) 折叠成 long），命中即 O(1) ✓
      * 容量固定 {@value #CACHE_SIZE} ✓ 满了直接清空（生成是分块的，清空代价很小）✓</p>
      */
-    private static final int CACHE_SIZE = 8192;
-    private final long[] cacheKey = new long[CACHE_SIZE];
-    private final long[] cacheVal = new long[CACHE_SIZE];
-    private int cacheCount = 0;
+    private static final int CACHE_SIZE = 4096;   // 2 的幂，便于位掩码
 
-    /** 取(或在缓存中查)格子 (i,j,floor) 的主干节点坐标 [x, z]。 */
+    /** 键表（0 表示空槽）。 */
+    private final long[] cacheKey = new long[CACHE_SIZE];
+    /** 值表：高 32 位 = x，低 32 位 = z。 */
+    private final long[] cacheVal = new long[CACHE_SIZE];
+
+    /**
+     * 取（或计算）格子 (i,j,floor) 的主干节点坐标，返回 {@code [x, z]}。
+     *
+     * <p><b>直接映射缓存</b>：用键的哈希低位选槽位，查不到就直接覆盖 —— 查找是
+     * 严格 O(1)，不会被大量条目拖慢（之前的线性扫描版本反而更慢）。</p>
+     */
     private long[] spineCached(int i, int j, int floor) {
-        long key = ((long) i & 0x1FFFFFL) << 42 | ((long) j & 0x1FFFFFL) << 21 | (floor & 0x1FFFFFL);
-        for (int k = 0; k < this.cacheCount; k++) {
-            if (this.cacheKey[k] == key) {
-                long v = this.cacheVal[k];
-                return new long[]{v >> 32, v & 0xFFFFFFFFL};
-            }
+        long key = ((long) (i & 0xFFFFF) << 42) | ((long) (j & 0xFFFFF) << 22) | (floor & 0x3FFFFF);
+        int slot = (int) ((key * 0x9E3779B97F4A7C15L) >>> 52) & (CACHE_SIZE - 1);
+        long stored = this.cacheKey[slot];
+        if (stored == key && key != 0L) {
+            long v = this.cacheVal[slot];
+            return new long[]{v >> 32, v & 0xFFFFFFFFL};
         }
         long x = spineX(i, j, floor);
         long z = spineZ(i, j, floor);
-        if (this.cacheCount >= CACHE_SIZE) {
-            this.cacheCount = 0;
-        }
-        this.cacheKey[this.cacheCount] = key;
-        this.cacheVal[this.cacheCount] = ((x & 0xFFFFFFFFL) << 32) | (z & 0xFFFFFFFFL);
-        this.cacheCount++;
+        this.cacheKey[slot] = key;
+        this.cacheVal[slot] = ((x & 0xFFFFFFFFL) << 32) | (z & 0xFFFFFFFFL);
         return new long[]{x, z};
     }
     // ==================== 主干判定 ====================
