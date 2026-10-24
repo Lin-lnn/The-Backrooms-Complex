@@ -66,6 +66,14 @@ public class Level0Structure extends Structure {
      * 不再走普通模板的加权选择。</p>
      */
     public static final long MANILA_CHANCE_DENOM = 1333L;   // 0.075%（原 0.005% × 15）
+
+    /**
+     * 结构只在<b>最下面这几层</b>生成。
+     *
+     * <p>原来结构可以在 32 层里任意一层出现，玩家在底层活动时只有 1/32 的结构能被看到，
+     * 这正是"结构很难找到"的原因。收窄到 4 层后，底层遇到结构的概率提升约 8 倍。</p>
+     */
+    public static final int LAYER_SPREAD = 4;
     /** 马尼拉结构专用盐值。 */
     private static final long SALT_MANILA = 0x4D414E494C41L;
 
@@ -133,9 +141,15 @@ public class Level0Structure extends Structure {
         }
         int maxLayer = Math.min(MAX_LAYER_INDEX, maxLayerByHeight);
 
-        // 逐层独立判定：每层 5% 概率（52429 / 1048576 ≈ 5%），从最高层往下找第一个命中的层
+        // 层选择：从<b>最高层往下</b>找第一个命中的层。
+        //
+        // 关键修正：原来 32 层都能被选中，导致结构有 31/32 的概率生成在玩家头顶上方，
+        // 玩家在底层走廊里几乎看不到 —— 这就是"结构很难找到"的真正原因。
+        // 现在把可生成的层收窄到<b>最下面 4 层</b>（LAYER_SPREAD = 4），
+        // 使结构集中在玩家主要活动的底层区域，可遇到率提升约 8 倍。
+        int topLayer = Math.min(maxLayer, LAYER_SPREAD - 1);
         int layerIndex = -1;
-        for (int l = maxLayer; l >= 0; l--) {
+        for (int l = topLayer; l >= 0; l--) {
             if ((mix(gx, gz, l, SALT_LAYER) & 0xFFFFFL) < 786432L) {   // 75%（原 5% × 15）
                 layerIndex = l;
                 break;
