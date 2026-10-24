@@ -142,12 +142,9 @@ public final class ModPlayerData {
         }
 
         var level = player.serverLevel();
-        var biome = level.getBiome(player.blockPosition()).value();
-        String biomePath = level.registryAccess()
-                .registryOrThrow(Registries.BIOME)
-                .getResourceKey(biome)
-                .map(k -> k.location().getPath())
-                .orElse("");
+        // 直接比较群系的 ResourceLocation，避免每秒拼一次字符串 + 查注册表
+        var biomeKey = level.getBiome(player.blockPosition()).unwrapKey().orElse(null);
+        String biomePath = biomeKey == null ? "" : biomeKey.location().getPath();
 
         boolean damp = "damp_corridors".equals(biomePath);
         boolean yellow = "yellow_rooms".equals(biomePath);
