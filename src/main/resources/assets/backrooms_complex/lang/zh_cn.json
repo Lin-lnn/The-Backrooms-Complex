@@ -150,5 +150,6 @@
     "item.backrooms_complex.empty_can.line2":  "并非没有用途",
     "item.backrooms_complex.empty_can.line3":  "可以收集起来回收",
     "item.backrooms_complex.chisel.line2":  "可以凿破墙壁",
-    "item.backrooms_complex.chisel.line3":  "凿下的墙灰说不定有些用处"
+    "item.backrooms_complex.chisel.line3":  "凿下的墙灰说不定有些用处",
+    "block.backrooms_complex.wall_dust_layer":  "墙灰层"
 }

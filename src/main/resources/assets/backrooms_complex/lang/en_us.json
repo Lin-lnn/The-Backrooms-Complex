@@ -150,5 +150,6 @@
     "item.backrooms_complex.empty_can.line2":  "Not entirely useless",
     "item.backrooms_complex.empty_can.line3":  "Collect them to be recycled",
     "item.backrooms_complex.chisel.line2":  "Can chisel walls open",
-    "item.backrooms_complex.chisel.line3":  "The wall dust it leaves might be of some use"
+    "item.backrooms_complex.chisel.line3":  "The wall dust it leaves might be of some use",
+    "block.backrooms_complex.wall_dust_layer":  "Wall Dust Layer"
 }

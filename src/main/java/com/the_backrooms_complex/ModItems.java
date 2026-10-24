@@ -44,6 +44,8 @@ public final class ModItems {
             ITEMS.register("wall_manila_plinth", () -> new BlockItem(ModBlocks.WALL_MANILA_PLINTH.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> FLOOR_MANILA =
             ITEMS.register("floor_manila", () -> new BlockItem(ModBlocks.FLOOR_MANILA.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_DUST_LAYER =
+            ITEMS.register("wall_dust_layer", () -> new BlockItem(ModBlocks.WALL_DUST_LAYER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> CEILING_MANILA =
             ITEMS.register("ceiling_manila", () -> new BlockItem(ModBlocks.CEILING_MANILA.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> WALL_CONCRETE =
@@ -164,7 +166,7 @@ public final class ModItems {
 
     /** 墙灰：凿墙掉落的粉末（贴图为原版火药染淡灰）。 */
     public static final DeferredItem<Item> WALL_DUST =
-            ITEMS.register("wall_dust", () -> new Item(new Item.Properties()));
+            ITEMS.register("wall_dust", () -> new com.the_backrooms_complex.item.WallDustItem(new Item.Properties()));
 
     /** 墙纸帽：头盔形状合成，5 个墙纸，可穿戴、无护甲值、耐久 32。 */
     public static final DeferredItem<ArmorItem> WALLPAPER_HAT =
@@ -186,6 +188,7 @@ public final class ModItems {
                         output.accept(ModBlocks.WALL_MANILA_PLINTH.get());
                         output.accept(ModBlocks.FLOOR_MANILA.get());
                         output.accept(ModBlocks.CEILING_MANILA.get());
+                        output.accept(ModBlocks.WALL_DUST_LAYER.get());
                         output.accept(ModBlocks.WALL_CONCRETE.get());
                         output.accept(ModBlocks.WALL_CONCRETE_PLINTH.get());
                         output.accept(ModBlocks.WALL_DAMP.get());

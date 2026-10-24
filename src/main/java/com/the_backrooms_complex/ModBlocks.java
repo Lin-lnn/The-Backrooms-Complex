@@ -5,6 +5,7 @@ import com.the_backrooms_complex.block.DampCeilingBlock;
 import com.the_backrooms_complex.block.DampFloorBlock;
 import com.the_backrooms_complex.block.FurnitureBlock;
 import com.the_backrooms_complex.block.TableBlock;
+import com.the_backrooms_complex.block.WallDustLayerBlock;
 import com.the_backrooms_complex.block.SeatBlock;
 import com.the_backrooms_complex.block.FluorescentLampBlock;
 import com.the_backrooms_complex.block.HubDoorBlock;
@@ -61,6 +62,16 @@ public final class ModBlocks {
     /** 马尼拉地板：米白配色的地砖。 */
     public static final DeferredBlock<Block> FLOOR_MANILA = BLOCKS.register("floor_manila",
             () -> new Block(unbreakable()));
+    /** 铺在地上的墙灰：外观同未连接的红石粉，但不传递红石信号。 */
+    public static final DeferredBlock<WallDustLayerBlock> WALL_DUST_LAYER =
+            BLOCKS.register("wall_dust_layer", () -> new WallDustLayerBlock(
+                    BlockBehaviour.Properties.of()
+                            .strength(0.2F)
+                            .sound(net.minecraft.world.level.block.SoundType.SAND)
+                            .noCollission()
+                            .noOcclusion()
+                            .instabreak()));
+
     /** 马尼拉天花板：米白配色的天花板。 */
     public static final DeferredBlock<Block> CEILING_MANILA = BLOCKS.register("ceiling_manila",
             () -> new Block(unbreakable()));
