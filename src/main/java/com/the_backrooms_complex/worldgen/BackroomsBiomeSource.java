@@ -85,11 +85,17 @@ public class BackroomsBiomeSource extends BiomeSource {
         // 不会出现"区块内一半黄一半混凝土"的错位。
         int cx = Math.floorDiv(Math.floorDiv(x, 16), HALL_CELL_BLOCKS / 16);
         int cz = Math.floorDiv(Math.floorDiv(z, 16), HALL_CELL_BLOCKS / 16);
-        if (hash01(cx, cz, layer) < 0.05) {
+        // 群系比例：黄 4 : 混凝土 1 : 潮湿 1（单个哈希分三段，避免两次哈希的相关性）
+        double roll = hash01(cx, cz, layer);
+        if (roll < 1.0 / 6.0) {
             return concreteHalls;
         }
+        if (roll < 2.0 / 6.0) {
+            return dampCorridors;
+        }
+        return yellowRooms;
         // 其余区域在黄色房间 / 潮湿走廊之间由原噪声划分
-        return hash01(cx + 7919, cz + 104729, layer) < 0.5 ? yellowRooms : dampCorridors;
+
     }
 
     /** 该群系是否为混凝土大厅（供 ChunkGenerator 判定额外特征）。 */
