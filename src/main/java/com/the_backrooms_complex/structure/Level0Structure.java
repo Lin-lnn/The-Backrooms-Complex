@@ -76,9 +76,7 @@ public class Level0Structure extends Structure {
     public Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
         ChunkPos chunkPos = context.chunkPos();
         final boolean DIAG = false;  // 诊断开关已关闭
-        if (DIAG) {
-            System.out.println("[BC-DIAG] findGenerationPoint chunk=" + chunkPos.x + "," + chunkPos.z);
-        }
+        // 诊断已关闭
 
         // 1) 反推本区块对应的 90×90 网格单元（与放置规则 Level0StructurePlacement 完全一致）
         int[] cell = Level0StructurePlacement.cellForChunk(chunkPos.x, chunkPos.z);

@@ -90,12 +90,9 @@ public final class TopologyRuntime {
             COOLDOWN.put(player.getUUID(), cd - 1);
             return;
         }
-        System.out.println("[BC-TOPO] 事件触发 player=" + player.getName().getString()
-                + " pos=" + player.blockPosition());
         flickerLamps(level, player);
         boolean opened = openDoorBehindPlayers(level, player);
         boolean sealed = sealOneCorridor(level, player);
-        System.out.println("[BC-TOPO]   开门=" + opened + " 填路=" + sealed);
 
         if (opened || sealed) {
             int span = EVENT_MAX_TICKS - EVENT_MIN_TICKS;
