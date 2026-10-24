@@ -188,6 +188,7 @@ public final class ModItems {
                         output.accept(ModBlocks.WALL_MANILA_PLINTH.get());
                         output.accept(ModBlocks.FLOOR_MANILA.get());
                         output.accept(ModBlocks.CEILING_MANILA.get());
+                        output.accept(ModItems.MYSTERIOUS_DOOR.get());
                         output.accept(ModItems.WALL_YELLOW_WALL.get());
                         output.accept(ModItems.WALL_YELLOW_SLAB.get());
                         output.accept(ModItems.WALL_YELLOW_STAIRS.get());
@@ -467,6 +468,9 @@ public final class ModItems {
             ITEMS.register("stripped_carpet_floor_stairs", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_STAIRS.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_FENCE =
             ITEMS.register("stripped_carpet_floor_fence", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> MYSTERIOUS_DOOR =
+            ITEMS.register("mysterious_door", () -> new BlockItem(ModBlocks.MYSTERIOUS_DOOR.get(), new Item.Properties()));
+
     private ModItems() {
     }
 }

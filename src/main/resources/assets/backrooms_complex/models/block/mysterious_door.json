@@ -1,0 +1,22 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "bottom": "backrooms_complex:block/mysterious_door_bottom",
+    "top": "backrooms_complex:block/mysterious_door_top",
+    "particle": "backrooms_complex:block/mysterious_door_bottom"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 3],
+      "faces": {
+        "north": { "uv": [0, 0, 16, 16], "texture": "#bottom" },
+        "east":  { "uv": [0, 0, 3, 16],  "texture": "#bottom" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#bottom" },
+        "west":  { "uv": [0, 0, 3, 16],  "texture": "#bottom" },
+        "up":    { "uv": [0, 0, 16, 3],  "texture": "#top" },
+        "down":  { "uv": [0, 0, 16, 3],  "texture": "#bottom" }
+      }
+    }
+  ]
+}

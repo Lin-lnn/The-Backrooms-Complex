@@ -257,6 +257,10 @@ public final class ModBlocks {
             BLOCKS.register("damp_floor_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     public static final DeferredBlock<FenceBlock> STRIPPED_CARPET_FLOOR_FENCE =
             BLOCKS.register("stripped_carpet_floor_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+    /** 色泽灰暗的神秘的门：右键传送到 Level 1，不能打开。 */
+    public static final DeferredBlock<com.the_backrooms_complex.block.MysteriousDoorBlock> MYSTERIOUS_DOOR =
+            BLOCKS.register("mysterious_door", () -> new com.the_backrooms_complex.block.MysteriousDoorBlock(unbreakable().noOcclusion()));
+
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)
