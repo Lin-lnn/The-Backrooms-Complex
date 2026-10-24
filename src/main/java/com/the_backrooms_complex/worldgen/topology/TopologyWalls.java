@@ -111,8 +111,26 @@ public final class TopologyWalls {
 
         // ② 走廊：到最近主干【线段】的距离 <= 半宽
         //    围绕线段画带 -> 走廊笔直，转角是一次完整的 90°（不再有台阶）
-        int width = corridorWidth(graph, (int) Math.floorDiv(x, RoomGraph.CELL),
-                (int) Math.floorDiv(z, RoomGraph.CELL), layer);
+        // 宽度按"最近主干节点所在格子"取值 -> 一条走廊段内宽度恒定
+        // => 台阶只出现在节点处，而节点处正是房间位置，台阶被房间遮住
+        long gi2 = Math.floorDiv(x, RoomGraph.CELL);
+        long gj2 = Math.floorDiv(z, RoomGraph.CELL);
+        long bestD2 = Long.MAX_VALUE;
+        int bestI = (int) gi2;
+        int bestJ = (int) gj2;
+        for (long i = gi2 - 1; i <= gi2 + 1; i++) {
+            for (long j = gj2 - 1; j <= gj2 + 1; j++) {
+                long tx = graph.spineX((int) i, (int) j, layer);
+                long tz = graph.spineZ((int) i, (int) j, layer);
+                long dd = Math.abs(tx - x) + Math.abs(tz - z);
+                if (dd < bestD2) {
+                    bestD2 = dd;
+                    bestI = (int) i;
+                    bestJ = (int) j;
+                }
+            }
+        }
+        int width = corridorWidth(graph, bestI, bestJ, layer);
         int dist = graph.spineDistance(x, z, layer);
         return dist <= width / 2;
     }

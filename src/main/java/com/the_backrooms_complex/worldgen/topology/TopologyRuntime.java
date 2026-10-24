@@ -98,9 +98,12 @@ public final class TopologyRuntime {
         }
         // 触发与精神值无关：固定间隔的随机事件
         // （dread 只影响灯闪强度，不再影响是否触发）
+        System.out.println("[BC-TOPO] 事件触发 player=" + player.getName().getString()
+                + " pos=" + player.blockPosition());
         flickerLamps(level, player);
         boolean opened = openDoorBehindPlayers(level, player);
         boolean sealed = sealOneCorridor(level, player);
+        System.out.println("[BC-TOPO]   开门=" + opened + " 填路=" + sealed);
         if (opened || sealed) {
             // 固定区间随机冷却（20~60 秒），与 sanity 无关
             int span = EVENT_MAX_TICKS - EVENT_MIN_TICKS;
