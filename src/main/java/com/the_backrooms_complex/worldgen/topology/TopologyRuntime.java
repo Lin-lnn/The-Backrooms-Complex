@@ -2,57 +2,90 @@ package com.the_backrooms_complex.worldgen.topology;
 
 import com.the_backrooms_complex.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * 拓扑运行时：让「走廊在视线外改变」这件事**真的发生**（方案 B 简化版）。
+ * 拓扑运行时：让「走廊在视线外改变」真的发生。
  *
- * <h2>为什么不改拓扑图，而是改方块</h2>
- * <p>拓扑图（{@link RoomGraph}）是<b>纯逻辑</b>，玩家看不见。要让玩家体验到"路变了"，
- * 最终必须落到<b>方块</b>上。</p>
+ * <h2>每次扰动做两件事</h2>
+ * <ol>
+ *   <li><b>开一扇门</b>：在玩家背后挖出「标准走廊大小」（{@value #DOOR_WIDTH} 宽 ×
+ *       {@value #DOOR_HEIGHT} 高）的通道。<b>只挖到对面本来就是空地的位置</b> ——
+ *       这样它一定连接另一条走廊或房间，<b>而且不会把已有走廊的墙壁挖穿</b>；</li>
+ *   <li><b>补一段走廊</b>：在更远的背后把一段走廊填成墙，制造"路没了"的错觉。</li>
+ * </ol>
  *
- * <h2>简化版规则（保守、只增连通）</h2>
+ * <h2>安全约束</h2>
  * <ul>
- *   <li>只在玩家<b>视线外</b>（前方 120° 之外）且距离 16~48 格的位置动土；</li>
- *   <li>只做<b>打通</b>（把墙挖开），<b>从不补墙</b> ⇒ 连通性只增不减 ⇒ <b>永不把玩家封死</b>；</li>
- *   <li>每次扰动最多改 {@value #MAX_BLOCKS_PER_EVENT} 个方块；</li>
- *   <li>触发概率随精神值（dread = 1 − sanity/100）升高。</li>
+ *   <li>所有改动都在玩家<b>背后 90° 以外</b>，玩家看不到变化；</li>
+ *   <li>填墙只在 {@value #SEAL_MIN}~{@value #SEAL_MAX} 格外，远离玩家；</li>
+ *   <li>填墙只填「两侧都是墙」的窄段，不会填掉房间；</li>
+ *   <li><b>无音效</b> —— 改变是无声的，只有灯闪作为前兆。</li>
  * </ul>
- *
- * <p>副作用：长期游玩后墙体逐渐变少（因为只打通不补墙）。这是**有意为之的保守取舍** ——
- * 宁可世界越来越通透，也不能把玩家关死。</p>
  */
 public final class TopologyRuntime {
 
-    /** 每次扰动最多改动的方块数。 */
-    public static final int MAX_BLOCKS_PER_EVENT = 3;
-    /** 扰动的最小距离（格）—— 必须大于玩家的视野清晰范围。 */
+    // ==================== 门洞 ====================
+
+    /** 门洞宽度（格）—— 与标准走廊一致。 */
+    public static final int DOOR_WIDTH = 3;
+    /** 门洞高度（格）。 */
+    public static final int DOOR_HEIGHT = 3;
+
+    // ==================== 距离与视线 ====================
+
+    /** 开洞的距离范围（格）。 */
     public static final int MIN_DISTANCE = 16;
-    /** 扰动的最大距离（格）。 */
     public static final int MAX_DISTANCE = 48;
-    /** 视线之外的角度阈值（cos 值）：dot &lt; 0 表示在背后 90° 以外。 */
+    /** 填走廊的距离范围（格）—— 更远，避免误伤玩家附近。 */
+    public static final int SEAL_MIN = 32;
+    public static final int SEAL_MAX = 64;
+    /** 视线之外的角度阈值（cos）：dot &lt; 0 即在背后 90° 以外。 */
     public static final double BEHIND_COS = 0.0D;
-    /** 冷却上限（tick）；dread 越高冷却越短。 */
+
+    // ==================== 冷却 ====================
+
+    /** 冷却上限（tick）。 */
     public static final int COOLDOWN_MAX = 8 * 20;
     /** 冷却下限（tick）。 */
     public static final int COOLDOWN_MIN = 2 * 20;
 
+    // ==================== 灯光前兆 ====================
+
+    /** 灯光闪烁持续 tick。 */
+    public static final int FLICKER_TICKS = 40;
+    /** 一次闪烁影响的灯数量上限。 */
+    public static final int FLICKER_LAMPS = 6;
+    /** 闪烁影响半径（格）。 */
+    public static final int FLICKER_RADIUS = 24;
+
+    // ==================== 状态 ====================
+
     /** 每个玩家的冷却计时。 */
     private static final Map<UUID, Integer> COOLDOWN = new HashMap<>();
+    /** 待复原的灯：pos -> 剩余 tick。 */
+    private static final Map<BlockPos, Integer> LAMP_RESTORE = new HashMap<>();
 
     private TopologyRuntime() {
     }
 
+    // ==================== 主循环 ====================
+
     /**
-     * 每 tick 调用：按 dread 概率触发一次「视线外打通」。
+     * 每 tick 调用：按 dread 概率触发一次扰动。
      *
      * @param level  服务端世界
      * @param player 玩家
@@ -67,14 +100,18 @@ public final class TopologyRuntime {
             COOLDOWN.put(player.getUUID(), cd - 1);
             return;
         }
-        // 每 tick 的触发概率：dread 越高越容易
         float chance = Math.max(0.0F, Math.min(1.0F, dread)) * 0.02F;
         if (level.random.nextFloat() >= chance) {
             return;
         }
-        // 前兆：先让附近灯闪一下
+
+        // 前兆：先让附近的灯闪一下（无声之外唯一的提示）
         flickerLamps(level, player);
-        if (openOneWallBehindPlayer(level, player)) {
+
+        boolean opened = openDoorBehindPlayer(level, player);
+        boolean sealed = sealOneCorridor(level, player);
+
+        if (opened || sealed) {
             int next = (int) (COOLDOWN_MAX + (COOLDOWN_MIN - COOLDOWN_MAX) * dread);
             COOLDOWN.put(player.getUUID(), Math.max(COOLDOWN_MIN, next));
         } else {
@@ -82,17 +119,20 @@ public final class TopologyRuntime {
         }
     }
 
+    // ==================== 开一扇门 ====================
+
     /**
-     * 在玩家背后随机找一个墙方块并打通。
+     * 在玩家背后挖一个「标准走廊大小」的门洞。
      *
-     * @return 是否改动了好方块
+     * <p>只在对面的空间本来是空的时才会挖 —— 保证门连接另一条走廊/房间，
+     * 且不会挖穿已有走廊的墙壁。</p>
      */
-    private static boolean openOneWallBehindPlayer(ServerLevel level, ServerPlayer player) {
+    private static boolean openDoorBehindPlayer(ServerLevel level, ServerPlayer player) {
         Vec3 look = player.getLookAngle();
         Vec3 eye = player.getEyePosition();
         BlockPos origin = player.blockPosition();
 
-        for (int attempt = 0; attempt < 40; attempt++) {
+        for (int attempt = 0; attempt < 60; attempt++) {
             int dx = level.random.nextInt(MAX_DISTANCE * 2 + 1) - MAX_DISTANCE;
             int dz = level.random.nextInt(MAX_DISTANCE * 2 + 1) - MAX_DISTANCE;
             int dy = level.random.nextInt(9) - 4;
@@ -101,42 +141,101 @@ public final class TopologyRuntime {
                 continue;
             }
             BlockPos pos = origin.offset(dx, dy, dz);
-            if (!level.isLoaded(pos)) {
+            if (!level.isLoaded(pos) || !isBehind(eye, look, pos)) {
                 continue;
             }
-            // 视线判定：在背后（与视线方向点积 < 0）
-            Vec3 toBlock = new Vec3(pos.getX() + 0.5D - eye.x, pos.getY() + 0.5D - eye.y,
-                    pos.getZ() + 0.5D - eye.z).normalize();
-            if (toBlock.dot(look) > BEHIND_COS) {
-                continue;   // 在视野内，跳过
-            }
-            // 只处理本模组的墙壁方块
-            var state = level.getBlockState(pos);
-            if (!isWall(state)) {
+            if (!isWall(level.getBlockState(pos))) {
                 continue;
             }
-            // 打通（只挖不补）
-            level.setBlockAndUpdate(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
-            level.playSound(null, pos, SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 0.4F, 1.6F);
+            Direction[] dirs = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+            for (Direction dir : dirs) {
+                if (tryCarveDoor(level, pos, dir)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 尝试在 {@code pos} 处朝 {@code dir} 挖一个标准门洞。
+     *
+     * <p>要求整块区域都是墙（不挖穿已有走廊），且门洞对面是空地（保证真的连通）。</p>
+     */
+    private static boolean tryCarveDoor(ServerLevel level, BlockPos pos, Direction dir) {
+        List<BlockPos> dig = new ArrayList<>();
+        for (int w = 0; w < DOOR_WIDTH; w++) {
+            for (int h = 0; h < DOOR_HEIGHT; h++) {
+                int ox = dir.getStepX() > 0 ? w : (dir.getStepX() < 0 ? -w : 0);
+                int oz = dir.getStepZ() > 0 ? w : (dir.getStepZ() < 0 ? -w : 0);
+                BlockPos bp = pos.offset(ox, h, oz);
+                if (!level.isLoaded(bp) || !isWall(level.getBlockState(bp))) {
+                    return false;
+                }
+                dig.add(bp);
+            }
+        }
+        // 门洞对面必须是空地，否则挖出来的是死洞
+        BlockPos beyond = pos.relative(dir, DOOR_WIDTH + 1);
+        if (!level.isLoaded(beyond) || !level.getBlockState(beyond).isAir()) {
+            return false;
+        }
+        for (BlockPos bp : dig) {
+            level.setBlockAndUpdate(bp, Blocks.AIR.defaultBlockState());
+        }
+        return true;
+    }
+
+    // ==================== 补一段走廊 ====================
+
+    /**
+     * 在更远的背后把一段走廊填成墙。
+     *
+     * <p>只填「两侧都是墙」的窄段（真正的走廊），不会填掉房间，也不会填玩家附近。</p>
+     */
+    private static boolean sealOneCorridor(ServerLevel level, ServerPlayer player) {
+        Vec3 look = player.getLookAngle();
+        Vec3 eye = player.getEyePosition();
+        BlockPos origin = player.blockPosition();
+
+        for (int attempt = 0; attempt < 40; attempt++) {
+            int dx = level.random.nextInt(SEAL_MAX * 2 + 1) - SEAL_MAX;
+            int dz = level.random.nextInt(SEAL_MAX * 2 + 1) - SEAL_MAX;
+            int dy = level.random.nextInt(5) - 2;
+            double dist = Math.sqrt((double) dx * dx + (double) dz * dz);
+            if (dist < SEAL_MIN || dist > SEAL_MAX) {
+                continue;
+            }
+            BlockPos bp = origin.offset(dx, dy, dz);
+            if (!level.isLoaded(bp) || !isBehind(eye, look, bp)) {
+                continue;
+            }
+            if (!level.getBlockState(bp).isAir()) {
+                continue;
+            }
+            boolean ns = isWall(level.getBlockState(bp.north()))
+                    && isWall(level.getBlockState(bp.south()));
+            boolean ew = isWall(level.getBlockState(bp.east()))
+                    && isWall(level.getBlockState(bp.west()));
+            if (!ns && !ew) {
+                continue;
+            }
+            for (int h = 0; h < DOOR_HEIGHT; h++) {
+                BlockPos up = bp.above(h);
+                if (level.isLoaded(up) && level.getBlockState(up).isAir()) {
+                    level.setBlockAndUpdate(up, ModBlocks.WALL_YELLOW.get().defaultBlockState());
+                }
+            }
             return true;
         }
         return false;
     }
 
-    /** 待复原的灯：pos -> 剩余 tick。 */
-    private static final Map<BlockPos, Integer> LAMP_RESTORE = new HashMap<>();
-    /** 闪烁持续的 tick 数。 */
-    public static final int FLICKER_TICKS = 40;
-    /** 一次闪烁影响的灯数量上限。 */
-    public static final int FLICKER_LAMPS = 6;
-    /** 闪烁影响的半径（格）。 */
-    public static final int FLICKER_RADIUS = 24;
+    // ==================== 前兆：灯光闪烁 ====================
 
     /**
-     * 前兆特效：把玩家附近的荧光灯换成「熄灭的荧光灯」，{@value #FLICKER_TICKS} tick 后复原。
-     *
-     * <p>这不是装饰 —— 它在"墙被打开"之前给玩家一次听觉与视觉的预警，
-     * 让改变显得"有因果"而不是凭空发生。</p>
+     * 前兆特效：把玩家附近的荧光灯换成「熄灭的荧光灯」，
+     * {@value #FLICKER_TICKS} tick 后由 {@link #tickLampRestore} 复原。
      */
     public static void flickerLamps(ServerLevel level, ServerPlayer player) {
         BlockPos origin = player.blockPosition();
@@ -154,7 +253,7 @@ public final class TopologyRuntime {
                 continue;
             }
             if (level.random.nextFloat() > 0.35F) {
-                continue;   // 只闪一部分灯
+                continue;
             }
             level.setBlockAndUpdate(pos, ModBlocks.LAMP_OFF.get().defaultBlockState());
             LAMP_RESTORE.put(pos.immutable(), FLICKER_TICKS);
@@ -163,7 +262,7 @@ public final class TopologyRuntime {
         }
     }
 
-    /** 每 tick 推进灯光的复原计时。 */
+    /** 每 tick 推进灯光复原。 */
     public static void tickLampRestore(ServerLevel level) {
         if (LAMP_RESTORE.isEmpty()) {
             return;
@@ -183,8 +282,18 @@ public final class TopologyRuntime {
             it.remove();
         }
     }
+
+    // ==================== 工具 ====================
+
+    /** 该位置是否在玩家背后（视线方向点积 &lt; 0）。 */
+    private static boolean isBehind(Vec3 eye, Vec3 look, BlockPos pos) {
+        Vec3 toBlock = new Vec3(pos.getX() + 0.5D - eye.x, pos.getY() + 0.5D - eye.y,
+                pos.getZ() + 0.5D - eye.z).normalize();
+        return toBlock.dot(look) < BEHIND_COS;
+    }
+
     /** 是否为本模组的墙壁方块。 */
-    private static boolean isWall(net.minecraft.world.level.block.state.BlockState state) {
+    private static boolean isWall(BlockState state) {
         return state.is(ModBlocks.WALL_YELLOW.get())
                 || state.is(ModBlocks.WALL_YELLOW_PLINTH.get())
                 || state.is(ModBlocks.WALL_CONCRETE.get())
