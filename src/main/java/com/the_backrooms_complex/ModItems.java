@@ -287,17 +287,6 @@ public final class ModItems {
                         output.accept(ModItems.TABLE_CRIMSON.get());
                         output.accept(ModItems.TABLE_WARPED.get());
                         output.accept(ModItems.TABLE_ACACIA.get());
-                        output.accept(ModItems.LADDER_JUNGLE.get());
-                        output.accept(ModItems.LADDER_SPRUCE.get());
-                        output.accept(ModItems.LADDER_CHERRY.get());
-                        output.accept(ModItems.LADDER_OAK.get());
-                        output.accept(ModItems.LADDER_DARK_OAK.get());
-                        output.accept(ModItems.LADDER_BIRCH.get());
-                        output.accept(ModItems.LADDER_BAMBOO.get());
-                        output.accept(ModItems.LADDER_MANGROVE.get());
-                        output.accept(ModItems.LADDER_CRIMSON.get());
-                        output.accept(ModItems.LADDER_WARPED.get());
-                        output.accept(ModItems.LADDER_ACACIA.get());
                         output.accept(ModItems.CHAIR_JUNGLE.get());
                         output.accept(ModItems.CHAIR_SPRUCE.get());
                         output.accept(ModItems.CHAIR_BIRCH.get());
@@ -309,19 +298,6 @@ public final class ModItems {
                         output.accept(ModItems.CHAIR_CRIMSON.get());
                         output.accept(ModItems.CHAIR_WARPED.get());
                         output.accept(ModItems.CHAIR_ACACIA.get());
-                        output.accept(ModItems.FENCE_JUNGLE.get());
-                        output.accept(ModItems.FENCE_SPRUCE.get());
-                        output.accept(ModItems.FENCE_CHERRY.get());
-                        output.accept(ModItems.FENCE_OAK.get());
-                        output.accept(ModItems.FENCE_DARK_OAK.get());
-                        output.accept(ModItems.FENCE_BIRCH.get());
-                        output.accept(ModItems.FENCE_BAMBOO.get());
-                        output.accept(ModItems.FENCE_MANGROVE.get());
-                        output.accept(ModItems.FENCE_CRIMSON.get());
-                        output.accept(ModItems.FENCE_WARPED.get());
-                        output.accept(ModItems.FENCE_ACACIA.get());
-                        output.accept(ModItems.OFFICE_CHAIR.get());
-                        output.accept(ModItems.SITE_LIGHT.get());
                     })
                     .build());
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ENTITIES_TAB =
@@ -377,28 +353,6 @@ public final class ModItems {
             ITEMS.register("table_warped", () -> new BlockItem(ModBlocks.TABLE_WARPED.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> TABLE_ACACIA =
             ITEMS.register("table_acacia", () -> new BlockItem(ModBlocks.TABLE_ACACIA.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_JUNGLE =
-            ITEMS.register("ladder_jungle", () -> new BlockItem(ModBlocks.LADDER_JUNGLE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_SPRUCE =
-            ITEMS.register("ladder_spruce", () -> new BlockItem(ModBlocks.LADDER_SPRUCE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_CHERRY =
-            ITEMS.register("ladder_cherry", () -> new BlockItem(ModBlocks.LADDER_CHERRY.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_OAK =
-            ITEMS.register("ladder_oak", () -> new BlockItem(ModBlocks.LADDER_OAK.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_DARK_OAK =
-            ITEMS.register("ladder_dark_oak", () -> new BlockItem(ModBlocks.LADDER_DARK_OAK.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_BIRCH =
-            ITEMS.register("ladder_birch", () -> new BlockItem(ModBlocks.LADDER_BIRCH.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_BAMBOO =
-            ITEMS.register("ladder_bamboo", () -> new BlockItem(ModBlocks.LADDER_BAMBOO.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_MANGROVE =
-            ITEMS.register("ladder_mangrove", () -> new BlockItem(ModBlocks.LADDER_MANGROVE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_CRIMSON =
-            ITEMS.register("ladder_crimson", () -> new BlockItem(ModBlocks.LADDER_CRIMSON.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_WARPED =
-            ITEMS.register("ladder_warped", () -> new BlockItem(ModBlocks.LADDER_WARPED.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> LADDER_ACACIA =
-            ITEMS.register("ladder_acacia", () -> new BlockItem(ModBlocks.LADDER_ACACIA.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> CHAIR_JUNGLE =
             ITEMS.register("chair_jungle", () -> new BlockItem(ModBlocks.CHAIR_JUNGLE.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> CHAIR_SPRUCE =
@@ -421,32 +375,6 @@ public final class ModItems {
             ITEMS.register("chair_warped", () -> new BlockItem(ModBlocks.CHAIR_WARPED.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> CHAIR_ACACIA =
             ITEMS.register("chair_acacia", () -> new BlockItem(ModBlocks.CHAIR_ACACIA.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_JUNGLE =
-            ITEMS.register("fence_jungle", () -> new BlockItem(ModBlocks.FENCE_JUNGLE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_SPRUCE =
-            ITEMS.register("fence_spruce", () -> new BlockItem(ModBlocks.FENCE_SPRUCE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_CHERRY =
-            ITEMS.register("fence_cherry", () -> new BlockItem(ModBlocks.FENCE_CHERRY.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_OAK =
-            ITEMS.register("fence_oak", () -> new BlockItem(ModBlocks.FENCE_OAK.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_DARK_OAK =
-            ITEMS.register("fence_dark_oak", () -> new BlockItem(ModBlocks.FENCE_DARK_OAK.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_BIRCH =
-            ITEMS.register("fence_birch", () -> new BlockItem(ModBlocks.FENCE_BIRCH.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_BAMBOO =
-            ITEMS.register("fence_bamboo", () -> new BlockItem(ModBlocks.FENCE_BAMBOO.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_MANGROVE =
-            ITEMS.register("fence_mangrove", () -> new BlockItem(ModBlocks.FENCE_MANGROVE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_CRIMSON =
-            ITEMS.register("fence_crimson", () -> new BlockItem(ModBlocks.FENCE_CRIMSON.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_WARPED =
-            ITEMS.register("fence_warped", () -> new BlockItem(ModBlocks.FENCE_WARPED.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> FENCE_ACACIA =
-            ITEMS.register("fence_acacia", () -> new BlockItem(ModBlocks.FENCE_ACACIA.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> OFFICE_CHAIR =
-            ITEMS.register("office_chair", () -> new BlockItem(ModBlocks.OFFICE_CHAIR.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> SITE_LIGHT =
-            ITEMS.register("site_light", () -> new BlockItem(ModBlocks.SITE_LIGHT.get(), new Item.Properties()));
 
 
     private ModItems() {
