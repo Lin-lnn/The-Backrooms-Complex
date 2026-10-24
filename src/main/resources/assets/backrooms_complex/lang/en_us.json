@@ -90,5 +90,8 @@
     "item.backrooms_complex.wallpaper_coat.line3":  "Camouflage for sneaking through the corridors",
     "item.backrooms_complex.mycelium_carpet.line1":  "A grey-black carpet of mycelium spreading across the floor",
     "item.backrooms_complex.mycelium_carpet.line2":  "Keeps spawning new bacteria",
-    "item.backrooms_complex.mycelium_carpet.line3":  "A dangerous source of biological contamination"
+    "item.backrooms_complex.mycelium_carpet.line3":  "A dangerous source of biological contamination",
+    "block.backrooms_complex.wall_manila":  "Manila Wall",
+    "block.backrooms_complex.wall_manila_plinth":  "Manila Wall Skirting",
+    "block.backrooms_complex.floor_manila":  "Manila Floor"
 }

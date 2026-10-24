@@ -90,5 +90,8 @@
     "item.backrooms_complex.wallpaper_coat.line3":  "在回廊中潜行时的伪装",
     "item.backrooms_complex.mycelium_carpet.line1":  "贴地的灰黑菌毯，边缘向四周蔓延",
     "item.backrooms_complex.mycelium_carpet.line2":  "会不断长出新的细菌",
-    "item.backrooms_complex.mycelium_carpet.line3":  "危险的生物污染源"
+    "item.backrooms_complex.mycelium_carpet.line3":  "危险的生物污染源",
+    "block.backrooms_complex.wall_manila":  "马尼拉墙壁",
+    "block.backrooms_complex.wall_manila_plinth":  "马尼拉墙壁踢脚线",
+    "block.backrooms_complex.floor_manila":  "马尼拉地板"
 }

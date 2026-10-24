@@ -35,6 +35,9 @@ public final class ModBlocks {
             () -> new Block(unbreakable()));
     public static final DeferredBlock<Block> WALL_DAMP = BLOCKS.register("wall_damp",
             () -> new Block(unbreakable()));
+    /** 马尼拉墙壁：米白配色的黄色墙壁。 */
+    public static final DeferredBlock<Block> WALL_MANILA = BLOCKS.register("wall_manila",
+            () -> new Block(unbreakable()));
 
     // ===== 墙壁踢脚线（模型四边凸出裙边，不增加碰撞）=====
     public static final DeferredBlock<Block> WALL_YELLOW_PLINTH =
@@ -43,11 +46,17 @@ public final class ModBlocks {
             BLOCKS.register("wall_concrete_plinth", () -> new Block(unbreakable()));
     public static final DeferredBlock<Block> WALL_DAMP_PLINTH =
             BLOCKS.register("wall_damp_plinth", () -> new Block(unbreakable()));
+    /** 马尼拉墙壁踢脚线。 */
+    public static final DeferredBlock<Block> WALL_MANILA_PLINTH =
+            BLOCKS.register("wall_manila_plinth", () -> new Block(unbreakable()));
 
     // ===== 地板 / 天花板 =====
     public static final DeferredBlock<Block> FLOOR_TILE = BLOCKS.register("floor_tile",
             () -> new Block(unbreakable()));
     public static final DeferredBlock<Block> CEILING_TILE = BLOCKS.register("ceiling_tile",
+            () -> new Block(unbreakable()));
+    /** 马尼拉地板：米白配色的地砖。 */
+    public static final DeferredBlock<Block> FLOOR_MANILA = BLOCKS.register("floor_manila",
             () -> new Block(unbreakable()));
 
     // ===== 荧光灯（光照等级 15）=====
