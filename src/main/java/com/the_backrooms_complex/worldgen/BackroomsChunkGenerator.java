@@ -178,8 +178,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                     int layer = y / LAYER_HEIGHT;
                     int offset = y - layer * LAYER_HEIGHT; // 0..6
                 // 三维群系：本层的群系决定本层的墙壁花纹 / 地板 / 天花板 / 通风口
-                // baseBiome = 未抖动的原始群系；踢脚线用它，避免墙脚出现黄/黑斑块
-                Holder<Biome> baseBiome = backroomsBiomeSource.biomeAt(worldX, worldZ, layer);
+                // biome = 未抖动的原始群系；踢脚线用它，避免墙脚出现黄/黑斑块
                 Holder<Biome> biome = backroomsBiomeSource.biomeAt(worldX, worldZ, layer);
                 boolean hall = backroomsBiomeSource.isConcreteHalls(biome);
                 boolean damp = backroomsBiomeSource.isDampCorridors(biome);
