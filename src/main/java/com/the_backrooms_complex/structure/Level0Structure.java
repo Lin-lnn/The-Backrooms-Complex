@@ -59,6 +59,16 @@ public class Level0Structure extends Structure {
     /** 允许的最高层索引：0..32，对应 Y = 0 .. 32*7+6 = 230。 */
     public static final int MAX_LAYER_INDEX = 31;
 
+    /**
+     * 「马尼拉结构」的独立刷新率：<b>0.005%</b>（1 / 20000）。
+     *
+     * <p>用独立哈希判定，命中时整座结构改用 {@code level_manila} 模板，
+     * 不再走普通模板的加权选择。</p>
+     */
+    public static final long MANILA_CHANCE_DENOM = 20000L;
+    /** 马尼拉结构专用盐值。 */
+    private static final long SALT_MANILA = 0x4D414E494C41L;
+
     /** 结构可占据的最高 Y 坐标。 */
     public static final int MAX_STRUCTURE_Y = MAX_LAYER_INDEX * LAYER_PERIOD + 6;
 
@@ -93,16 +103,23 @@ public class Level0Structure extends Structure {
         StructureTemplateManager templateManager = context.structureTemplateManager();
 
         // 2) 确定性选择模板（只依赖网格单元坐标，与逐层迷宫种子无关）
-        // 加权选择：0~4 -> 旧模板 1..5（权重 1）；5~12 -> 新模板 6..9（权重 2）
-        int roll = (int) Math.floorMod(mix(gx, gz, 0, SALT_TEMPLATE), TEMPLATE_WEIGHT_TOTAL);
-        int templateIndex;
-        if (roll < OLD_TEMPLATE_COUNT) {
-            templateIndex = 1 + roll;
+        // 先判定极低概率的「马尼拉结构」（0.005%）：命中则整座结构都用 level_manila
+        boolean manila = Math.floorMod(mix(gx, gz, 0, SALT_MANILA), MANILA_CHANCE_DENOM) == 0L;
+        ResourceLocation templateId;
+        if (manila) {
+            templateId = ResourceLocation.fromNamespaceAndPath(BackroomsComplex.MODID, "level_manila");
         } else {
-            templateIndex = OLD_TEMPLATE_COUNT + 1 + (roll - OLD_TEMPLATE_COUNT) / 2;
+            // 加权选择：0~4 -> 旧模板 1..5（权重 1）；5~12 -> 新模板 6..9（权重 2）
+            int roll = (int) Math.floorMod(mix(gx, gz, 0, SALT_TEMPLATE), TEMPLATE_WEIGHT_TOTAL);
+            int templateIndex;
+            if (roll < OLD_TEMPLATE_COUNT) {
+                templateIndex = 1 + roll;
+            } else {
+                templateIndex = OLD_TEMPLATE_COUNT + 1 + (roll - OLD_TEMPLATE_COUNT) / 2;
+            }
+            templateId = ResourceLocation.fromNamespaceAndPath(
+                    BackroomsComplex.MODID, "level0_" + templateIndex);
         }
-        ResourceLocation templateId = ResourceLocation.fromNamespaceAndPath(
-                BackroomsComplex.MODID, "level0_" + templateIndex);
         StructureTemplate template = templateManager.getOrCreate(templateId);
         Vec3i size = template.getSize();
         if (size.getX() <= 0 || size.getY() <= 0 || size.getZ() <= 0) {
