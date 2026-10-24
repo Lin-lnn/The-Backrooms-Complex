@@ -134,17 +134,17 @@ public final class ModBlocks {
      * 创造模式可正常破坏；同时不产生掉落表，音效为石头。
      */
     // ===== 家具（木凳/桌/椅/梯/篱笆 及各 11 种木材 + 办公椅 + 工地照明灯）=====
-    public static final DeferredBlock<Block> STOOL_JUNGLE = BLOCKS.register("stool_jungle", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_jungle", 0.5D));
-    public static final DeferredBlock<Block> STOOL_SPRUCE = BLOCKS.register("stool_spruce", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_spruce", 0.5D));
-    public static final DeferredBlock<Block> STOOL_CHERRY = BLOCKS.register("stool_cherry", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_cherry", 0.5D));
-    public static final DeferredBlock<Block> STOOL_OAK = BLOCKS.register("stool_oak", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_oak", 0.5D));
-    public static final DeferredBlock<Block> STOOL_DARK_OAK = BLOCKS.register("stool_dark_oak", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_dark_oak", 0.5D));
-    public static final DeferredBlock<Block> STOOL_BIRCH = BLOCKS.register("stool_birch", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_birch", 0.5D));
-    public static final DeferredBlock<Block> STOOL_BAMBOO = BLOCKS.register("stool_bamboo", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_bamboo", 0.5D));
-    public static final DeferredBlock<Block> STOOL_MANGROVE = BLOCKS.register("stool_mangrove", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_mangrove", 0.5D));
-    public static final DeferredBlock<Block> STOOL_CRIMSON = BLOCKS.register("stool_crimson", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_crimson", 0.5D));
-    public static final DeferredBlock<Block> STOOL_WARPED = BLOCKS.register("stool_warped", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_warped", 0.5D));
-    public static final DeferredBlock<Block> STOOL_ACACIA = BLOCKS.register("stool_acacia", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_acacia", 0.5D));
+    public static final DeferredBlock<Block> STOOL_JUNGLE = BLOCKS.register("stool_jungle", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_jungle", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_SPRUCE = BLOCKS.register("stool_spruce", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_spruce", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_CHERRY = BLOCKS.register("stool_cherry", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_cherry", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_OAK = BLOCKS.register("stool_oak", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_oak", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_DARK_OAK = BLOCKS.register("stool_dark_oak", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_dark_oak", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_BIRCH = BLOCKS.register("stool_birch", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_birch", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_BAMBOO = BLOCKS.register("stool_bamboo", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_bamboo", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_MANGROVE = BLOCKS.register("stool_mangrove", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_mangrove", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_CRIMSON = BLOCKS.register("stool_crimson", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_crimson", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_WARPED = BLOCKS.register("stool_warped", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_warped", 0.3125D));
+    public static final DeferredBlock<Block> STOOL_ACACIA = BLOCKS.register("stool_acacia", () -> new SeatBlock(unbreakable().noOcclusion(), "stool_acacia", 0.3125D));
     public static final DeferredBlock<Block> TABLE_JUNGLE = BLOCKS.register("table_jungle", () -> new TableBlock(unbreakable().noOcclusion(), "table_jungle"));
     public static final DeferredBlock<Block> TABLE_SPRUCE = BLOCKS.register("table_spruce", () -> new TableBlock(unbreakable().noOcclusion(), "table_spruce"));
     public static final DeferredBlock<Block> TABLE_BIRCH = BLOCKS.register("table_birch", () -> new TableBlock(unbreakable().noOcclusion(), "table_birch"));
