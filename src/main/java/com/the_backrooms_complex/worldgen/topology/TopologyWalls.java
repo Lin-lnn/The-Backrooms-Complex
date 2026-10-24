@@ -133,11 +133,18 @@ public final class TopologyWalls {
 
     /** 判断一个方块位置是否可走（走廊或房间）。 */
     public static boolean isOpen(RoomGraph graph, long x, long z, int layer) {
-        // ① 房间：已停用。
-        //    原因：房间是 3~24 格的矩形，贴在 7 格宽的走廊上，房间边缘与走廊边缘
-        //    必然不对齐 => 每次贴边都会产生一级台阶。要让墙线完全笔直，房间必须
-        //    与走廊同宽（那就不是房间了），所以这里整体关掉，只保留走廊。
-        //    需要房间时请改用"走廊尽头扩宽"的做法，而不是侧向矩形。
+        // ① 房间：对称方形房间（中心对齐主干节点，边长 = 走廊宽 7 + 2k）
+        //    关键：房间以主干节点为中心、且边长恒为奇数 => 它与走廊带的交界是
+        //    【左右对称】的，看起来是"门洞扩宽"，而不是错位的楼梯。
+        long gi = Math.floorDiv(x, RoomGraph.CELL);
+        long gj = Math.floorDiv(z, RoomGraph.CELL);
+        for (long i = gi - 1; i <= gi + 1; i++) {
+            for (long j = gj - 1; j <= gj + 1; j++) {
+                if (inRoom(graph, x, z, (int) i, (int) j, layer)) {
+                    return true;
+                }
+            }
+        }
 
         // ② 走廊：到最近主干【线段】的距离 <= 半宽
         //    围绕线段画带 -> 走廊笔直，转角是一次完整的 90°（不再有台阶）
@@ -224,11 +231,9 @@ public final class TopologyWalls {
     private static int roomSize(RoomGraph graph, int i, int j, int layer, String salt) {
         long h = RoomGraph.hashCoord(graph.seedValue(), i, j, layer, salt);
         double r = (h >>> 11) / (double) (1L << 53);
-        int size = ROOM_MIN + (int) ((ROOM_MAX - ROOM_MIN) * r * r * r);
-        size = Math.max(ROOM_MIN, Math.min(ROOM_MAX, size));
-        if ((size & 1) == 0) {
-            size--;   // 强制奇数：房间中心与主干节点对齐，避免半格错位
-        }
-        return Math.max(ROOM_MIN, size);
+        // 房间边长 = 走廊宽(7) + 2k，k=0..8 => 7,9,11,...,23（全为奇数）
+        int k = (int) Math.floor((ROOM_MAX - ROOM_MIN) * r * r * r / 2.0D);
+        k = Math.max(0, Math.min(8, k));
+        return CORRIDOR_MIN + k * 2;
     }
 }
