@@ -1,0 +1,6 @@
+{
+  "parent": "block/redstone_dust_side_alt",
+  "textures": {
+    "line": "backrooms_complex:block/wall_dust_layer"
+  }
+}
