@@ -174,7 +174,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 int worldZ = chunkZ * 16 + lz;
                 // 列级常量：只依赖 (worldX, worldZ)，提到 y 循环外避免每个方块重算
                 final boolean colInHallRoom = inHallRoom(worldX, worldZ);
-                final boolean colOnPillarColumn = onPillarColumn(worldX, worldZ);
+                final boolean colOnGiantPillar = onGiantPillar(worldX, worldZ);
                 final boolean colIsLamp = isLamp(worldX, worldZ);
 
 
@@ -192,7 +192,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 BlockState columnLamp = hall ? ruinedVent : lampState;
                 // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
                 boolean inHall = hall && colInHallRoom;
-                boolean pillar = hall && !inHall && colOnPillarColumn
+                boolean pillar = hall && !inHall && colOnGiantPillar
                         // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
                         && lx > 0 && lx < 15 && lz > 0 && lz < 15
                         && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
@@ -352,6 +352,25 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
             return false;
         }
         return pillarHash(Math.floorDiv(x, 16), Math.floorDiv(z, 16));
+    }
+
+    /**
+     * 「巨柱停车楼」的柱子判定（Level 1 天鹰段）。
+     *
+     * <p>柱体是 <b>4×4 格</b>的实心混凝土柱，按 <b>48 格</b>的间距排布，
+     * 与文中"巨型混凝土柱子支撑着整个结构"的描述一致。</p>
+     */
+    private static boolean onGiantPillar(int x, int z) {
+        // 48 格网格，每格中心放一根 4x4 柱
+        int cx = Math.floorDiv(x, 48);
+        int cz = Math.floorDiv(z, 48);
+        int ox = Math.floorMod(x, 48);
+        int oz = Math.floorMod(z, 48);
+        // 柱心在 (22..25, 22..25) => 4x4
+        if (ox < 22 || ox > 25 || oz < 22 || oz > 25) {
+            return false;
+        }
+        return true;   // 每个 48 格网格都有一根巨柱（停车楼式排列）
     }
 
     private static boolean hallHash(int cx, int cz) {
