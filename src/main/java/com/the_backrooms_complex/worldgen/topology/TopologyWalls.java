@@ -17,11 +17,12 @@ package com.the_backrooms_complex.worldgen.topology;
  */
 public final class TopologyWalls {
 
-    /** 走廊宽度（格）：恒定值，保证墙线笔直。 */
-    public static final int CORRIDOR_WIDTH = 7;
+    /** 走廊宽度范围（格，奇数）：每条走廊段取一个值，段内恒定。 */
+    public static final int CORRIDOR_MIN = 3;
+    public static final int CORRIDOR_MAX = 15;
 
     /** 房间最小/最大边长（格），均为奇数。 */
-    public static final int ROOM_MIN = 7;
+    public static final int ROOM_MIN = 15;
     public static final int ROOM_MAX = 23;
 
     /** 计算区块墙网格时向外扩展的格数（保证跨区块边界的线段被完整绘制）。 */
@@ -94,7 +95,7 @@ public final class TopologyWalls {
             t = az; az = bz; bz = t;
         }
 
-        int half = CORRIDOR_WIDTH / 2;
+        int half = segmentWidth(graph, ai, aj, bi, bj, layer) / 2;
 
         if (ldir == 0) {
             fillRect(open, ax - half, az - half, bx + half, az + half, baseX, baseZ, size);
@@ -108,6 +109,20 @@ public final class TopologyWalls {
     }
 
     // ==================== 房间 ====================
+
+    /**
+     * 某条走廊段的宽度（格，奇数，CORRIDOR_MIN~CORRIDOR_MAX）。
+     *
+     * <p><b>关键</b>：宽度只由「起点格子 + 方向 + 层」决定 ⇒ 同一段内宽度恒定（墙线笔直），
+     * 不同段可以不同宽。宽度切换只发生在节点处，而节点处有房间（>= 走廊最大宽度）盖住，
+     * 所以看不到台阶。</p>
+     */
+    private static int segmentWidth(RoomGraph graph, int ai, int aj, int bi, int bj, int layer) {
+        String dir = bi > ai ? "E" : bi < ai ? "W" : bj > aj ? "S" : "N";
+        long h = RoomGraph.hashCoord(graph.seedValue(), ai, aj, layer, "segW" + dir);
+        int steps = (CORRIDOR_MAX - CORRIDOR_MIN) / 2 + 1;
+        return CORRIDOR_MIN + (int) Math.floorMod(h, steps) * 2;
+    }
 
     /** 挖格子 (ci,cj) 主干节点周围的方形房间。 */
     private static void carveRoom(RoomGraph graph, int ci, int cj, int layer,
