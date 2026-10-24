@@ -1,6 +1,7 @@
 package com.the_backrooms_complex.worldgen.topology;
 
 import com.the_backrooms_complex.ModBlocks;
+import com.the_backrooms_complex.worldgen.BackroomsChunkGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -26,30 +27,28 @@ import java.util.UUID;
  *
  * <h2>每次扰动做两件事</h2>
  * <ol>
- *   <li><b>开一扇门</b>：在所有人背后挖出「标准走廊大小」
- *       （{@value #DOOR_WIDTH} 宽 × {@value #DOOR_HEIGHT} 高）的通道。
+ *   <li><b>开一扇门</b>：在所有人背后挖出 {@value #DOOR_HEIGHT} 格高、
+ *       {@value #DOOR_MIN_WIDTH}~{@value #DOOR_MAX_WIDTH} 格宽的通道。
  *       <b>只挖到对面本来就是空地的位置</b> —— 一定连接另一条走廊/房间，
  *       且不会挖穿已有走廊的墙壁；</li>
  *   <li><b>补一段走廊</b>：在更远的背后把一段走廊填成墙。</li>
  * </ol>
  *
- * <h2>多人安全（本类的核心约束）</h2>
+ * <h2>多人安全</h2>
  * <ul>
- *   <li><b>共享视野判定</b>：一个位置只有<b>全部玩家都看不见</b>时才会被改动
- *       （{@link #isHiddenFromAllPlayers}，96 格内的玩家都参与判定）；</li>
- *   <li><b>不会卡墙</b>：填充前检查周围 8 格内没有玩家、1.5 格内没有任何生物
- *       （{@link #isSafeToFill}）；</li>
+ *   <li>一个位置只有<b>全部玩家都看不见</b>时才会被改动；</li>
+ *   <li>填充前检查 8 格内无玩家、1.5 格内无生物 ⇒ <b>不可能卡墙</b>；</li>
  *   <li>所有改动都在每个玩家的<b>背后 90° 以外</b>；</li>
- *   <li>填墙只在 {@value #SEAL_MIN}~{@value #SEAL_MAX} 格外；</li>
- *   <li><b>无音效</b> —— 改变是无声的，只有灯闪作为前兆。</li>
+ *   <li><b>无挖掘音效</b>，只有灯闪作为前兆。</li>
  * </ul>
  */
 public final class TopologyRuntime {
 
-    /** 门洞宽度（格）—— 与标准走廊一致。 */
-    public static final int DOOR_WIDTH = 3;
     /** 门洞高度（格）。 */
-    public static final int DOOR_HEIGHT = 3;
+    public static final int DOOR_HEIGHT = 6;
+    /** 门洞最小/最大宽度（格）。 */
+    public static final int DOOR_MIN_WIDTH = 1;
+    public static final int DOOR_MAX_WIDTH = 6;
 
     /** 开洞的距离范围（格）。 */
     public static final int MIN_DISTANCE = 16;
@@ -57,7 +56,7 @@ public final class TopologyRuntime {
     /** 填走廊的距离范围（格）。 */
     public static final int SEAL_MIN = 32;
     public static final int SEAL_MAX = 64;
-    /** 视线之外的角度阈值（cos）：dot &lt; 0 即在背后 90° 以外。 */
+    /** 视线之外的角度阈值（cos）。 */
     public static final double BEHIND_COS = 0.0D;
     /** 参与视野判定的玩家距离（格）。 */
     public static final double VIEW_CHECK_RANGE = 96.0D;
@@ -66,18 +65,13 @@ public final class TopologyRuntime {
     /** 填充点多少格内不能有任何生物。 */
     public static final double FILL_ENTITY_CLEARANCE = 1.5D;
 
-    /** 冷却上限/下限（tick）。 */
-    public static final int COOLDOWN_MAX = 8 * 20;
-    public static final int COOLDOWN_MIN = 2 * 20;
-    /** 事件触发的固定间隔区间（tick）：20~60 秒，与精神值无关。 */
+    /** 事件触发间隔区间（tick）：20~60 秒，与精神值无关。 */
     public static final int EVENT_MIN_TICKS = 20 * 20;
     public static final int EVENT_MAX_TICKS = 60 * 20;
 
     /** 灯光闪烁持续 tick。 */
     public static final int FLICKER_TICKS = 40;
-    /** 一次闪烁影响的灯数量上限。 */
     public static final int FLICKER_LAMPS = 6;
-    /** 闪烁影响半径（格）。 */
     public static final int FLICKER_RADIUS = 24;
 
     private static final Map<UUID, Integer> COOLDOWN = new HashMap<>();
@@ -86,7 +80,7 @@ public final class TopologyRuntime {
     private TopologyRuntime() {
     }
 
-    /** 每 tick 调用：按 dread 概率触发一次扰动。 */
+    /** 每 tick 调用：固定间隔的随机事件（与精神值无关）。 */
     public static void tick(ServerLevel level, ServerPlayer player, float dread) {
         if (!level.dimension().location().getPath().equals("level_0")) {
             return;
@@ -96,16 +90,14 @@ public final class TopologyRuntime {
             COOLDOWN.put(player.getUUID(), cd - 1);
             return;
         }
-        // 触发与精神值无关：固定间隔的随机事件
-        // （dread 只影响灯闪强度，不再影响是否触发）
         System.out.println("[BC-TOPO] 事件触发 player=" + player.getName().getString()
                 + " pos=" + player.blockPosition());
         flickerLamps(level, player);
         boolean opened = openDoorBehindPlayers(level, player);
         boolean sealed = sealOneCorridor(level, player);
         System.out.println("[BC-TOPO]   开门=" + opened + " 填路=" + sealed);
+
         if (opened || sealed) {
-            // 固定区间随机冷却（20~60 秒），与 sanity 无关
             int span = EVENT_MAX_TICKS - EVENT_MIN_TICKS;
             COOLDOWN.put(player.getUUID(), EVENT_MIN_TICKS + level.random.nextInt(span + 1));
         } else {
@@ -113,7 +105,9 @@ public final class TopologyRuntime {
         }
     }
 
-    /** 在所有人背后挖一个标准门洞。 */
+    // ==================== 开一扇门 ====================
+
+    /** 在所有人背后挖一个门洞。 */
     private static boolean openDoorBehindPlayers(ServerLevel level, ServerPlayer player) {
         BlockPos origin = player.blockPosition();
         for (int attempt = 0; attempt < 60; attempt++) {
@@ -141,29 +135,79 @@ public final class TopologyRuntime {
         return false;
     }
 
-    /** 尝试在 pos 处朝 dir 挖一个标准门洞（要求整块是墙 + 对面是空地）。 */
+    /**
+     * 尝试在 {@code pos} 处朝 {@code dir} 挖一个门洞。
+     *
+     * <p>要求：</p>
+     * <ol>
+     *   <li>门洞范围内<b>全部是墙</b>（不挖穿已有走廊）；</li>
+     *   <li>门洞<b>对面整片都是空气</b>（保证真的通到另一条走廊/房间）。</li>
+     * </ol>
+     */
     private static boolean tryCarveDoor(ServerLevel level, BlockPos pos, Direction dir) {
+        int layer = Math.floorDiv(pos.getY(), BackroomsChunkGenerator.LAYER_HEIGHT);
+        int width = doorWidth(pos, layer);
         List<BlockPos> dig = new ArrayList<>();
-        for (int w = 0; w < DOOR_WIDTH; w++) {
+
+        for (int w = 0; w < width; w++) {
             for (int h = 0; h < DOOR_HEIGHT; h++) {
-                int ox = dir.getStepX() > 0 ? w : (dir.getStepX() < 0 ? -w : 0);
-                int oz = dir.getStepZ() > 0 ? w : (dir.getStepZ() < 0 ? -w : 0);
-                BlockPos bp = pos.offset(ox, h, oz);
+                BlockPos bp = offsetAlong(pos, dir, w, h);
                 if (!level.isLoaded(bp) || !isWall(level.getBlockState(bp))) {
                     return false;
                 }
                 dig.add(bp);
             }
         }
-        BlockPos beyond = pos.relative(dir, DOOR_WIDTH + 1);
-        if (!level.isLoaded(beyond) || !level.getBlockState(beyond).isAir()) {
-            return false;
+        // 对面整片必须是空气
+        for (int w = 0; w < width; w++) {
+            for (int h = 0; h < DOOR_HEIGHT; h++) {
+                BlockPos beyond = offsetAlong(pos, dir, w, h).relative(dir, width + 1);
+                if (!level.isLoaded(beyond) || !level.getBlockState(beyond).isAir()) {
+                    return false;
+                }
+            }
         }
         for (BlockPos bp : dig) {
             level.setBlockAndUpdate(bp, Blocks.AIR.defaultBlockState());
         }
         return true;
     }
+
+    /** 沿 dir 的横向偏移 w、竖直偏移 h。 */
+    private static BlockPos offsetAlong(BlockPos pos, Direction dir, int w, int h) {
+        int ox = dir.getStepX() > 0 ? w : (dir.getStepX() < 0 ? -w : 0);
+        int oz = dir.getStepZ() > 0 ? w : (dir.getStepZ() < 0 ? -w : 0);
+        return pos.offset(ox, h, oz);
+    }
+
+    /**
+     * 门洞宽度：{@value #DOOR_MIN_WIDTH}~{@value #DOOR_MAX_WIDTH} 格，
+     * 由"最近主干节点格子 + 层"的哈希决定（与该处走廊宽度无关，避免门比走廊还宽）。
+     */
+    private static int doorWidth(BlockPos pos, int layer) {
+        RoomGraph graph = new RoomGraph(0x5EEDBACC0001L);
+        long gi = Math.floorDiv(pos.getX(), RoomGraph.CELL);
+        long gj = Math.floorDiv(pos.getZ(), RoomGraph.CELL);
+        long bestD = Long.MAX_VALUE;
+        int bestI = (int) gi;
+        int bestJ = (int) gj;
+        for (long i = gi - 1; i <= gi + 1; i++) {
+            for (long j = gj - 1; j <= gj + 1; j++) {
+                long tx = graph.spineX((int) i, (int) j, layer);
+                long tz = graph.spineZ((int) i, (int) j, layer);
+                long dd = Math.abs(tx - pos.getX()) + Math.abs(tz - pos.getZ());
+                if (dd < bestD) {
+                    bestD = dd;
+                    bestI = (int) i;
+                    bestJ = (int) j;
+                }
+            }
+        }
+        long h = RoomGraph.hashCoord(graph.seedValue(), bestI, bestJ, layer, "doorW");
+        return DOOR_MIN_WIDTH + (int) Math.floorMod(h, (long) (DOOR_MAX_WIDTH - DOOR_MIN_WIDTH + 1));
+    }
+
+    // ==================== 补一段走廊 ====================
 
     /** 在更远的背后把一段走廊填成墙（多人安全）。 */
     private static boolean sealOneCorridor(ServerLevel level, ServerPlayer player) {
@@ -204,6 +248,8 @@ public final class TopologyRuntime {
         return false;
     }
 
+    // ==================== 多人安全判定 ====================
+
     /** 该位置是否所有玩家都看不见（多人共享判定）。 */
     private static boolean isHiddenFromAllPlayers(ServerLevel level, BlockPos pos) {
         for (ServerPlayer p : level.players()) {
@@ -232,6 +278,8 @@ public final class TopologyRuntime {
         AABB entityBox = new AABB(pos).inflate(FILL_ENTITY_CLEARANCE);
         return level.getEntities((Entity) null, entityBox, e -> e instanceof LivingEntity).isEmpty();
     }
+
+    // ==================== 灯光前兆 ====================
 
     /** 前兆特效：附近荧光灯换成「熄灭的荧光灯」，2 秒后复原。 */
     public static void flickerLamps(ServerLevel level, ServerPlayer player) {
@@ -279,6 +327,8 @@ public final class TopologyRuntime {
             it.remove();
         }
     }
+
+    // ==================== 工具 ====================
 
     /** 是否为本模组的墙壁方块。 */
     private static boolean isWall(BlockState state) {
