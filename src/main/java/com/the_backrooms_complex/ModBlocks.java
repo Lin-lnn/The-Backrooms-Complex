@@ -5,6 +5,7 @@ import com.the_backrooms_complex.block.DampCeilingBlock;
 import com.the_backrooms_complex.block.DampFloorBlock;
 import com.the_backrooms_complex.block.FurnitureBlock;
 import com.the_backrooms_complex.block.TableBlock;
+import com.the_backrooms_complex.block.TransitionWallBlock;
 import com.the_backrooms_complex.block.WallDustLayerBlock;
 import com.the_backrooms_complex.block.SeatBlock;
 import com.the_backrooms_complex.block.FluorescentLampBlock;
@@ -37,8 +38,8 @@ public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(BackroomsComplex.MODID);
 
     // ===== 墙壁主体 =====
-    public static final DeferredBlock<Block> WALL_YELLOW = BLOCKS.register("wall_yellow",
-            () -> new Block(unbreakable()));
+    public static final DeferredBlock<TransitionWallBlock> WALL_YELLOW = BLOCKS.register("wall_yellow",
+            () -> new TransitionWallBlock(unbreakable()));
     public static final DeferredBlock<Block> WALL_CONCRETE = BLOCKS.register("wall_concrete",
             () -> new Block(unbreakable()));
     public static final DeferredBlock<Block> WALL_DAMP = BLOCKS.register("wall_damp",
