@@ -69,6 +69,9 @@ public final class TopologyRuntime {
     /** 冷却上限/下限（tick）。 */
     public static final int COOLDOWN_MAX = 8 * 20;
     public static final int COOLDOWN_MIN = 2 * 20;
+    /** 事件触发的固定间隔区间（tick）：20~60 秒，与精神值无关。 */
+    public static final int EVENT_MIN_TICKS = 20 * 20;
+    public static final int EVENT_MAX_TICKS = 60 * 20;
 
     /** 灯光闪烁持续 tick。 */
     public static final int FLICKER_TICKS = 40;
@@ -93,16 +96,15 @@ public final class TopologyRuntime {
             COOLDOWN.put(player.getUUID(), cd - 1);
             return;
         }
-        float chance = Math.max(0.0F, Math.min(1.0F, dread)) * 0.02F;
-        if (level.random.nextFloat() >= chance) {
-            return;
-        }
+        // 触发与精神值无关：固定间隔的随机事件
+        // （dread 只影响灯闪强度，不再影响是否触发）
         flickerLamps(level, player);
         boolean opened = openDoorBehindPlayers(level, player);
         boolean sealed = sealOneCorridor(level, player);
         if (opened || sealed) {
-            int next = (int) (COOLDOWN_MAX + (COOLDOWN_MIN - COOLDOWN_MAX) * dread);
-            COOLDOWN.put(player.getUUID(), Math.max(COOLDOWN_MIN, next));
+            // 固定区间随机冷却（20~60 秒），与 sanity 无关
+            int span = EVENT_MAX_TICKS - EVENT_MIN_TICKS;
+            COOLDOWN.put(player.getUUID(), EVENT_MIN_TICKS + level.random.nextInt(span + 1));
         } else {
             COOLDOWN.put(player.getUUID(), 3 * 20);
         }

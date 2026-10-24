@@ -57,7 +57,7 @@ public final class TriggerCommand {
 
     private static boolean isKnown(String name) {
         return "hallucination".equals(name) || "shadow".equals(name)
-                || "fake_block".equals(name) || "sound".equals(name) || "control_loss".equals(name)
+                || "fake_block".equals(name) || "sound".equals(name) || "control_loss".equals(name) || "topology".equals(name)
                 || "shake".equals(name);
     }
 
