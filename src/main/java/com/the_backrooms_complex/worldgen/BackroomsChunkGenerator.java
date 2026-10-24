@@ -81,8 +81,16 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * 区块生成抛异常，玩家看到的就是虚空。现在改为 {@code getGenDepth() / LAYER_HEIGHT}，
      * 任何高度的维度都能正确工作。</p>
      */
-    private int fullLayers() {
-        return Math.max(1, this.getGenDepth() / LAYER_HEIGHT);
+    /**
+     * 当前区块实际可用的层数。
+     *
+     * <p><b>故意不用 {@link #getGenDepth()}</b>：那个方法返回的是本类硬编码的
+     * {@link #WORLD_HEIGHT}（256），与维度 JSON 里的真实高度无关。
+     * Level 1 的高度是 288（36 层），如果按 256 算就只有 32 层 ⇒ 第 33 层越界。
+     * 这里改为读取<b>区块自身</b>的高度，任何维度都能正确工作。</p>
+     */
+    private static int fullLayers(net.minecraft.world.level.LevelHeightAccessor heightAccessor) {
+        return Math.max(1, heightAccessor.getHeight() / LAYER_HEIGHT);
     }
     /** 荧光灯间隔（格）。 */
     private static final int LAMP_SPACING = 5;
@@ -172,7 +180,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         int maxY = chunk.getMaxBuildHeight();
 
         // 1. 走廊布局：逐层独立种子（每层一套完全不同的布局），只依赖区块坐标 + 层索引
-        boolean[][][] wall = BackroomsMaze.generateWallGrids(chunkX, chunkZ, fullLayers());
+        boolean[][][] wall = BackroomsMaze.generateWallGrids(chunkX, chunkZ, fullLayers(chunk));
 
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
@@ -204,7 +212,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 // 关键：先判断层号是否在有效范围内，再访问 wall[layer]。
                 // 原来越界保护写在下面，但 pillar 的计算已经先访问了 wall[layer]，
                 // 所以 Level 1（36 层、墙网格 36 层）之外的层仍会越界。
-                boolean layerValid = layer < fullLayers();
+                boolean layerValid = layer < fullLayers(chunk);
                 boolean pillar = layerValid && hall && !inHall && colOnGiantPillar
                         // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
                         && lx > 0 && lx < 15 && lz > 0 && lz < 15
