@@ -43,10 +43,15 @@ public class MysteriousDoorBlock extends DoorBlock {
         if (target == null) {
             return InteractionResult.PASS;
         }
-        // 传送到固定落点：让服务器自己加载该区块，
+        // 传送到 Level 1 的固定出生点。
+        // 用 target.getSharedSpawnPos() 作为落点：让服务器自己加载该区块，
         // 避免在未加载区块上逐格探测（那会同步生成大量区块并卡死服务器）。
-        serverPlayer.teleportTo(target,
-                LANDING.getX() + 0.5D, LANDING.getY(), LANDING.getZ() + 0.5D,
+        BlockPos spawn = target.getSharedSpawnPos();
+        double sx = spawn.getX() + 0.5D;
+        double sz = spawn.getZ() + 0.5D;
+        // 让 y 落在世界允许范围内（出生点默认是世界底部）
+        double sy = Math.max(spawn.getY(), target.getMinBuildHeight() + 1);
+        serverPlayer.teleportTo(target, sx, sy, sz,
                 serverPlayer.getYRot(), serverPlayer.getXRot());
         return InteractionResult.CONSUME;
     }
