@@ -31,6 +31,8 @@ public final class BackroomsCommands {
                         .requires(source -> source.hasPermission(2)) // 仅 OP（权限等级 >= 2）
                         .then(Commands.literal("check")
                                 .executes(ctx -> check(ctx.getSource())))
+                        .then(Commands.literal("topo")
+                                .executes(ctx -> topo(ctx.getSource())))
         );
 
         // ===== 数值修改指令：/backrooms thirst <0-100> ，/backrooms sanity <0-100> =====
