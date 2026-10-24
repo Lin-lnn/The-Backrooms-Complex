@@ -36,10 +36,10 @@ import java.util.Optional;
 public class Level0StructurePlacement extends StructurePlacement {
 
     /** 默认网格边长（格）。 */
-    public static final int DEFAULT_SPACING_BLOCKS = 90;
+    public static final int DEFAULT_SPACING_BLOCKS = 28;
 
     /** 默认单元内确定性偏移上界（格）。 */
-    public static final int DEFAULT_OFFSET_RANGE = 28;
+    public static final int DEFAULT_OFFSET_RANGE = 8;
 
     public static final MapCodec<Level0StructurePlacement> CODEC = RecordCodecBuilder.mapCodec(
             instance -> codec(instance).apply(instance, Level0StructurePlacement::new));
