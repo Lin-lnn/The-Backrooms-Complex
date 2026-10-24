@@ -1,0 +1,83 @@
+{
+    "parent":  "minecraft:block/block",
+    "elements":  [
+                     {
+                         "from":  [
+                                      2,
+                                      0,
+                                      2
+                                  ],
+                         "to":  [
+                                    4,
+                                    11,
+                                    4
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                0,
+                                                                0,
+                                                                2,
+                                                                11
+                                                            ],
+                                                     "texture":  "#tex",
+                                                     "tintindex":  0
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               2,
+                                                               11
+                                                           ],
+                                                    "texture":  "#tex",
+                                                    "tintindex":  0
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                0,
+                                                                0,
+                                                                2,
+                                                                11
+                                                            ],
+                                                     "texture":  "#tex",
+                                                     "tintindex":  0
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               2,
+                                                               11
+                                                           ],
+                                                    "texture":  "#tex",
+                                                    "tintindex":  0
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             0,
+                                                             0,
+                                                             2,
+                                                             2
+                                                         ],
+                                                  "texture":  "#tex",
+                                                  "tintindex":  0
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               2,
+                                                               2
+                                                           ],
+                                                    "texture":  "#tex",
+                                                    "tintindex":  0
+                                                }
+                                   }
+                     }
+                 ],
+    "textures":  {
+                     "particle":  "minecraft:block/birch_planks",
+                     "tex":  "minecraft:block/birch_planks"
+                 }
+}

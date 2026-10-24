@@ -1,7 +1,13 @@
 {
-  "variants": {
-    "": {
-      "model": "backrooms_complex:block/table_mangrove"
-    }
-  }
+  "multipart": [
+    { "apply": { "model": "backrooms_complex:block/table_mangrove_top" } },
+    { "when": { "north": "false", "west": "false" },
+      "apply": { "model": "backrooms_complex:block/table_mangrove_leg_nw" } },
+    { "when": { "north": "false", "east": "false" },
+      "apply": { "model": "backrooms_complex:block/table_mangrove_leg_ne" } },
+    { "when": { "south": "false", "west": "false" },
+      "apply": { "model": "backrooms_complex:block/table_mangrove_leg_sw" } },
+    { "when": { "south": "false", "east": "false" },
+      "apply": { "model": "backrooms_complex:block/table_mangrove_leg_se" } }
+  ]
 }

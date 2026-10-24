@@ -1,7 +1,13 @@
 {
-  "variants": {
-    "": {
-      "model": "backrooms_complex:block/table_bamboo"
-    }
-  }
+  "multipart": [
+    { "apply": { "model": "backrooms_complex:block/table_bamboo_top" } },
+    { "when": { "north": "false", "west": "false" },
+      "apply": { "model": "backrooms_complex:block/table_bamboo_leg_nw" } },
+    { "when": { "north": "false", "east": "false" },
+      "apply": { "model": "backrooms_complex:block/table_bamboo_leg_ne" } },
+    { "when": { "south": "false", "west": "false" },
+      "apply": { "model": "backrooms_complex:block/table_bamboo_leg_sw" } },
+    { "when": { "south": "false", "east": "false" },
+      "apply": { "model": "backrooms_complex:block/table_bamboo_leg_se" } }
+  ]
 }
