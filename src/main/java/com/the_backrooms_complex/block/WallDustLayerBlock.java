@@ -46,10 +46,37 @@ public class WallDustLayerBlock extends Block {
         builder.add(NORTH, EAST, SOUTH, WEST);
     }
 
-    /** 放置时按四周相邻的墙灰初始化连接状态。 */
+    /**
+     * 放置时按四周相邻的墙灰初始化连接状态。
+     *
+     * <p><b>只允许放在完整方块的上表面</b>：点击面必须是顶面，且下方方块必须是完整的实心方块。</p>
+     */
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-        return this.connect(this.defaultBlockState(), ctx.getLevel(), ctx.getClickedPos());
+        BlockPos pos = ctx.getClickedPos();
+        if (ctx.getClickedFace() != Direction.UP) {
+            return null;   // 只有点顶面才能铺
+        }
+        if (!isFullSupport(ctx.getLevel(), pos.below())) {
+            return null;   // 下方不是完整方块就不能铺
+        }
+        return this.connect(this.defaultBlockState(), ctx.getLevel(), pos);
+    }
+
+    /** 下方必须是完整实心方块，否则不能存在（会被破坏掉落）。 */
+    @Override
+    protected boolean canSurvive(BlockState state, net.minecraft.world.level.LevelReader level, BlockPos pos) {
+        return isFullSupport(level, pos.below());
+    }
+
+    /** 判定某个位置是否是"完整方块"（能托住墙灰）。 */
+    private static boolean isFullSupport(net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        BlockState below = level.getBlockState(pos);
+        if (below.isAir()) {
+            return false;
+        }
+        net.minecraft.world.phys.shapes.VoxelShape shape = below.getBlockSupportShape(level, pos);
+        return shape.isEmpty() || shape.max(net.minecraft.core.Direction.Axis.Y) >= 0.99D;
     }
 
     /** 邻居变化时刷新连接状态；相邻的墙灰也要一起刷新。 */
