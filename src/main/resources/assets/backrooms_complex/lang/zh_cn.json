@@ -62,7 +62,6 @@
     "item.backrooms_complex.bacteria_tissue.line3":  "可用于合成，或作为研究的样本",
     "item.backrooms_complex.scraper.line1":  "带钩刃的刮刀，刃口发黑",
     "item.backrooms_complex.scraper.line2":  "刮开地毯表层，收集纤维",
-    "item.backrooms_complex.scraper.line3":  "获取地毯纤维；也能剥下地板",
     "item.backrooms_complex.canned_almond_water.line1":  "保存完好的罐装杏仁水，罐体冰凉",
     "item.backrooms_complex.canned_almond_water.line2":  "回复较多精神与口渴",
     "item.backrooms_complex.canned_almond_water.line3":  "后室里最可靠的补给",
@@ -150,5 +149,6 @@
     "item.backrooms_complex.chair_dark_oak.line3":  "右键可坐下",
     "block.backrooms_complex.ceiling_manila":  "马尼拉天花板",
     "item.backrooms_complex.wallpaper_coat.line2":  "穿戴后 +1 护甲，精神值下降速度 -10%",
-    "item.backrooms_complex.wallpaper_hat.line2":  "穿戴后 +1 护甲，精神值下降速度 -10%"
+    "item.backrooms_complex.wallpaper_hat.line2":  "穿戴后 +1 护甲，精神值下降速度 -10%",
+    "item.backrooms_complex.scraper.line3":  "获取地毯纤维；也能剥下地毯"
 }
