@@ -71,7 +71,7 @@ public final class BackroomsMaze {
         boolean[][][] walls = new boolean[layerCount][16][16];
         RoomGraph graph = new RoomGraph(TOPOLOGY_SEED);
         for (int layer = 0; layer < layerCount; layer++) {
-            walls[layer] = TopologyWalls.wallGrid(graph, chunkX, chunkZ, layer);
+            walls[layer] = TopologyWalls.wallGridCached(graph, chunkX, chunkZ, layer);
         }
         return walls;
     }

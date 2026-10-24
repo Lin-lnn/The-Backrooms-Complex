@@ -31,7 +31,37 @@ public final class TopologyWalls {
     /** 房间最大边长。 */
     public static final int ROOM_MAX = 24;
 
+    // ==================== 网格缓存（性能） ====================
+
+    /** 缓存槽位（2 的幂）。 */
+    private static final int GRID_CACHE_SLOTS = 256;
+
+    /** 键：chunkX | chunkZ<<20 | layer<<40。 */
+    private static final long[] GRID_KEYS = new long[GRID_CACHE_SLOTS];
+
+    /** 值：16×16 墙网格。 */
+    private static final boolean[][][] GRID_VALS = new boolean[GRID_CACHE_SLOTS][][];
+
     private TopologyWalls() {
+    }
+
+    /**
+     * 带缓存的墙体网格获取。
+     *
+     * <p>同一个区块的同一层只计算一次 —— 生成器可能因为区块重载 / 结构放置等原因
+     * 重复请求同一块数据，这里直接命中缓存。</p>
+     */
+    public static boolean[][] wallGridCached(RoomGraph graph, int chunkX, int chunkZ, int layer) {
+        long key = ((long) chunkX & 0xFFFFFL) | (((long) chunkZ & 0xFFFFFL) << 20)
+                | (((long) layer & 0xFFFFFL) << 40);
+        int slot = (int) ((key * 0x9E3779B97F4A7C15L) >>> 56) & (GRID_CACHE_SLOTS - 1);
+        if (GRID_KEYS[slot] == key && key != 0L && GRID_VALS[slot] != null) {
+            return GRID_VALS[slot];
+        }
+        boolean[][] grid = wallGrid(graph, chunkX, chunkZ, layer);
+        GRID_KEYS[slot] = key;
+        GRID_VALS[slot] = grid;
+        return grid;
     }
 
     /**

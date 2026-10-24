@@ -345,8 +345,4 @@ public final class TopologyRuntime {
                 || state.is(ModBlocks.CHISELED_CONCRETE_WALL.get());
     }
 
-    /** 玩家离开时清理计时。 */
-    public static void forget(UUID player) {
-        COOLDOWN.remove(player);
-    }
 }

@@ -75,13 +75,11 @@ public class Level0Structure extends Structure {
     @Override
     public Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
         ChunkPos chunkPos = context.chunkPos();
-        final boolean DIAG = false;  // 诊断开关已关闭
         // 诊断已关闭
 
         // 1) 反推本区块对应的 90×90 网格单元（与放置规则 Level0StructurePlacement 完全一致）
         int[] cell = Level0StructurePlacement.cellForChunk(chunkPos.x, chunkPos.z);
         if (cell == null) {
-            if (DIAG) System.out.println("[BC-DIAG]   cell == null -> 不是锚点区块，跳过");
             return Optional.empty();
         }
         int gx = cell[0];
@@ -95,9 +93,7 @@ public class Level0Structure extends Structure {
                 BackroomsComplex.MODID, "level0_" + templateIndex);
         StructureTemplate template = templateManager.getOrCreate(templateId);
         Vec3i size = template.getSize();
-        if (DIAG) System.out.println("[BC-DIAG]   cell=" + gx + "," + gz + " template=level0_" + templateIndex + " size=" + size);
         if (size.getX() <= 0 || size.getY() <= 0 || size.getZ() <= 0) {
-            if (DIAG) System.out.println("[BC-DIAG]   模板为空/缺失！");
             return Optional.empty(); // 模板缺失或为空
         }
 
@@ -117,10 +113,8 @@ public class Level0Structure extends Structure {
             }
         }
         if (layerIndex < 0) {
-            if (DIAG) System.out.println("[BC-DIAG]   所有层的 5% 判定都没命中（maxLayer=" + maxLayer + "）");
             return Optional.empty();
         }
-        if (DIAG) System.out.println("[BC-DIAG]   命中层=" + layerIndex + " floorY=" + (layerIndex * LAYER_PERIOD));
 
         // 群系过滤由 has_structure/level0 标签完成（只含 yellow_rooms）
 
