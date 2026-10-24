@@ -20,9 +20,9 @@ package com.the_backrooms_complex.worldgen.topology;
  */
 public final class TopologyWalls {
 
-    /** 走廊宽度范围（格）；每格独立取值 ⇒ 交界处陡变。 */
-    public static final int CORRIDOR_MIN = 5;
-    public static final int CORRIDOR_MAX = 8;
+    /** 走廊宽度（格）：恒定 7，保证墙线完全笔直、无任何宽度接缝。 */
+    public static final int CORRIDOR_MIN = 7;
+    public static final int CORRIDOR_MAX = 7;
 
     /** 兼容旧代码用的走廊半宽。 */
     public static final int CORRIDOR_HALF = 3;
