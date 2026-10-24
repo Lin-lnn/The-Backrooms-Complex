@@ -7,37 +7,27 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * 「色泽灰暗的神秘的门」。
  *
- * <p>外观是<b>染成暗灰色的深色橡木门</b>，但它<b>不能打开</b> ——
- * 右键时会直接把玩家传送到 <b>Level 1「宜居地带」</b>。</p>
+ * <p>它是<b>真正的两格方块门</b>（继承 {@link DoorBlock}）：放下下半时自动生成上半，
+ * 破坏任意一半都会整体消失，与原版门完全一致。</p>
  *
- * <p>传送落点会在目标层级找一个安全位置（脚下是实心、身体位置是空气），
- * 避免卡进墙里。</p>
+ * <p>但它<b>不会打开</b> —— 右键时直接把玩家传送到 <b>Level 1「宜居地带」</b>的固定落点，
+ * 而不是切换 {@code open} 状态。</p>
  */
-public class MysteriousDoorBlock extends Block {
+public class MysteriousDoorBlock extends DoorBlock {
 
-    /** 传送目标层级的基准高度（层 0 的地板）。 */
-    private static final int TARGET_Y = 1;
-
-    /** 门板碰撞箱：宽 1 格、高 2 格、厚 3 像素。 */
-    private static final net.minecraft.world.phys.shapes.VoxelShape SHAPE =
-            net.minecraft.world.phys.shapes.Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, 2.0D, 0.1875D);
+    /** Level 1 的固定传送落点（与 Level 1 生成器第 0 层地板对齐）。 */
+    private static final BlockPos LANDING = new BlockPos(0, 1, 0);
 
     public MysteriousDoorBlock(Properties properties) {
-        super(properties);
-    }
-
-    @Override
-    protected net.minecraft.world.phys.shapes.VoxelShape getShape(
-            BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos,
-            net.minecraft.world.phys.shapes.CollisionContext ctx) {
-        return SHAPE;
+        super(BlockSetType.DARK_OAK, properties);
     }
 
     @Override
@@ -53,61 +43,11 @@ public class MysteriousDoorBlock extends Block {
         if (target == null) {
             return InteractionResult.PASS;
         }
-        // 在目标层级的同一 XZ 附近找一个能站的位置
-        BlockPos base = new BlockPos(pos.getX(), TARGET_Y, pos.getZ());
-        BlockPos landing = findLanding(target, base);
-        if (landing == null) {
-            return InteractionResult.PASS;
-        }
+        // 传送到固定落点：让服务器自己加载该区块，
+        // 避免在未加载区块上逐格探测（那会同步生成大量区块并卡死服务器）。
         serverPlayer.teleportTo(target,
-                landing.getX() + 0.5D, landing.getY(), landing.getZ() + 0.5D,
+                LANDING.getX() + 0.5D, LANDING.getY(), LANDING.getZ() + 0.5D,
                 serverPlayer.getYRot(), serverPlayer.getXRot());
         return InteractionResult.CONSUME;
-    }
-
-    /** 水平搜索半径（格）。 */
-    private static final int SEARCH_RADIUS = 12;
-    /** 垂直搜索范围（格，向上/向下各这么多）。 */
-    private static final int SEARCH_HEIGHT = 24;
-
-    /**
-     * 以 base 为中心，在 <b>±{@value #SEARCH_RADIUS} 格的水平范围</b>、
-     * <b>±{@value #SEARCH_HEIGHT} 格的垂直范围</b>内，螺旋式寻找
-     * 「脚下实心 + 身体与头部为空气」的安全落点。
-     *
-     * <p>先搜中心附近（距离短的优先），保证落点尽量靠近门在 Level 0 的位置。</p>
-     */
-    private static BlockPos findLanding(ServerLevel level, BlockPos base) {
-        // 按"距离平方"从小到大枚举偏移，找到即返回
-        for (int r = 0; r <= SEARCH_RADIUS; r++) {
-            for (int dx = -r; dx <= r; dx++) {
-                for (int dz = -r; dz <= r; dz++) {
-                    // 只处理"恰好在这一圈"的位置，避免重复扫描
-                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
-                        continue;
-                    }
-                    for (int dy = 0; dy <= SEARCH_HEIGHT; dy++) {
-                        for (int sign = 0; sign <= 1; sign++) {
-                            int y = base.getY() + (sign == 0 ? dy : -dy);
-                            if (y < level.getMinBuildHeight() + 1 || y > level.getMaxBuildHeight() - 3) {
-                                continue;
-                            }
-                            BlockPos feet = new BlockPos(base.getX() + dx, y, base.getZ() + dz);
-                            // 只检查已加载的区块：否则 getBlockState 会触发同步生成，
-                            // 数千次探测会把服务器线程彻底堵死（表现为"服务器已关闭"并卡死）。
-                            if (!level.isLoaded(feet)) {
-                                continue;
-                            }
-                            if (level.getBlockState(feet.below()).isSolidRender(level, feet.below())
-                                    && level.getBlockState(feet).isAir()
-                                    && level.getBlockState(feet.above()).isAir()) {
-                                return feet;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
     }
 }
