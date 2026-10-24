@@ -201,13 +201,17 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 BlockState columnLamp = hall ? ruinedVent : lampState;
                 // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
                 boolean inHall = hall && colInHallRoom;
-                boolean pillar = hall && !inHall && colOnGiantPillar
+                // 关键：先判断层号是否在有效范围内，再访问 wall[layer]。
+                // 原来越界保护写在下面，但 pillar 的计算已经先访问了 wall[layer]，
+                // 所以 Level 1（36 层、墙网格 36 层）之外的层仍会越界。
+                boolean layerValid = layer < fullLayers();
+                boolean pillar = layerValid && hall && !inHall && colOnGiantPillar
                         // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
                         && lx > 0 && lx < 15 && lz > 0 && lz < 15
                         && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
                         && !wall[layer][lx][lz - 1] && !wall[layer][lx][lz + 1];
 
-                    if (layer >= fullLayers()) {
+                    if (!layerValid) {
                         // 顶部残层（Y >= 252）：用天花板封顶，闭合维度
                         chunk.setBlockState(mutable.set(worldX, y, worldZ), ceilingState, false);
                         continue;
