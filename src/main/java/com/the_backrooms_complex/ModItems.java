@@ -188,6 +188,34 @@ public final class ModItems {
                         output.accept(ModBlocks.WALL_MANILA_PLINTH.get());
                         output.accept(ModBlocks.FLOOR_MANILA.get());
                         output.accept(ModBlocks.CEILING_MANILA.get());
+                        output.accept(ModItems.WALL_YELLOW_WALL.get());
+                        output.accept(ModItems.WALL_YELLOW_SLAB.get());
+                        output.accept(ModItems.WALL_YELLOW_STAIRS.get());
+                        output.accept(ModItems.WALL_YELLOW_FENCE.get());
+                        output.accept(ModItems.WALL_DAMP_WALL.get());
+                        output.accept(ModItems.WALL_DAMP_SLAB.get());
+                        output.accept(ModItems.WALL_DAMP_STAIRS.get());
+                        output.accept(ModItems.WALL_DAMP_FENCE.get());
+                        output.accept(ModItems.WALL_CONCRETE_WALL.get());
+                        output.accept(ModItems.WALL_CONCRETE_SLAB.get());
+                        output.accept(ModItems.WALL_CONCRETE_STAIRS.get());
+                        output.accept(ModItems.WALL_CONCRETE_FENCE.get());
+                        output.accept(ModItems.CRACKED_CONCRETE_WALL_WALL.get());
+                        output.accept(ModItems.CRACKED_CONCRETE_WALL_SLAB.get());
+                        output.accept(ModItems.CRACKED_CONCRETE_WALL_STAIRS.get());
+                        output.accept(ModItems.CRACKED_CONCRETE_WALL_FENCE.get());
+                        output.accept(ModItems.FLOOR_TILE_WALL.get());
+                        output.accept(ModItems.FLOOR_TILE_SLAB.get());
+                        output.accept(ModItems.FLOOR_TILE_STAIRS.get());
+                        output.accept(ModItems.FLOOR_TILE_FENCE.get());
+                        output.accept(ModItems.DAMP_FLOOR_WALL.get());
+                        output.accept(ModItems.DAMP_FLOOR_SLAB.get());
+                        output.accept(ModItems.DAMP_FLOOR_STAIRS.get());
+                        output.accept(ModItems.DAMP_FLOOR_FENCE.get());
+                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_WALL.get());
+                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_SLAB.get());
+                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_STAIRS.get());
+                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_FENCE.get());
                         output.accept(ModBlocks.WALL_CONCRETE.get());
                         output.accept(ModBlocks.WALL_CONCRETE_PLINTH.get());
                         output.accept(ModBlocks.WALL_DAMP.get());
@@ -382,6 +410,63 @@ public final class ModItems {
             ITEMS.register("chair_acacia", () -> new BlockItem(ModBlocks.CHAIR_ACACIA.get(), new Item.Properties()));
 
 
+    // ===== 墙/台阶/楼梯/栅栏 变体的 BlockItem =====
+    public static final DeferredItem<BlockItem> WALL_YELLOW_WALL =
+            ITEMS.register("wall_yellow_wall", () -> new BlockItem(ModBlocks.WALL_YELLOW_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_YELLOW_SLAB =
+            ITEMS.register("wall_yellow_slab", () -> new BlockItem(ModBlocks.WALL_YELLOW_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_YELLOW_STAIRS =
+            ITEMS.register("wall_yellow_stairs", () -> new BlockItem(ModBlocks.WALL_YELLOW_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_YELLOW_FENCE =
+            ITEMS.register("wall_yellow_fence", () -> new BlockItem(ModBlocks.WALL_YELLOW_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_DAMP_WALL =
+            ITEMS.register("wall_damp_wall", () -> new BlockItem(ModBlocks.WALL_DAMP_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_DAMP_SLAB =
+            ITEMS.register("wall_damp_slab", () -> new BlockItem(ModBlocks.WALL_DAMP_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_DAMP_STAIRS =
+            ITEMS.register("wall_damp_stairs", () -> new BlockItem(ModBlocks.WALL_DAMP_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_DAMP_FENCE =
+            ITEMS.register("wall_damp_fence", () -> new BlockItem(ModBlocks.WALL_DAMP_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_CONCRETE_WALL =
+            ITEMS.register("wall_concrete_wall", () -> new BlockItem(ModBlocks.WALL_CONCRETE_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_CONCRETE_SLAB =
+            ITEMS.register("wall_concrete_slab", () -> new BlockItem(ModBlocks.WALL_CONCRETE_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_CONCRETE_STAIRS =
+            ITEMS.register("wall_concrete_stairs", () -> new BlockItem(ModBlocks.WALL_CONCRETE_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WALL_CONCRETE_FENCE =
+            ITEMS.register("wall_concrete_fence", () -> new BlockItem(ModBlocks.WALL_CONCRETE_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL_WALL =
+            ITEMS.register("cracked_concrete_wall_wall", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL_SLAB =
+            ITEMS.register("cracked_concrete_wall_slab", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL_STAIRS =
+            ITEMS.register("cracked_concrete_wall_stairs", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL_FENCE =
+            ITEMS.register("cracked_concrete_wall_fence", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> FLOOR_TILE_WALL =
+            ITEMS.register("floor_tile_wall", () -> new BlockItem(ModBlocks.FLOOR_TILE_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> FLOOR_TILE_SLAB =
+            ITEMS.register("floor_tile_slab", () -> new BlockItem(ModBlocks.FLOOR_TILE_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> FLOOR_TILE_STAIRS =
+            ITEMS.register("floor_tile_stairs", () -> new BlockItem(ModBlocks.FLOOR_TILE_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> FLOOR_TILE_FENCE =
+            ITEMS.register("floor_tile_fence", () -> new BlockItem(ModBlocks.FLOOR_TILE_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> DAMP_FLOOR_WALL =
+            ITEMS.register("damp_floor_wall", () -> new BlockItem(ModBlocks.DAMP_FLOOR_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> DAMP_FLOOR_SLAB =
+            ITEMS.register("damp_floor_slab", () -> new BlockItem(ModBlocks.DAMP_FLOOR_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> DAMP_FLOOR_STAIRS =
+            ITEMS.register("damp_floor_stairs", () -> new BlockItem(ModBlocks.DAMP_FLOOR_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> DAMP_FLOOR_FENCE =
+            ITEMS.register("damp_floor_fence", () -> new BlockItem(ModBlocks.DAMP_FLOOR_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_WALL =
+            ITEMS.register("stripped_carpet_floor_wall", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_SLAB =
+            ITEMS.register("stripped_carpet_floor_slab", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_STAIRS =
+            ITEMS.register("stripped_carpet_floor_stairs", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_FENCE =
+            ITEMS.register("stripped_carpet_floor_fence", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_FENCE.get(), new Item.Properties()));
     private ModItems() {
     }
 }

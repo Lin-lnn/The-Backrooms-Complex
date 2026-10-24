@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "backrooms_complex:block/damp_floor",
+    "top": "backrooms_complex:block/damp_floor",
+    "side": "backrooms_complex:block/damp_floor"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "type=bottom,waterlogged=false": {
+      "model": "backrooms_complex:block/wall_concrete_slab"
+    },
+    "type=bottom,waterlogged=true": {
+      "model": "backrooms_complex:block/wall_concrete_slab"
+    },
+    "type=top,waterlogged=false": {
+      "model": "backrooms_complex:block/wall_concrete_slab_top"
+    },
+    "type=top,waterlogged=true": {
+      "model": "backrooms_complex:block/wall_concrete_slab_top"
+    },
+    "type=double,waterlogged=false": {
+      "model": "backrooms_complex:block/wall_concrete"
+    },
+    "type=double,waterlogged=true": {
+      "model": "backrooms_complex:block/wall_concrete"
+    }
+  }
+}

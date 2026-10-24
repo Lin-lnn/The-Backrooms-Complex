@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "type=bottom,waterlogged=false": {
+      "model": "backrooms_complex:block/damp_floor_slab"
+    },
+    "type=bottom,waterlogged=true": {
+      "model": "backrooms_complex:block/damp_floor_slab"
+    },
+    "type=top,waterlogged=false": {
+      "model": "backrooms_complex:block/damp_floor_slab_top"
+    },
+    "type=top,waterlogged=true": {
+      "model": "backrooms_complex:block/damp_floor_slab_top"
+    },
+    "type=double,waterlogged=false": {
+      "model": "backrooms_complex:block/damp_floor"
+    },
+    "type=double,waterlogged=true": {
+      "model": "backrooms_complex:block/damp_floor"
+    }
+  }
+}

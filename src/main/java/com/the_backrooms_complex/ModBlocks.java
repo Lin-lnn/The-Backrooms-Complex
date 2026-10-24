@@ -13,6 +13,10 @@ import com.the_backrooms_complex.block.MyceliumCarpetBlock;
 import com.the_backrooms_complex.block.OakedWallBlock;
 import com.the_backrooms_complex.block.StrippedCarpetFloorBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -195,6 +199,64 @@ public final class ModBlocks {
                 || block == CEILING_MANILA.get();
     }
 
+
+    // ===== 墙 / 台阶 / 楼梯 / 栅栏 变体（7 种基础材质 × 4 种形状）=====
+    public static final DeferredBlock<WallBlock> WALL_YELLOW_WALL =
+            BLOCKS.register("wall_yellow_wall", () -> new WallBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> WALL_DAMP_WALL =
+            BLOCKS.register("wall_damp_wall", () -> new WallBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> WALL_CONCRETE_WALL =
+            BLOCKS.register("wall_concrete_wall", () -> new WallBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> CRACKED_CONCRETE_WALL_WALL =
+            BLOCKS.register("cracked_concrete_wall_wall", () -> new WallBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> FLOOR_TILE_WALL =
+            BLOCKS.register("floor_tile_wall", () -> new WallBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> DAMP_FLOOR_WALL =
+            BLOCKS.register("damp_floor_wall", () -> new WallBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> STRIPPED_CARPET_FLOOR_WALL =
+            BLOCKS.register("stripped_carpet_floor_wall", () -> new WallBlock(unbreakable()));
+    public static final DeferredBlock<SlabBlock> WALL_YELLOW_SLAB =
+            BLOCKS.register("wall_yellow_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<SlabBlock> WALL_DAMP_SLAB =
+            BLOCKS.register("wall_damp_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<SlabBlock> WALL_CONCRETE_SLAB =
+            BLOCKS.register("wall_concrete_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<SlabBlock> CRACKED_CONCRETE_WALL_SLAB =
+            BLOCKS.register("cracked_concrete_wall_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<SlabBlock> FLOOR_TILE_SLAB =
+            BLOCKS.register("floor_tile_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<SlabBlock> DAMP_FLOOR_SLAB =
+            BLOCKS.register("damp_floor_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<SlabBlock> STRIPPED_CARPET_FLOOR_SLAB =
+            BLOCKS.register("stripped_carpet_floor_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<StairBlock> WALL_YELLOW_STAIRS =
+            BLOCKS.register("wall_yellow_stairs", () -> new StairBlock(WALL_YELLOW.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<StairBlock> WALL_DAMP_STAIRS =
+            BLOCKS.register("wall_damp_stairs", () -> new StairBlock(WALL_DAMP.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<StairBlock> WALL_CONCRETE_STAIRS =
+            BLOCKS.register("wall_concrete_stairs", () -> new StairBlock(WALL_CONCRETE.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<StairBlock> CRACKED_CONCRETE_WALL_STAIRS =
+            BLOCKS.register("cracked_concrete_wall_stairs", () -> new StairBlock(CRACKED_CONCRETE_WALL.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<StairBlock> FLOOR_TILE_STAIRS =
+            BLOCKS.register("floor_tile_stairs", () -> new StairBlock(FLOOR_TILE.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<StairBlock> DAMP_FLOOR_STAIRS =
+            BLOCKS.register("damp_floor_stairs", () -> new StairBlock(DAMP_FLOOR.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<StairBlock> STRIPPED_CARPET_FLOOR_STAIRS =
+            BLOCKS.register("stripped_carpet_floor_stairs", () -> new StairBlock(STRIPPED_CARPET_FLOOR.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<FenceBlock> WALL_YELLOW_FENCE =
+            BLOCKS.register("wall_yellow_fence", () -> new FenceBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> WALL_DAMP_FENCE =
+            BLOCKS.register("wall_damp_fence", () -> new FenceBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> WALL_CONCRETE_FENCE =
+            BLOCKS.register("wall_concrete_fence", () -> new FenceBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> CRACKED_CONCRETE_WALL_FENCE =
+            BLOCKS.register("cracked_concrete_wall_fence", () -> new FenceBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> FLOOR_TILE_FENCE =
+            BLOCKS.register("floor_tile_fence", () -> new FenceBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> DAMP_FLOOR_FENCE =
+            BLOCKS.register("damp_floor_fence", () -> new FenceBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> STRIPPED_CARPET_FLOOR_FENCE =
+            BLOCKS.register("stripped_carpet_floor_fence", () -> new FenceBlock(unbreakable()));
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)

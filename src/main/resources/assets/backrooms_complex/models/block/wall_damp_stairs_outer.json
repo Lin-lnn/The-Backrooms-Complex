@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "backrooms_complex:block/wall_damp",
+    "top": "backrooms_complex:block/wall_damp",
+    "side": "backrooms_complex:block/wall_damp"
+  }
+}

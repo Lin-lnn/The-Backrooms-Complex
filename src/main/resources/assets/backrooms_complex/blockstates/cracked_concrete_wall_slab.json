@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "type=bottom,waterlogged=false": {
+      "model": "backrooms_complex:block/cracked_concrete_wall_slab"
+    },
+    "type=bottom,waterlogged=true": {
+      "model": "backrooms_complex:block/cracked_concrete_wall_slab"
+    },
+    "type=top,waterlogged=false": {
+      "model": "backrooms_complex:block/cracked_concrete_wall_slab_top"
+    },
+    "type=top,waterlogged=true": {
+      "model": "backrooms_complex:block/cracked_concrete_wall_slab_top"
+    },
+    "type=double,waterlogged=false": {
+      "model": "backrooms_complex:block/cracked_concrete_wall"
+    },
+    "type=double,waterlogged=true": {
+      "model": "backrooms_complex:block/cracked_concrete_wall"
+    }
+  }
+}

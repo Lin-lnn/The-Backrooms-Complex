@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_post",
+  "textures": {
+    "texture": "backrooms_complex:block/wall_concrete"
+  }
+}
