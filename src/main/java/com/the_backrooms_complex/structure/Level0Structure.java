@@ -65,7 +65,7 @@ public class Level0Structure extends Structure {
      * <p>用独立哈希判定，命中时整座结构改用 {@code level_manila} 模板，
      * 不再走普通模板的加权选择。</p>
      */
-    public static final long MANILA_CHANCE_DENOM = 20000L;
+    public static final long MANILA_CHANCE_DENOM = 1333L;   // 0.075%（原 0.005% × 15）
     /** 马尼拉结构专用盐值。 */
     private static final long SALT_MANILA = 0x4D414E494C41L;
 
@@ -136,7 +136,7 @@ public class Level0Structure extends Structure {
         // 逐层独立判定：每层 5% 概率（52429 / 1048576 ≈ 5%），从最高层往下找第一个命中的层
         int layerIndex = -1;
         for (int l = maxLayer; l >= 0; l--) {
-            if ((mix(gx, gz, l, SALT_LAYER) & 0xFFFFFL) < 52429L) {
+            if ((mix(gx, gz, l, SALT_LAYER) & 0xFFFFFL) < 786432L) {   // 75%（原 5% × 15）
                 layerIndex = l;
                 break;
             }
