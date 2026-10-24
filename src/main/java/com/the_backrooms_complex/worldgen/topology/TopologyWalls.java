@@ -30,8 +30,6 @@ public final class TopologyWalls {
     public static final int ROOM_MIN = 3;
     /** 房间最大边长。 */
     public static final int ROOM_MAX = 24;
-    /** 走到主干的搜索步数上限（必须 ≥ CORRIDOR_HALF + 格内抖动）。 */
-    private static final int WALK_STEPS = 40;
 
     private TopologyWalls() {
     }
@@ -101,36 +99,6 @@ public final class TopologyWalls {
         return walls;
     }
 
-    /**
-     * 判断 (x,z) 的 r 邻域内是否存在主干。
-     *
-     * <p>只做一次 parentDir 判断方向，再检查该方向的点与四邻，
-     * 避免逐格朝主干行走导致每格重复哈希。</p>
-     */
-    private static boolean nearSpine(RoomGraph graph, long x, long z, int layer, int r) {
-        if (graph.isOnSpine(x, z, layer)) {
-            return true;
-        }
-        int d = graph.parentDir(x, z, layer);
-        if (d < 0) {
-            return false;
-        }
-        long cx = x;
-        long cz = z;
-        switch (d) {
-            case RoomGraph.N -> cz -= r;
-            case RoomGraph.S -> cz += r;
-            case RoomGraph.E -> cx += r;
-            case RoomGraph.W -> cx -= r;
-            default -> { return false; }
-        }
-        return graph.isOnSpine(cx, cz, layer)
-                || graph.isOnSpine(x + 1, z, layer)
-                || graph.isOnSpine(x - 1, z, layer)
-                || graph.isOnSpine(x, z + 1, layer)
-                || graph.isOnSpine(x, z - 1, layer);
-    }
-
     /** 判断一个方块位置是否可走（走廊或房间）。 */
     public static boolean isOpen(RoomGraph graph, long x, long z, int layer) {
         // ① 房间：对称方形房间（中心对齐主干节点，边长 = 走廊宽 7 + 2k）
@@ -178,46 +146,9 @@ public final class TopologyWalls {
         return CORRIDOR_MIN + (int) Math.floorMod(h, (long) (CORRIDOR_MAX - CORRIDOR_MIN + 1));
     }
 
-    /** 墙壁最大厚度（格）；超厚的部分会被打通。 */
-    public static final int MAX_WALL_THICKNESS = 2;
 
     /** (x,z) 的四邻中是否有属于房间的格子（用于保护房间边缘不被掏空）。 */
-    private static boolean adjacentToRoom(RoomGraph graph, long x, long z, int layer) {
-        long[][] dirs = {{0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        for (long[] d : dirs) {
-            long px = x + d[0];
-            long pz = z + d[1];
-            long gi = Math.floorDiv(px, RoomGraph.CELL);
-            long gj = Math.floorDiv(pz, RoomGraph.CELL);
-            for (long i = gi - 1; i <= gi + 1; i++) {
-                for (long j = gj - 1; j <= gj + 1; j++) {
-                    if (inRoom(graph, px, pz, (int) i, (int) j, layer)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     /** 该墙格沿四个方向 maxThickness 步内是否能碰到通道。 */
-    private static boolean reachesOpen(boolean[][] walls, int lx, int lz, int maxThickness) {
-        int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        for (int[] d : dirs) {
-            for (int step = 1; step <= maxThickness; step++) {
-                int nx = lx + d[0] * step;
-                int nz = lz + d[1] * step;
-                if (nx < 0 || nx > 15 || nz < 0 || nz > 15) {
-                    continue;
-                }
-                if (!walls[nx][nz]) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     /** 点是否落在格子 (i,j) 的房间矩形内。 */
     private static boolean inRoom(RoomGraph graph, long x, long z, int i, int j, int layer) {
         long cx = graph.spineX(i, j, layer);
