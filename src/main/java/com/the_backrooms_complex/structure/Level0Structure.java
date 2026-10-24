@@ -63,7 +63,12 @@ public class Level0Structure extends Structure {
     public static final int MAX_STRUCTURE_Y = MAX_LAYER_INDEX * LAYER_PERIOD + 6;
 
     /** 可用结构模板数量（level0_1 .. level0_5）。 */
-    public static final int TEMPLATE_COUNT = 5;
+    /** 旧模板数量（level0_1..level0_5），权重 1。 */
+    public static final int OLD_TEMPLATE_COUNT = 5;
+    /** 新模板数量（level0_6..level0_9），权重 2。 */
+    public static final int NEW_TEMPLATE_COUNT = 4;
+    /** 加权总数 = 5×1 + 4×2 = 13。 */
+    public static final int TEMPLATE_WEIGHT_TOTAL = OLD_TEMPLATE_COUNT + NEW_TEMPLATE_COUNT * 2;
 
     private static final long SALT_TEMPLATE = 0x9E3779B97F4A7C15L;
     private static final long SALT_LAYER = 0xC2B2AE3D27D4EB4FL;
@@ -88,7 +93,14 @@ public class Level0Structure extends Structure {
         StructureTemplateManager templateManager = context.structureTemplateManager();
 
         // 2) 确定性选择模板（只依赖网格单元坐标，与逐层迷宫种子无关）
-        int templateIndex = 1 + Math.floorMod(mix(gx, gz, 0, SALT_TEMPLATE), TEMPLATE_COUNT);
+        // 加权选择：0~4 -> 旧模板 1..5（权重 1）；5~12 -> 新模板 6..9（权重 2）
+        int roll = (int) Math.floorMod(mix(gx, gz, 0, SALT_TEMPLATE), TEMPLATE_WEIGHT_TOTAL);
+        int templateIndex;
+        if (roll < OLD_TEMPLATE_COUNT) {
+            templateIndex = 1 + roll;
+        } else {
+            templateIndex = OLD_TEMPLATE_COUNT + 1 + (roll - OLD_TEMPLATE_COUNT) / 2;
+        }
         ResourceLocation templateId = ResourceLocation.fromNamespaceAndPath(
                 BackroomsComplex.MODID, "level0_" + templateIndex);
         StructureTemplate template = templateManager.getOrCreate(templateId);
