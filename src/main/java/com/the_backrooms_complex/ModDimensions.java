@@ -44,6 +44,24 @@ public final class ModDimensions {
     public static final ResourceKey<DimensionType> LEVEL_0_TYPE =
             ResourceKey.create(Registries.DIMENSION_TYPE, LEVEL_0_LOCATION);
 
+    // ==================== Level 1「宜居地带」 ====================
+
+    /** Level 1 的资源位置。 */
+    public static final ResourceLocation LEVEL_1_LOCATION =
+            ResourceLocation.fromNamespaceAndPath(BackroomsComplex.MODID, "level_1");
+
+    /** Level 1 的维度键。 */
+    public static final ResourceKey<LevelStem> LEVEL_1_STEM =
+            ResourceKey.create(Registries.LEVEL_STEM, LEVEL_1_LOCATION);
+
+    /** Level 1 的世界键（{@code /execute in backrooms_complex:level_1}）。 */
+    public static final ResourceKey<Level> LEVEL_1_WORLD =
+            ResourceKey.create(Registries.DIMENSION, LEVEL_1_LOCATION);
+
+    /** Level 1 的维度类型键。 */
+    public static final ResourceKey<DimensionType> LEVEL_1_TYPE =
+            ResourceKey.create(Registries.DIMENSION_TYPE, LEVEL_1_LOCATION);
+
     /**
      * 注册维度类型（数据生成阶段调用，见 {@code datagen.DataGenerators}）。
      *

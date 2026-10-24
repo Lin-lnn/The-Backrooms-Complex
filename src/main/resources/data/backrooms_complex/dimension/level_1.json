@@ -1,0 +1,12 @@
+{
+  "type": "backrooms_complex:level_1",
+  "generator": {
+    "type": "backrooms_complex:backrooms",
+    "biome_source": {
+      "type": "backrooms_complex:backrooms_biome_source",
+      "yellow_rooms": "backrooms_complex:warehouse_aisles",
+      "concrete_halls": "backrooms_complex:aquila_sector",
+      "damp_corridors": "backrooms_complex:puddle_zone"
+    }
+  }
+}
