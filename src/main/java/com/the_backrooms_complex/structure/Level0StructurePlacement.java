@@ -36,10 +36,10 @@ import java.util.Optional;
 public class Level0StructurePlacement extends StructurePlacement {
 
     /** 默认网格边长（格）。 */
-    public static final int DEFAULT_SPACING_BLOCKS = 28;
+    public static final int DEFAULT_SPACING_BLOCKS = 16;
 
     /** 默认单元内确定性偏移上界（格）。 */
-    public static final int DEFAULT_OFFSET_RANGE = 8;
+    public static final int DEFAULT_OFFSET_RANGE = 0;
 
     public static final MapCodec<Level0StructurePlacement> CODEC = RecordCodecBuilder.mapCodec(
             instance -> codec(instance).apply(instance, Level0StructurePlacement::new));
@@ -97,7 +97,7 @@ public class Level0StructurePlacement extends StructurePlacement {
      * 出现"竹楼梯插进墙里、房间被墙切开"的观感。把锚点吸附到 8 的整数倍后，
      * 结构的方块与迷宫单元格对齐，房间才能完整地嵌进迷宫。</p>
      */
-    public static final int GRID_SNAP = BackroomsMaze.CELL_PITCH;
+    public static final int GRID_SNAP = 16;   // 与 spacing 一致，否则锚点会被吸到 32 的倍数上
 
     /** 网格单元 (gx,gz) 的锚点方块 X 坐标（确定性、已吸附到 8 格网格，与世界种子无关）。 */
     public static int anchorX(int gx, int gz) {
