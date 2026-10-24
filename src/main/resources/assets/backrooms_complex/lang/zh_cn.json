@@ -72,8 +72,6 @@
     "item.backrooms_complex.lamp_off.line2":  "不发出任何光",
     "item.backrooms_complex.lamp_off.line3":  "异常发生时灯光的\"熄灭态\"",
     "item.backrooms_complex.empty_can.line1":  "喝完的空罐，内壁还挂着一点甜味",
-    "item.backrooms_complex.empty_can.line2":  "没有用途",
-    "item.backrooms_complex.empty_can.line3":  "可以收集起来做标记",
     "item.backrooms_complex.wallpaper.line1":  "泛黄起皱的墙纸，边缘还粘着干掉的胶",
     "item.backrooms_complex.wallpaper.line2":  "可以重新贴回被刮掉的墙面",
     "item.backrooms_complex.wallpaper.line3":  "修复墙面上的划痕，也能作为合成材料",
@@ -150,5 +148,7 @@
     "block.backrooms_complex.ceiling_manila":  "马尼拉天花板",
     "item.backrooms_complex.wallpaper_coat.line2":  "穿戴后 +1 护甲，精神值下降速度 -10%",
     "item.backrooms_complex.wallpaper_hat.line2":  "穿戴后 +1 护甲，精神值下降速度 -10%",
-    "item.backrooms_complex.scraper.line3":  "获取地毯纤维；也能剥下地毯"
+    "item.backrooms_complex.scraper.line3":  "获取地毯纤维；也能剥下地毯",
+    "item.backrooms_complex.empty_can.line2":  "并非没有用途",
+    "item.backrooms_complex.empty_can.line3":  "可以收集起来回收"
 }
