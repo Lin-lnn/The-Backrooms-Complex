@@ -58,6 +58,46 @@ public final class TopologyWalls {
             }
         }
 
+        // ===== SCHEMATIC_SMOOTH：补平台阶 =====
+        // 规则：若一个"通道格"的两条【相邻边】都是墙（= 凹角/台阶内角），
+        // 就把它填成墙。这样楼梯状的锯齿会被填平，得到平直的长墙。
+        // 这里【忽略墙厚限制】—— 允许墙因此变厚，换取墙线平滑。
+        boolean[][] snap = new boolean[16][16];
+        for (int lx = 0; lx < 16; lx++) {
+            for (int lz = 0; lz < 16; lz++) {
+                snap[lx][lz] = walls[lx][lz];
+            }
+        }
+        for (int pass = 0; pass < 2; pass++) {
+            boolean[][] next = new boolean[16][16];
+            for (int lx = 0; lx < 16; lx++) {
+                for (int lz = 0; lz < 16; lz++) {
+                    next[lx][lz] = snap[lx][lz];
+                }
+            }
+            for (int lx = 0; lx < 16; lx++) {
+                for (int lz = 0; lz < 16; lz++) {
+                    if (snap[lx][lz]) {
+                        continue;   // 已经是墙
+                    }
+                    boolean n = lz > 0 && snap[lx][lz - 1];
+                    boolean s = lz < 15 && snap[lx][lz + 1];
+                    boolean w = lx > 0 && snap[lx - 1][lz];
+                    boolean e = lx < 15 && snap[lx + 1][lz];
+                    int wallsAround = (n ? 1 : 0) + (s ? 1 : 0) + (w ? 1 : 0) + (e ? 1 : 0);
+                    // 3 面以上是墙 -> 明显是凹角死角，填掉
+                    if (wallsAround >= 3) {
+                        next[lx][lz] = true;
+                    }
+                }
+            }
+            snap = next;
+        }
+        for (int lx = 0; lx < 16; lx++) {
+            for (int lz = 0; lz < 16; lz++) {
+                walls[lx][lz] = snap[lx][lz];
+            }
+        }
         return walls;
     }
 
