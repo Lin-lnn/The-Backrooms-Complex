@@ -88,8 +88,16 @@ public final class BackroomsCommands {
 
         boolean onSpine = graph.isOnSpine(pos.getX(), pos.getZ(), layer);
         int parent = graph.parentDir(pos.getX(), pos.getZ(), layer);
-        boolean open = com.the_backrooms_complex.worldgen.topology.TopologyWalls
-                .isOpen(graph, pos.getX(), pos.getZ(), layer);
+        // 用墙网格判断当前方块是否可走
+        boolean tmpOpen;
+        try {
+            boolean[][] grid = com.the_backrooms_complex.worldgen.topology.TopologyWalls
+                    .wallGrid(graph, Math.floorDiv(pos.getX(), 16), Math.floorDiv(pos.getZ(), 16), layer);
+            tmpOpen = !grid[Math.floorMod(pos.getX(), 16)][Math.floorMod(pos.getZ(), 16)];
+        } catch (RuntimeException e) {
+            tmpOpen = false;
+        }
+        final boolean open = tmpOpen;
         String[] dirNames = {"北", "东", "南", "西", "上", "下"};
         String parentName = parent < 0 ? "（已在主干节点）" : dirNames[parent];
 
