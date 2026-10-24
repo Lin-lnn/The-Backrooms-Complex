@@ -63,6 +63,10 @@ public final class BiomeTint {
         if (level == null || pos == null) {
             return HUE_YELLOW;
         }
+        // 马尼拉系列不受群系着色影响：返回纯白，直接使用贴图原色
+        if (com.the_backrooms_complex.ModBlocks.isManila(state.getBlock())) {
+            return 0xFFFFFF;
+        }
         int layerBaseY = Math.floorDiv(pos.getY(), BackroomsChunkGenerator.LAYER_HEIGHT)
                 * BackroomsChunkGenerator.LAYER_HEIGHT;
 

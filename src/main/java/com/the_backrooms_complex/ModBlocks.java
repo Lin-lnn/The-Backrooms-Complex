@@ -171,6 +171,19 @@ public final class ModBlocks {
     public static final DeferredBlock<Block> CHAIR_WARPED = BLOCKS.register("chair_warped", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_warped", 0.5D));
     public static final DeferredBlock<Block> CHAIR_ACACIA = BLOCKS.register("chair_acacia", () -> new SeatBlock(unbreakable().noOcclusion(), "chair_acacia", 0.5D));
 
+    /**
+     * 是否是「马尼拉」系列方块（墙壁 / 踢脚线 / 地板 / 天花板）。
+     *
+     * <p>这些方块使用固定的米黄色贴图，<b>不参与群系着色</b>，
+     * 因此客户端着色时直接返回纯白，保留贴图本身的颜色。</p>
+     */
+    public static boolean isManila(Block block) {
+        return block == WALL_MANILA.get()
+                || block == WALL_MANILA_PLINTH.get()
+                || block == FLOOR_MANILA.get()
+                || block == CEILING_MANILA.get();
+    }
+
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)
