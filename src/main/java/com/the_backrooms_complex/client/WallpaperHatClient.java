@@ -52,8 +52,8 @@ public final class WallpaperHatClient {
 
         CubeListBuilder hat = CubeListBuilder.create();
         // 帽檐：两块交叉的薄板，形成近似圆形
-        hat.texOffs(0, 16).addBox(-9.0F, -6.5F, -6.5F, 18, 1, 13);
-        hat.texOffs(0, 32).addBox(-6.5F, -6.505F, -9.0F, 13, 1, 18);
+        hat.texOffs(0, 16).addBox(-7.0F, -6.75F, -6.0F, 14, 1.5F, 12);   // 左右各 -2px，前后各 -1px，厚度 +0.5px
+        hat.texOffs(0, 32).addBox(-6.0F, -6.755F, -7.0F, 12, 1.5F, 14);   // 同上，沿 Z 的帽檐
         // 帽筒
         hat.texOffs(0, 0).addBox(-5.0F, -11.5F, -5.0F, 10, 5, 10);
 
