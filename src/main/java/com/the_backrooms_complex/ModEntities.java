@@ -35,6 +35,17 @@ public final class ModEntities {
                     .clientTrackingRange(10)
                     .build("backrooms_complex:bacteria"));
 
+    /**
+     * 「座位」：不可见、无碰撞的载具实体，玩家坐上去即可实现真正的坐下效果。
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<com.the_backrooms_complex.entity.SeatEntity>> SEAT =
+            ENTITY_TYPES.register("seat", () -> EntityType.Builder
+                    .of(com.the_backrooms_complex.entity.SeatEntity::new, MobCategory.MISC)
+                    .sized(0.001F, 0.001F)
+                    .noSummon()
+                    .clientTrackingRange(4)
+                    .build("backrooms_complex:seat"));
+
     private ModEntities() {
     }
 }
