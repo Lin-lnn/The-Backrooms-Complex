@@ -69,6 +69,38 @@ public final class BackroomsCommands {
      */
 
 
+    /**
+     * {@code /backrooms topo} —— 打印当前所在房间的拓扑信息（调试用）。
+     *
+     * <p>输出：房间坐标、是否在主干上、朝主干的父方向、覆盖率、可达房间数。</p>
+     */
+    private static int topo(CommandSourceStack source) {
+        var player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.literal("需要玩家执行"));
+            return 0;
+        }
+        var pos = player.blockPosition();
+        int layer = Math.floorDiv(pos.getY(), com.the_backrooms_complex.worldgen.BackroomsChunkGenerator.LAYER_HEIGHT);
+        var graph = new com.the_backrooms_complex.worldgen.topology.RoomGraph(0x5EEDBACC0001L);
+        var overlay = new com.the_backrooms_complex.worldgen.topology.RoomOverlay(graph);
+
+        boolean onSpine = graph.isOnSpine(pos.getX(), pos.getZ(), layer);
+        int parent = graph.parentDir(pos.getX(), pos.getZ(), layer);
+        boolean open = com.the_backrooms_complex.worldgen.topology.TopologyWalls
+                .isOpen(graph, pos.getX(), pos.getZ(), layer);
+        String[] dirNames = {"北", "东", "南", "西", "上", "下"};
+        String parentName = parent < 0 ? "（已在主干节点）" : dirNames[parent];
+
+        long room = com.the_backrooms_complex.worldgen.topology.RoomGraph
+                .coord(pos.getX(), pos.getZ(), layer);
+        int reachable = overlay.reachableCount(room, 14);
+
+        source.sendSuccess(() -> Component.literal(String.format(
+                "§e[拓扑] §f层=%d 主干=%s 可走=%s 父方向=%s 覆盖层=%d 可达房间=%d",
+                layer, onSpine, open, parentName, overlay.overlaySize(), reachable)), false);
+        return 1;
+    }
     private static int check(CommandSourceStack source) {
         Level level = source.getLevel();
         BlockPos center = BlockPos.containing(source.getPosition());
