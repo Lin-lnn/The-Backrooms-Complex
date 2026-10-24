@@ -2,31 +2,30 @@
   "parent": "minecraft:block/block",
   "textures": {
     "wall": "backrooms_complex:block/wall_damp",
-    "skirt": "backrooms_complex:block/plinth_skirt",
     "particle": "#wall"
   },
   "elements": [
     {
-      "from": [0.02, 0.02, 0.02],
+      "from": [0.02, 2.98, 0.02],
       "to": [15.98, 16, 15.98],
       "faces": {
-        "north": { "uv": [0, 0, 16, 16], "texture": "#wall", "cullface": "north", "tintindex": 0 },
-        "east":  { "uv": [0, 0, 16, 16], "texture": "#wall", "cullface": "east",  "tintindex": 0 },
-        "south": { "uv": [0, 0, 16, 16], "texture": "#wall", "cullface": "south", "tintindex": 0 },
-        "west":  { "uv": [0, 0, 16, 16], "texture": "#wall", "cullface": "west",  "tintindex": 0 },
-        "up":    { "uv": [0, 0, 16, 16], "texture": "#wall", "cullface": "up",    "tintindex": 0 },
-        "down":  { "uv": [0, 0, 16, 16], "texture": "#wall", "cullface": "down",  "tintindex": 0 }
+        "north": { "uv": [0, 3, 16, 16], "texture": "#wall", "cullface": "north", "tintindex": 0 },
+        "east":  { "uv": [0, 3, 16, 16], "texture": "#wall", "cullface": "east",  "tintindex": 0 },
+        "south": { "uv": [0, 3, 16, 16], "texture": "#wall", "cullface": "south", "tintindex": 0 },
+        "west":  { "uv": [0, 3, 16, 16], "texture": "#wall", "cullface": "west",  "tintindex": 0 },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#wall", "cullface": "up",    "tintindex": 0 }
       }
     },
     {
       "from": [0, 0, 0],
       "to": [16, 2.98, 16],
       "faces": {
-        "north": { "uv": [0, 0, 16, 3], "texture": "#skirt", "tintindex": 0 },
-        "east":  { "uv": [0, 0, 16, 3], "texture": "#skirt", "tintindex": 0 },
-        "south": { "uv": [0, 0, 16, 3], "texture": "#skirt", "tintindex": 0 },
-        "west":  { "uv": [0, 0, 16, 3], "texture": "#skirt", "tintindex": 0 },
-        "down":  { "uv": [0, 0, 16, 16], "texture": "#skirt", "cullface": "down", "tintindex": 0 }
+        "north": { "uv": [0, 13, 16, 16], "texture": "#wall", "tintindex": 0 },
+        "east":  { "uv": [0, 13, 16, 16], "texture": "#wall", "tintindex": 0 },
+        "south": { "uv": [0, 13, 16, 16], "texture": "#wall", "tintindex": 0 },
+        "west":  { "uv": [0, 13, 16, 16], "texture": "#wall", "tintindex": 0 },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#wall", "tintindex": 0 },
+        "down":  { "uv": [0, 0, 16, 16], "texture": "#wall", "cullface": "down", "tintindex": 0 }
       }
     }
   ]
