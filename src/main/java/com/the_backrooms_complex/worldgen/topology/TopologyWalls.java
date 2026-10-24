@@ -21,8 +21,8 @@ package com.the_backrooms_complex.worldgen.topology;
 public final class TopologyWalls {
 
     /** 走廊宽度范围（格）；每格独立取值 ⇒ 交界处陡变。 */
-    public static final int CORRIDOR_MIN = 3;
-    public static final int CORRIDOR_MAX = 14;
+    public static final int CORRIDOR_MIN = 5;
+    public static final int CORRIDOR_MAX = 8;
 
     /** 兼容旧代码用的走廊半宽。 */
     public static final int CORRIDOR_HALF = 3;
