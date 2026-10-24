@@ -3,86 +3,87 @@
     {
       "apply": {
         "model": "backrooms_complex:block/floor_tile_wall_post"
+      },
+      "when": {
+        "up": "true"
       }
     },
     {
+      "apply": {
+        "model": "backrooms_complex:block/floor_tile_wall_side",
+        "uvlock": true
+      },
       "when": {
         "north": "low"
-      },
+      }
+    },
+    {
       "apply": {
         "model": "backrooms_complex:block/floor_tile_wall_side",
-        "y": 0,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "north": "tall"
+        "uvlock": true,
+        "y": 90
       },
-      "apply": {
-        "model": "backrooms_complex:block/floor_tile_wall_side_tall",
-        "y": 0,
-        "uvlock": true
-      }
-    },
-    {
       "when": {
         "east": "low"
-      },
+      }
+    },
+    {
       "apply": {
         "model": "backrooms_complex:block/floor_tile_wall_side",
-        "y": 90,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "east": "tall"
+        "uvlock": true,
+        "y": 180
       },
-      "apply": {
-        "model": "backrooms_complex:block/floor_tile_wall_side_tall",
-        "y": 90,
-        "uvlock": true
-      }
-    },
-    {
       "when": {
         "south": "low"
-      },
+      }
+    },
+    {
       "apply": {
         "model": "backrooms_complex:block/floor_tile_wall_side",
-        "y": 180,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "south": "tall"
+        "uvlock": true,
+        "y": 270
       },
-      "apply": {
-        "model": "backrooms_complex:block/floor_tile_wall_side_tall",
-        "y": 180,
-        "uvlock": true
-      }
-    },
-    {
       "when": {
         "west": "low"
-      },
-      "apply": {
-        "model": "backrooms_complex:block/floor_tile_wall_side",
-        "y": 270,
-        "uvlock": true
       }
     },
     {
-      "when": {
-        "west": "tall"
-      },
       "apply": {
         "model": "backrooms_complex:block/floor_tile_wall_side_tall",
-        "y": 270,
         "uvlock": true
+      },
+      "when": {
+        "north": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "backrooms_complex:block/floor_tile_wall_side_tall",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "backrooms_complex:block/floor_tile_wall_side_tall",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "backrooms_complex:block/floor_tile_wall_side_tall",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "tall"
       }
     }
   ]
