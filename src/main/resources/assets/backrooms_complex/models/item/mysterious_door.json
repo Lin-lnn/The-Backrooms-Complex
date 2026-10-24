@@ -1,3 +1,6 @@
 {
-  "parent": "backrooms_complex:block/mysterious_door_bottom_left"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "backrooms_complex:item/mysterious_door"
+  }
 }
