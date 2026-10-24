@@ -73,7 +73,7 @@ public class Level0Structure extends Structure {
      * <p>原来结构可以在 32 层里任意一层出现，玩家在底层活动时只有 1/32 的结构能被看到，
      * 这正是"结构很难找到"的原因。收窄到 4 层后，底层遇到结构的概率提升约 8 倍。</p>
      */
-    public static final int LAYER_SPREAD = 4;
+    public static final int LAYER_SPREAD = 32;   // 允许全部层都分配到结构
     /** 马尼拉结构专用盐值。 */
     private static final long SALT_MANILA = 0x4D414E494C41L;
 
@@ -147,10 +147,16 @@ public class Level0Structure extends Structure {
         // 玩家在底层走廊里几乎看不到 —— 这就是"结构很难找到"的真正原因。
         // 现在把可生成的层收窄到<b>最下面 4 层</b>（LAYER_SPREAD = 4），
         // 使结构集中在玩家主要活动的底层区域，可遇到率提升约 8 倍。
+        // 每个网格单元必定分配到一个结构；具体落在哪一层由单元哈希决定。
+        // 这样在足够大的范围内，每一层都能分配到结构，且不同单元的层互不相同。
         int topLayer = Math.min(maxLayer, LAYER_SPREAD - 1);
         int layerIndex = -1;
-        for (int l = topLayer; l >= 0; l--) {
-            if ((mix(gx, gz, l, SALT_LAYER) & 0xFFFFFL) < 786432L) {   // 75%（原 5% × 15）
+        int spread = topLayer + 1;
+        if (spread > 0) {
+            layerIndex = (int) Math.floorMod(mix(gx, gz, 0, SALT_LAYER), spread);
+        }
+        if (false) {
+            for (int l = topLayer; l >= 0; l--) {
                 layerIndex = l;
                 break;
             }
