@@ -160,6 +160,19 @@ public final class ModEvents {
         }
     }
 
+    /** 驱动「视线外打通」：按玩家的 dread（= 1 − 精神值/100）概率触发。 */
+    @SubscribeEvent
+    public static void onTopologyTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+        for (var level : event.getServer().getAllLevels()) {
+            for (var player : level.players()) {
+                if (!(player instanceof net.minecraft.server.level.ServerPlayer sp)) {
+                    continue;
+                }
+                float dread = 1.0F - com.the_backrooms_complex.ModPlayerData.getSanity(sp) / 100.0F;
+                com.the_backrooms_complex.worldgen.topology.TopologyRuntime.tick(level, sp, dread);
+            }
+        }
+    }
     private static void trySpawnOnCarpet(net.minecraft.server.level.ServerLevel level) {
         // 围绕每个玩家，在 8~40 格外随机采样若干点，找到菌毯后尝试生成
         for (net.minecraft.world.entity.player.Player player : level.players()) {
