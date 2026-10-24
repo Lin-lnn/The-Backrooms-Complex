@@ -58,33 +58,6 @@ public final class TopologyWalls {
             }
         }
 
-        // ===== 规则：墙壁厚度不能超过 MAX_WALL_THICKNESS 格 =====
-        // 做法：若某墙格沿四个方向 MAX_WALL_THICKNESS 步内都碰不到通道，
-        // 说明它处在厚墙内部，直接打通（变成通道），从而保证任何墙段 ≤ 2 格厚。
-        boolean[][] before = new boolean[16][16];
-        for (int lx = 0; lx < 16; lx++) {
-            for (int lz = 0; lz < 16; lz++) {
-                before[lx][lz] = walls[lx][lz];
-            }
-        }
-        for (int lx = 0; lx < 16; lx++) {
-            for (int lz = 0; lz < 16; lz++) {
-                if (!before[lx][lz]) {
-                    continue;
-                }
-                if (reachesOpen(before, lx, lz, MAX_WALL_THICKNESS)) {
-                    continue;
-                }
-                // 只打通「不与任何房间相邻」的厚墙：
-                // 若四邻中存在属于房间的格子，则保留该墙，避免把房间边缘掏空。
-                long wx = minX + lx;
-                long wz = minZ + lz;
-                if (adjacentToRoom(graph, wx, wz, layer)) {
-                    continue;
-                }
-                walls[lx][lz] = false;   // 厚墙内部 -> 打通
-            }
-        }
         return walls;
     }
 
@@ -120,15 +93,20 @@ public final class TopologyWalls {
 
     /** 判断一个方块位置是否可走（走廊或房间）。 */
     public static boolean isOpen(RoomGraph graph, long x, long z, int layer) {
-        // ① 房间：主干节点周围的矩形（尺寸哈希采样，边界陡变）
+        // ① 房间：只取"最近主干节点"所在格子的矩形（只扫 3x3 找最近，不叠加多个房间）
         long gi = Math.floorDiv(x, RoomGraph.CELL);
         long gj = Math.floorDiv(z, RoomGraph.CELL);
+        int bestRoom = Integer.MAX_VALUE;
+        boolean inAnyRoom = false;
         for (long i = gi - 1; i <= gi + 1; i++) {
             for (long j = gj - 1; j <= gj + 1; j++) {
                 if (inRoom(graph, x, z, (int) i, (int) j, layer)) {
-                    return true;
+                    inAnyRoom = true;
                 }
             }
+        }
+        if (inAnyRoom) {
+            return true;
         }
 
         // ② 走廊：到最近主干【线段】的距离 <= 半宽
@@ -199,6 +177,10 @@ public final class TopologyWalls {
         long h = RoomGraph.hashCoord(graph.seedValue(), i, j, layer, salt);
         double r = (h >>> 11) / (double) (1L << 53);
         int size = ROOM_MIN + (int) ((ROOM_MAX - ROOM_MIN) * r * r * r);
-        return Math.max(ROOM_MIN, Math.min(ROOM_MAX, size));
+        size = Math.max(ROOM_MIN, Math.min(ROOM_MAX, size));
+        if ((size & 1) == 0) {
+            size--;   // 强制奇数：房间中心与主干节点对齐，避免半格错位
+        }
+        return Math.max(ROOM_MIN, size);
     }
 }
