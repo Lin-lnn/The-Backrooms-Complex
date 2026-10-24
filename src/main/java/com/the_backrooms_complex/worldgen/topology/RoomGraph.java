@@ -240,8 +240,8 @@ public final class RoomGraph {
         long j0 = Math.floorDiv(z, CELL);
         long bestX = 0, bestZ = 0;
         long bestDist = Long.MAX_VALUE;
-        for (long i = i0 - 2; i <= i0 + 2; i++) {
-            for (long j = j0 - 2; j <= j0 + 2; j++) {
+        for (long i = i0 - 1; i <= i0 + 1; i++) {
+            for (long j = j0 - 1; j <= j0 + 1; j++) {
                 long tx = spineX((int) i, (int) j, floor);
                 long tz = spineZ((int) i, (int) j, floor);
                 long d = Math.abs(tx - x) + Math.abs(tz - z);
