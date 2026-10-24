@@ -76,8 +76,6 @@
     "item.backrooms_complex.wallpaper.line2":  "Can be pasted back onto a scraped wall",
     "item.backrooms_complex.wallpaper.line3":  "Repairs scratches on walls; also a crafting material",
     "item.backrooms_complex.chisel.line1":  "A blunt old iron chisel, its wooden handle wrapped in cloth",
-    "item.backrooms_complex.chisel.line2":  "Turns plain concrete walls into patterned ones",
-    "item.backrooms_complex.chisel.line3":  "Change wall appearance, or recover chiselled concrete",
     "item.backrooms_complex.unknown_sewage_bottle.line1":  "A bottle of layered, cloudy liquid that smells of rust",
     "item.backrooms_complex.unknown_sewage_bottle.line2":  "Restores thirst, but pollutes your sanity",
     "item.backrooms_complex.unknown_sewage_bottle.line3":  "A little better than dying of thirst",
@@ -150,5 +148,7 @@
     "item.backrooms_complex.wallpaper_hat.line2":  "+1 armor and -10% sanity drain while worn",
     "item.backrooms_complex.scraper.line3":  "Gather carpet fibre; also strips carpet",
     "item.backrooms_complex.empty_can.line2":  "Not entirely useless",
-    "item.backrooms_complex.empty_can.line3":  "Collect them to be recycled"
+    "item.backrooms_complex.empty_can.line3":  "Collect them to be recycled",
+    "item.backrooms_complex.chisel.line2":  "Can chisel walls open",
+    "item.backrooms_complex.chisel.line3":  "The wall dust it leaves might be of some use"
 }

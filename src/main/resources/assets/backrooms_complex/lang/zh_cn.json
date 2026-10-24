@@ -76,8 +76,6 @@
     "item.backrooms_complex.wallpaper.line2":  "可以重新贴回被刮掉的墙面",
     "item.backrooms_complex.wallpaper.line3":  "修复墙面上的划痕，也能作为合成材料",
     "item.backrooms_complex.chisel.line1":  "前端扁平的旧铁凿，木柄缠着布条",
-    "item.backrooms_complex.chisel.line2":  "能把混凝土墙凿成花纹墙",
-    "item.backrooms_complex.chisel.line3":  "改造墙面外观，或取下 \"凿面混凝土\"",
     "item.backrooms_complex.unknown_sewage_bottle.line1":  "瓶里是分层的浑浊液体，散发铁锈味",
     "item.backrooms_complex.unknown_sewage_bottle.line2":  "喝下回复口渴，但会污染精神",
     "item.backrooms_complex.unknown_sewage_bottle.line3":  "比渴死强一点的选择",
@@ -150,5 +148,7 @@
     "item.backrooms_complex.wallpaper_hat.line2":  "穿戴后 +1 护甲，精神值下降速度 -10%",
     "item.backrooms_complex.scraper.line3":  "获取地毯纤维；也能剥下地毯",
     "item.backrooms_complex.empty_can.line2":  "并非没有用途",
-    "item.backrooms_complex.empty_can.line3":  "可以收集起来回收"
+    "item.backrooms_complex.empty_can.line3":  "可以收集起来回收",
+    "item.backrooms_complex.chisel.line2":  "可以凿破墙壁",
+    "item.backrooms_complex.chisel.line3":  "凿下的墙灰说不定有些用处"
 }
