@@ -57,6 +57,27 @@ public final class TopologyWalls {
                 walls[lx][lz] = !isOpen(graph, x, z, layer);
             }
         }
+
+        // ===== 规则：墙壁厚度不能超过 MAX_WALL_THICKNESS 格 =====
+        // 做法：若某墙格沿四个方向 MAX_WALL_THICKNESS 步内都碰不到通道，
+        // 说明它处在厚墙内部，直接打通（变成通道），从而保证任何墙段 ≤ 2 格厚。
+        boolean[][] before = new boolean[16][16];
+        for (int lx = 0; lx < 16; lx++) {
+            for (int lz = 0; lz < 16; lz++) {
+                before[lx][lz] = walls[lx][lz];
+            }
+        }
+        for (int lx = 0; lx < 16; lx++) {
+            for (int lz = 0; lz < 16; lz++) {
+                if (!before[lx][lz]) {
+                    continue;
+                }
+                if (reachesOpen(before, lx, lz, MAX_WALL_THICKNESS)) {
+                    continue;
+                }
+                walls[lx][lz] = false;   // 厚墙内部 -> 打通
+            }
+        }
         return walls;
     }
 
@@ -145,6 +166,27 @@ public final class TopologyWalls {
     private static int corridorWidth(RoomGraph graph, int i, int j, int layer) {
         long h = RoomGraph.hashCoord(graph.seedValue(), i, j, layer, "corrW");
         return CORRIDOR_MIN + (int) Math.floorMod(h, (long) (CORRIDOR_MAX - CORRIDOR_MIN + 1));
+    }
+
+    /** 墙壁最大厚度（格）；超厚的部分会被打通。 */
+    public static final int MAX_WALL_THICKNESS = 2;
+
+    /** 该墙格沿四个方向 maxThickness 步内是否能碰到通道。 */
+    private static boolean reachesOpen(boolean[][] walls, int lx, int lz, int maxThickness) {
+        int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] d : dirs) {
+            for (int step = 1; step <= maxThickness; step++) {
+                int nx = lx + d[0] * step;
+                int nz = lz + d[1] * step;
+                if (nx < 0 || nx > 15 || nz < 0 || nz > 15) {
+                    continue;
+                }
+                if (!walls[nx][nz]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** 点是否落在格子 (i,j) 的房间矩形内。 */
