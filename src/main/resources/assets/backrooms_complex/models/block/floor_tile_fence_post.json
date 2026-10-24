@@ -1,6 +1,89 @@
 {
-  "parent": "minecraft:block/fence_post",
+  "parent": "minecraft:block/block",
   "textures": {
-    "texture": "backrooms_complex:block/floor_tile"
-  }
+    "bottom": "backrooms_complex:block/floor_tile",
+    "top": "backrooms_complex:block/floor_tile",
+    "side": "backrooms_complex:block/floor_tile",
+    "texture": "backrooms_complex:block/floor_tile",
+    "wall": "backrooms_complex:block/floor_tile",
+    "particle": "backrooms_complex:block/floor_tile"
+  },
+  "elements": [
+    {
+      "from": [
+        6,
+        0,
+        6
+      ],
+      "to": [
+        10,
+        16,
+        10
+      ],
+      "faces": {
+        "down": {
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "texture": "#texture",
+          "cullface": "down",
+          "tintindex": 0
+        },
+        "up": {
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "texture": "#texture",
+          "cullface": "up",
+          "tintindex": 0
+        },
+        "north": {
+          "uv": [
+            6,
+            0,
+            10,
+            16
+          ],
+          "texture": "#texture",
+          "tintindex": 0
+        },
+        "south": {
+          "uv": [
+            6,
+            0,
+            10,
+            16
+          ],
+          "texture": "#texture",
+          "tintindex": 0
+        },
+        "west": {
+          "uv": [
+            6,
+            0,
+            10,
+            16
+          ],
+          "texture": "#texture",
+          "tintindex": 0
+        },
+        "east": {
+          "uv": [
+            6,
+            0,
+            10,
+            16
+          ],
+          "texture": "#texture",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
 }

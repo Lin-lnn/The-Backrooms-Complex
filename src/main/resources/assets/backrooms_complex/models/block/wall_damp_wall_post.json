@@ -1,6 +1,53 @@
 {
-  "parent": "minecraft:block/template_wall_post",
+  "parent": "minecraft:block/block",
   "textures": {
-    "wall": "backrooms_complex:block/wall_damp"
-  }
+    "bottom": "backrooms_complex:block/wall_damp",
+    "top": "backrooms_complex:block/wall_damp",
+    "side": "backrooms_complex:block/wall_damp",
+    "texture": "backrooms_complex:block/wall_damp",
+    "wall": "backrooms_complex:block/wall_damp",
+    "particle": "backrooms_complex:block/wall_damp"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        0,
+        4
+      ],
+      "to": [
+        12,
+        16,
+        12
+      ],
+      "faces": {
+        "down": {
+          "texture": "#wall",
+          "cullface": "down",
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#wall",
+          "cullface": "up",
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#wall",
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#wall",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#wall",
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#wall",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
 }
