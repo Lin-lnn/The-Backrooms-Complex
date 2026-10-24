@@ -1,72 +1,7 @@
 {
-  "ambientocclusion": false,
+  "parent": "minecraft:block/door_top_left",
   "textures": {
-    "particle": "#top"
-  },
-  "elements": [
-    {
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "to": [
-        3,
-        16,
-        16
-      ],
-      "faces": {
-        "up": {
-          "uv": [
-            0,
-            3,
-            16,
-            0
-          ],
-          "texture": "#top",
-          "cullface": "up",
-          "rotation": 90
-        },
-        "north": {
-          "uv": [
-            3,
-            0,
-            0,
-            16
-          ],
-          "texture": "#top",
-          "cullface": "north"
-        },
-        "south": {
-          "uv": [
-            0,
-            0,
-            3,
-            16
-          ],
-          "texture": "#top",
-          "cullface": "south"
-        },
-        "west": {
-          "uv": [
-            0,
-            0,
-            16,
-            16
-          ],
-          "texture": "#top",
-          "cullface": "west"
-        },
-        "east": {
-          "uv": [
-            16,
-            0,
-            0,
-            16
-          ],
-          "texture": "#top"
-        }
-      }
-    }
-  ]
+    "bottom": "backrooms_complex:block/mysterious_door_bottom",
+    "top": "backrooms_complex:block/mysterious_door_top"
+  }
 }
