@@ -147,11 +147,15 @@ public final class TopologyRuntime {
     private static boolean tryCarveDoor(ServerLevel level, BlockPos pos, Direction dir) {
         int layer = Math.floorDiv(pos.getY(), BackroomsChunkGenerator.LAYER_HEIGHT);
         int width = doorWidth(pos, layer);
+        // 对齐到"地板之上"：层内 offset 1，向上挖 DOOR_HEIGHT=6 格（offset 1..6），
+        // 正好填满 地板(offset 0) 与 天花板(offset 7) 之间的空气，不切地板也不切天花板。
+        int layerBase = layer * BackroomsChunkGenerator.LAYER_HEIGHT;
+        BlockPos base = new BlockPos(pos.getX(), layerBase + 1, pos.getZ());
         List<BlockPos> dig = new ArrayList<>();
 
         for (int w = 0; w < width; w++) {
             for (int h = 0; h < DOOR_HEIGHT; h++) {
-                BlockPos bp = offsetAlong(pos, dir, w, h);
+                BlockPos bp = offsetAlong(base, dir, w, h);
                 if (!level.isLoaded(bp) || !isWall(level.getBlockState(bp))) {
                     return false;
                 }
@@ -161,7 +165,7 @@ public final class TopologyRuntime {
         // 对面整片必须是空气
         for (int w = 0; w < width; w++) {
             for (int h = 0; h < DOOR_HEIGHT; h++) {
-                BlockPos beyond = offsetAlong(pos, dir, w, h).relative(dir, width + 1);
+                BlockPos beyond = offsetAlong(base, dir, w, h).relative(dir, width + 1);
                 if (!level.isLoaded(beyond) || !level.getBlockState(beyond).isAir()) {
                     return false;
                 }
