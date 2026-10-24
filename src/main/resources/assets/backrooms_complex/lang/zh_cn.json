@@ -149,5 +149,6 @@
     "item.backrooms_complex.stool_jungle.line3":  "右键可坐下",
     "item.backrooms_complex.stool_dark_oak.line3":  "右键可坐下",
     "item.backrooms_complex.chair_mangrove.line3":  "右键可坐下",
-    "item.backrooms_complex.chair_dark_oak.line3":  "右键可坐下"
+    "item.backrooms_complex.chair_dark_oak.line3":  "右键可坐下",
+    "block.backrooms_complex.ceiling_manila":  "马尼拉天花板"
 }

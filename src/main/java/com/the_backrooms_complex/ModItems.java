@@ -44,6 +44,8 @@ public final class ModItems {
             ITEMS.register("wall_manila_plinth", () -> new BlockItem(ModBlocks.WALL_MANILA_PLINTH.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> FLOOR_MANILA =
             ITEMS.register("floor_manila", () -> new BlockItem(ModBlocks.FLOOR_MANILA.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CEILING_MANILA =
+            ITEMS.register("ceiling_manila", () -> new BlockItem(ModBlocks.CEILING_MANILA.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> WALL_CONCRETE =
             ITEMS.register("wall_concrete", () -> new BlockItem(ModBlocks.WALL_CONCRETE.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> WALL_CONCRETE_PLINTH =
@@ -183,6 +185,7 @@ public final class ModItems {
                         output.accept(ModBlocks.WALL_MANILA.get());
                         output.accept(ModBlocks.WALL_MANILA_PLINTH.get());
                         output.accept(ModBlocks.FLOOR_MANILA.get());
+                        output.accept(ModBlocks.CEILING_MANILA.get());
                         output.accept(ModBlocks.WALL_CONCRETE.get());
                         output.accept(ModBlocks.WALL_CONCRETE_PLINTH.get());
                         output.accept(ModBlocks.WALL_DAMP.get());

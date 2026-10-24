@@ -61,6 +61,9 @@ public final class ModBlocks {
     /** 马尼拉地板：米白配色的地砖。 */
     public static final DeferredBlock<Block> FLOOR_MANILA = BLOCKS.register("floor_manila",
             () -> new Block(unbreakable()));
+    /** 马尼拉天花板：米白配色的天花板。 */
+    public static final DeferredBlock<Block> CEILING_MANILA = BLOCKS.register("ceiling_manila",
+            () -> new Block(unbreakable()));
 
     // ===== 荧光灯（光照等级 15）=====
     public static final DeferredBlock<FluorescentLampBlock> FLUORESCENT_LAMP =

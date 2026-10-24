@@ -149,5 +149,6 @@
     "item.backrooms_complex.stool_jungle.line3":  "Right-click to sit",
     "item.backrooms_complex.stool_dark_oak.line3":  "Right-click to sit",
     "item.backrooms_complex.chair_mangrove.line3":  "Right-click to sit",
-    "item.backrooms_complex.chair_dark_oak.line3":  "Right-click to sit"
+    "item.backrooms_complex.chair_dark_oak.line3":  "Right-click to sit",
+    "block.backrooms_complex.ceiling_manila":  "Manila Ceiling"
 }
