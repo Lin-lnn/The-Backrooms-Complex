@@ -1,15 +1,21 @@
 {
   "multipart": [
-    { "when": { "north": "false", "east": "false", "south": "false", "west": "false" },
-      "apply": { "model": "backrooms_complex:block/dust_dot" } },
+    { "apply": { "model": "backrooms_complex:block/dust_dot" },
+      "when": { "OR": [
+        { "east": "false", "north": "false", "south": "false", "west": "false" },
+        { "east": "true", "north": "true" },
+        { "east": "true", "south": "true" },
+        { "south": "true", "west": "true" },
+        { "north": "true", "west": "true" }
+      ] } },
 
-    { "when": { "north": "true" },
-      "apply": { "model": "backrooms_complex:block/dust_side0" } },
-    { "when": { "east": "true" },
-      "apply": { "model": "backrooms_complex:block/dust_side1", "y": 90 } },
-    { "when": { "south": "true" },
-      "apply": { "model": "backrooms_complex:block/dust_side0", "y": 180 } },
-    { "when": { "west": "true" },
-      "apply": { "model": "backrooms_complex:block/dust_side1", "y": 270 } }
+    { "apply": { "model": "backrooms_complex:block/dust_side0" },
+      "when": { "north": "true" } },
+    { "apply": { "model": "backrooms_complex:block/dust_side_alt0" },
+      "when": { "south": "true" } },
+    { "apply": { "model": "backrooms_complex:block/dust_side_alt1", "y": 270 },
+      "when": { "east": "true" } },
+    { "apply": { "model": "backrooms_complex:block/dust_side1", "y": 270 },
+      "when": { "west": "true" } }
   ]
 }
