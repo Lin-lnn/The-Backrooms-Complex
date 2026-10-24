@@ -20,7 +20,11 @@ package com.the_backrooms_complex.worldgen.topology;
  */
 public final class TopologyWalls {
 
-    /** 走廊半宽：方块到主干的曼哈顿距离 ≤ 该值即可走 ⇒ 走廊宽 2×3+1 = 7 格。 */
+    /** 走廊宽度范围（格）；每格独立取值 ⇒ 交界处陡变。 */
+    public static final int CORRIDOR_MIN = 3;
+    public static final int CORRIDOR_MAX = 14;
+
+    /** 兼容旧代码用的走廊半宽。 */
     public static final int CORRIDOR_HALF = 3;
     /** 房间最小边长。 */
     public static final int ROOM_MIN = 3;
@@ -88,13 +92,7 @@ public final class TopologyWalls {
 
     /** 判断一个方块位置是否可走（走廊或房间）。 */
     public static boolean isOpen(RoomGraph graph, long x, long z, int layer) {
-        // ① 走廊：只做"主干距离"的局部判定（避免逐格行走，性能提升 3 倍以上）
-        //    若本格或其 CORRIDOR_HALF 邻域内有主干，则属于走廊带。
-        if (nearSpine(graph, x, z, layer, CORRIDOR_HALF)) {
-            return true;
-        }
-
-        // ② 房间：主干节点周围的矩形（尺寸哈希采样）
+        // ① 房间：主干节点周围的矩形（尺寸哈希采样，边界陡变）
         long gi = Math.floorDiv(x, RoomGraph.CELL);
         long gj = Math.floorDiv(z, RoomGraph.CELL);
         for (long i = gi - 1; i <= gi + 1; i++) {
@@ -104,7 +102,49 @@ public final class TopologyWalls {
                 }
             }
         }
-        return false;
+
+        // ② 走廊：宽度带（每格一个宽度值，交界处直接陡变，不做平滑过渡）
+        int d = graph.parentDir(x, z, layer);
+        if (d < 0) {
+            return false;
+        }
+        // 最近主干节点所在格子
+        long i0 = Math.floorDiv(x, RoomGraph.CELL);
+        long j0 = Math.floorDiv(z, RoomGraph.CELL);
+        long bestD = Long.MAX_VALUE;
+        long bx = 0;
+        long bz = 0;
+        for (long i = i0 - 1; i <= i0 + 1; i++) {
+            for (long j = j0 - 1; j <= j0 + 1; j++) {
+                long tx = graph.spineX((int) i, (int) j, layer);
+                long tz = graph.spineZ((int) i, (int) j, layer);
+                long dd = Math.abs(tx - x) + Math.abs(tz - z);
+                if (dd < bestD) {
+                    bestD = dd;
+                    bx = tx;
+                    bz = tz;
+                }
+            }
+        }
+        // 本格的走廊宽度（3~14，由格子坐标哈希决定，交界处陡变）
+        int width = corridorWidth(graph, (int) i0, (int) j0, layer);
+        int half = width / 2;
+        // 垂直于"指向主干"方向的偏移
+        long dx = bx - x;
+        long dz = bz - z;
+        int offset;
+        if (Math.abs(dx) >= Math.abs(dz)) {
+            offset = (int) Math.abs(dz);   // 主干在东西向 -> 南北偏移
+        } else {
+            offset = (int) Math.abs(dx);   // 主干在南北向 -> 东西偏移
+        }
+        return offset <= half;
+    }
+
+    /** 走廊宽度（3~14 格），由格子坐标哈希决定 —— 每格独立，故交界处陡变。 */
+    private static int corridorWidth(RoomGraph graph, int i, int j, int layer) {
+        long h = RoomGraph.hashCoord(graph.seedValue(), i, j, layer, "corrW");
+        return CORRIDOR_MIN + (int) Math.floorMod(h, (long) (CORRIDOR_MAX - CORRIDOR_MIN + 1));
     }
 
     /** 点是否落在格子 (i,j) 的房间矩形内。 */
