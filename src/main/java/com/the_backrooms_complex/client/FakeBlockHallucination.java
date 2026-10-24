@@ -89,6 +89,10 @@ public final class FakeBlockHallucination {
 
         if (showTicks > 0) {
             showTicks--;
+            // 进入玩家视野 → 立刻消失并触发模糊
+            if (isInView(mc)) {
+                showTicks = 1;
+            }
             if (showTicks == 0) {
                 blurTicks = BLUR_TICKS;
                 if (mc.level != null) {
@@ -109,6 +113,25 @@ public final class FakeBlockHallucination {
         if (RNG.nextFloat() < CHANCE) {
             trigger();
         }
+    }
+
+    /**
+     * 假方块是否已进入玩家视野（视线与"看向方块堆中心"的夹角足够小）。
+     *
+     * <p>进入视野就立刻消失 + 触发模糊，而不是等到计时结束。</p>
+     */
+    private static boolean isInView(Minecraft mc) {
+        if (mc.player == null) {
+            return false;
+        }
+        Vec3 eye = mc.player.getEyePosition();
+        Vec3 look = mc.player.getLookAngle().normalize();
+        Vec3 to = new Vec3(origin.getX() + 1.0D, origin.getY() + 1.0D, origin.getZ() + 1.0D).subtract(eye);
+        double len = to.length();
+        if (len < 0.001D) {
+            return true;
+        }
+        return look.dot(to.scale(1.0D / len)) > 0.866D;   // 60° 锥内
     }
 
     /** 触发一次假方块幻视。 */
@@ -135,7 +158,8 @@ public final class FakeBlockHallucination {
             double dist = MIN_DIST + RNG.nextDouble() * (MAX_DIST - MIN_DIST);
             int x = (int) Math.floor(eye.x + Math.cos(angle) * dist);
             int z = (int) Math.floor(eye.z + Math.sin(angle) * dist);
-            for (int dy = -6; dy <= 6; dy++) {
+            // 只在本层附近找，保证假方块与玩家处于同一层
+            for (int dy = 0; dy <= 0; dy++) {
                 BlockPos feet = new BlockPos(x, (int) Math.floor(eye.y) + dy, z);
                 if (!hasClearSpace(level, feet)) {
                     continue;

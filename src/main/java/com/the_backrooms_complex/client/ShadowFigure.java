@@ -98,6 +98,10 @@ public final class ShadowFigure {
 
         if (showTicks > 0) {
             showTicks--;
+            // 进入玩家视野 → 立刻消失并触发模糊
+            if (isInView(mc)) {
+                showTicks = 1;
+            }
             if (showTicks == 0) {
                 blurTicks = BLUR_TICKS;
                 // 消失瞬间的蜂鸣声：仅本玩家能听到
@@ -124,6 +128,26 @@ public final class ShadowFigure {
         }
     }
 
+    /**
+     * 目标是否已经进入玩家的视野（视线方向与"看向目标"的夹角足够小）。
+     *
+     * <p>进入视野后就立刻触发消失 + 模糊，而不是等到计时结束。</p>
+     */
+    private static boolean isInView(Minecraft mc) {
+        if (mc.player == null) {
+            return false;
+        }
+        Vec3 eye = mc.player.getEyePosition();
+        Vec3 look = mc.player.getLookAngle().normalize();
+        Vec3 to = shadowPos.add(0.0D, HEIGHT * 0.5D, 0.0D).subtract(eye);
+        double len = to.length();
+        if (len < 0.001D) {
+            return true;
+        }
+        // cos 30° ≈ 0.866：目标落在视野中心 60° 锥内即视为"看到了"
+        return look.dot(to.scale(1.0D / len)) > 0.866D;
+    }
+
     /** 找一个视线可达、且脚下有实心方块的随机位置。 */
     private static boolean pickSpot(Minecraft mc) {
         Level level = mc.level;
@@ -134,7 +158,8 @@ public final class ShadowFigure {
             int x = (int) Math.floor(eye.x + Math.cos(angle) * dist);
             int z = (int) Math.floor(eye.z + Math.sin(angle) * dist);
             // 从玩家眼睛高度向下找一段可站立的位置
-            for (int dy = -6; dy <= 6; dy++) {
+            // 只在本层附近找，保证与玩家处于同一层
+            for (int dy = 0; dy <= 0; dy++) {
                 BlockPos feet = new BlockPos(x, (int) Math.floor(eye.y) + dy, z);
                 BlockPos below = feet.below();
                 if (level.getBlockState(below).isSolidRender(level, below)
