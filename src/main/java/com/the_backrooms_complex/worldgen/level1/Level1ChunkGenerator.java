@@ -97,6 +97,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState yuejinFloorState;
     private final BlockState yuejinWallState;
     private final BlockState yuejinCeilingState;
+    /** 花园段：草方块地面 / 藤蔓墙。 */
+    private final BlockState gardenGrassState;
+    private final BlockState gardenWallState;
+    /** 传说段：深色木板护墙。 */
+    private final BlockState legendWallState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -112,6 +117,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.yuejinFloorState = ModBlocks.YELLOWED_CONCRETE_FLOOR.get().defaultBlockState();
         this.yuejinWallState = ModBlocks.YELLOWED_CONCRETE_WALL.get().defaultBlockState();
         this.yuejinCeilingState = ModBlocks.YELLOWED_CORRUGATED_METAL.get().defaultBlockState();
+        this.gardenGrassState = net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState();
+        this.gardenWallState = net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState();
+        this.legendWallState = net.minecraft.world.level.block.Blocks.DARK_OAK_PLANKS.defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -613,8 +621,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 过道（停车场）：地板 / 柱与边界墙 / 天花板。 */
     private void placeAisle(ChunkAccess chunk, BlockPos.MutableBlockPos m,
                             Column c, int wx, int y, int wz, int offset) {
+        Region region = regionAt(wx, wz);
         if (offset == 0) {
-            set(chunk, m, wx, y, wz, this.floorState);
+            set(chunk, m, wx, y, wz, floorOf(region));
             return;
         }
 
@@ -629,7 +638,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                         ? doorState(Direction.SOUTH, offset == 1)
                         : this.whiteWallState);
             } else if (c.room() == 1) {
-                set(chunk, m, wx, y, wz, this.whiteWallState);
+                set(chunk, m, wx, y, wz, wallOf(region));
             } else {
                 set(chunk, m, wx, y, wz, this.airState);
             }
@@ -647,14 +656,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             if (wall) {
                 // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
                 set(chunk, m, wx, y, wz,
-                        (offset == 1) ? this.warningPillarState : this.pillarState);
+                        (offset == 1) ? this.warningPillarState : wallOf(region));
             } else {
                 set(chunk, m, wx, y, wz, this.airState);
             }
             return;
         }
-        // 天花板层：每 5 格一个荧光灯
-        set(chunk, m, wx, y, wz, c.lamp() ? this.lampState : this.ceilingState);
+        // 天花板层：灯位按区段密度
+        set(chunk, m, wx, y, wz, lampAt(region, wx, wz) ? this.lampState : ceilingOf(region));
     }
 
     /** 统一的写方块入口。 */
@@ -692,7 +701,73 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 .setValue(net.minecraft.world.level.block.DoorBlock.OPEN, Boolean.FALSE);
     }
 
-    // ==================== 其余覆写 ====================
+    // ==================== 区段与配色 ====================
+
+    /** Level 1 的区段。 */
+    public enum Region {
+        AQUILA, YUEJIN, GOTHIC, OUROBOROS, GARDEN, LEGEND, CORRIDOR
+    }
+
+    /** 该列属于哪个区段（判定顺序即优先级）。 */
+    public static Region regionAt(int x, int z) {
+        if (isYuejinArea(x, z)) {
+            return Region.YUEJIN;
+        }
+        if (isGothicArea(x, z)) {
+            return Region.GOTHIC;
+        }
+        if (isGardenArea(x, z)) {
+            return Region.GARDEN;
+        }
+        if (isLegendArea(x, z)) {
+            return Region.LEGEND;
+        }
+        if (isOuroborosArea(x, z)) {
+            return Region.OUROBOROS;
+        }
+        return Region.CORRIDOR;
+    }
+
+    /** 各段的地板。 */
+    private BlockState floorOf(Region r) {
+        return switch (r) {
+            case YUEJIN -> this.yuejinFloorState;
+            case GARDEN -> this.gardenGrassState;
+            default -> this.floorState;
+        };
+    }
+
+    /** 各段的天花板。 */
+    private BlockState ceilingOf(Region r) {
+        return switch (r) {
+            case YUEJIN -> this.yuejinCeilingState;
+            default -> this.ceilingState;
+        };
+    }
+
+    /** 各段的墙面 / 柱子。 */
+    private BlockState wallOf(Region r) {
+        return switch (r) {
+            case YUEJIN -> this.yuejinWallState;
+            case LEGEND -> this.legendWallState;
+            case GARDEN -> this.gardenWallState;
+            default -> this.whiteWallState;
+        };
+    }
+
+    /** 各段的灯位（越亮间距越小）。 */
+    private static boolean lampAt(Region r, int x, int z) {
+        return switch (r) {
+            case YUEJIN -> isYuejinLamp(x, z);
+            case GOTHIC -> isGothicLamp(x, z);
+            case GARDEN -> isGardenLamp(x, z);
+            case LEGEND -> isLegendLamp(x, z);
+            case OUROBOROS -> isOuroborosLamp(x, z);
+            default -> isLamp(x, z);
+        };
+    }
+
+    // ==================== 其余覆写
 
     @Override
     public void buildSurface(WorldGenRegion level, StructureManager structureManager,
