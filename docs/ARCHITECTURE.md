@@ -22,7 +22,7 @@ com.the_backrooms_complex
 ├── structure/                Level 0 的封闭结构（小屋 + 门）
 │
 └── worldgen/
-    ├── BackroomsBiomeSource   ★ 两个维度共用的三维群系源（参数化：3 个群系 + 层高）
+    ├── BackroomsBiomeSource   ★ 两个维度共用的三维群系源（参数化：3 个基础群系 + 最多 5 个区段群系 + 层高）
     ├── UnionFind              通用并查集
     ├── level0/                ★ Level 0 专用，不引用 level1
     │   ├── BackroomsChunkGenerator  生成器主干（层高 8，生成 LEVEL_LAYERS = 5 层）
@@ -33,7 +33,7 @@ com.the_backrooms_complex
     │   ├── RoomGraph                房间连通图
     │   └── Topology*                拓扑事件（开合门、封堵走廊、灯光闪烁）
     └── level1/                ★ Level 1 专用，不引用 level0
-        ├── Level1ChunkGenerator     生成器（层高 18，3 个子层 × 6 格，生成 LAYERS = 3 层）
+        ├── Level1ChunkGenerator     生成器（层高 12，2 个子层 × 6 格，生成 LAYERS = 3 层）
         └── Level1Flicker            「闪烁」现象（按层、逐组熄灭 / 亮起）
 ```
 
@@ -42,7 +42,7 @@ com.the_backrooms_complex
 | 规则 | 说明 |
 |---|---|
 | **L0 与 L1 不互相引用** | 两个生成器、各自的常量、各自的逻辑，改一边不会影响另一边 |
-| **共享只有两样** | `ModBlocks`/`ModBiomes` 等**注册表**，以及参数化的 `BackroomsBiomeSource` |
+| **共享只有两样** | `ModBlocks`/`ModBiomes` 等**注册表**，以及参数化的 `BackroomsBiomeSource`（L1 的区段群系由它按区段读取） |
 
 ## 数值都在 `ModBalance`
 
@@ -62,11 +62,11 @@ com.the_backrooms_complex
 | `LEVEL_LAYERS` | `level0/BackroomsChunkGenerator` | 5 | L0 实际生成层数 |
 | `LAYER_HEIGHT` | `level0/BackroomsChunkGenerator` | 8 | L0 单层高度 |
 | `LAYERS` | `level1/Level1ChunkGenerator` | 3 | L1 实际生成层数 |
-| `LAYER_H` | `level1/Level1ChunkGenerator` | 18 | L1 单层高度 |
-| `SUB_H` / `SUB_COUNT` | `level1/Level1ChunkGenerator` | 6 / 3 | L1 小径子层 |
+| `LAYER_H` | `level1/Level1ChunkGenerator` | 12 | L1 单层高度 |
+| `SUB_H` / `SUB_COUNT` | `level1/Level1ChunkGenerator` | 6 / 2 | L1 子层（两层 6 格） |
 | `PASSAGE_CELL` | `level1/Level1ChunkGenerator` | 96 | 小径区边长 |
 | `MAZE_CELL` | `level1/Level1ChunkGenerator` | 10 | 小径房间网格 |
-| `PILLAR_STEP` | `level1/Level1ChunkGenerator` | 48 | 混凝土巨柱间距 |
+| `PILLAR_STEP` | `level1/Level1ChunkGenerator` | 16 | 混凝土柱网间距（2×2 柱） |
 | `GROUP_INTERVAL` | `level1/Level1Flicker` | 10 | 闪烁每组间隔（0.5 秒）|
 
 ## 新增内容时的落点
