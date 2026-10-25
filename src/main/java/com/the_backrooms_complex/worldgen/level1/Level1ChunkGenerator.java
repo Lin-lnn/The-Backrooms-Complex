@@ -363,7 +363,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 facingOf(wx, wz, boundary),
                 room,
                 // 柱子只出现在「纯过道的开阔区域」，否则会被子层结构覆盖成木板/石板条带
-                !passage && room < 0 && onPillar(wx, wz),
+                onPillar(wx, wz),
                 isLamp(wx, wz));
     }
 
@@ -382,7 +382,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private void fillColumn(ChunkAccess chunk, BlockPos.MutableBlockPos m,
                             int wx, int wz, int minY, int maxY) {
         Column c = columnAt(wx, wz);
-        boolean subFloor = c.passage() || c.room() >= 0;
+        // 柱子列优先：柱子上绝不叠加小径/房间的子层结构（否则会长出木板+石板的混合柱）
+        boolean subFloor = !c.pillar() && (c.passage() || c.room() >= 0);
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
             if (subFloor) {
