@@ -624,23 +624,23 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     public static boolean isPassageWall(int x, int z) {
         int mx = Math.floorMod(x, 5);
         int mz = Math.floorMod(z, 5);
-        boolean vWall = (mx == 0);
-        boolean hWall = (mz == 0);
+        boolean vWall = (mx == 0);   // 竖墙（沿 z 延伸）
+        boolean hWall = (mz == 0);   // 横墙（沿 x 延伸）
+
+        // 交叉点一律打通：保证每个 5x5 格子四周至少有一个开口，
+        // 不会出现「四面全封、玩家无法进入」的密闭空腔。
+        if (vWall && hWall) {
+            return false;
+        }
         if (!vWall && !hWall) {
-            return false;   // 走廊内部
+            return false;            // 走廊内部
         }
-        // 沿 z 方向每 7 格开 2 格缺口（打穿竖墙）
-        boolean vGap = Math.floorMod(z, 7) <= 1;
-        // 沿 x 方向每 7 格开 2 格缺口（打穿横墙）
-        boolean hGap = Math.floorMod(x, 7) <= 1;
-        if (vWall && !hWall) {
-            return !vGap;
+        // 竖墙：沿 z 方向每 7 格开 2 格缺口
+        // 横墙：沿 x 方向每 7 格开 2 格缺口
+        if (vWall) {
+            return Math.floorMod(z, 7) > 1;
         }
-        if (hWall && !vWall) {
-            return !hGap;
-        }
-        // 交叉点：都开缺口才通
-        return !(vGap && hGap);
+        return Math.floorMod(x, 7) > 1;
     }
 
     private static boolean onGiantPillar(int x, int z) {
