@@ -496,13 +496,21 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                             int wx, int wz, int minY, int maxY) {
         Column c = columnAt(wx, wz);
         // 柱子列优先：柱子上绝不叠加小径/房间的子层结构（否则会长出木板+石板的混合柱）
-        // 区段与配色每列只算一次（原先在 placeAisle 里逐方块计算）
-        Region region = regionAt(wx, wz);
-        SectorProfile prof = profileOf(region);
+        // 区段与配色按「层」计算：每一层的区段布局不同
+        Region region = null;
+        SectorProfile prof = null;
+        int lastLayer = Integer.MIN_VALUE;
         // 子层结构只属于小径；过道房间在过道自己的 18 格空间里做成封闭盒子
         boolean subFloor = !c.pillar() && c.passage();
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
+            // 每层用不同的区段布局
+            int layer = y / LAYER_H;
+            if (region == null || layer != lastLayer) {
+                lastLayer = layer;
+                region = regionAt(wx, wz, layer);
+                prof = profileOf(region);
+            }
             // 区段边界：用本区段自己的墙方块包裹整段（每 16 格留通道，且只在两侧都有地板的高度开）
             // 只有「该列确实会放门」才允许开口：小径边界门位或过道房间门位。
             // 其它位置即便落在通道节奏上也不开洞，避免出现没有门的空壳开口。
@@ -534,9 +542,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * <p>与天鹰段区别：米黄配色、照明更充足（每 2 格一盏灯）、罐料箱更多。</p>
      */
     public static boolean isYuejinArea(int x, int z) {
+        return isYuejinArea(x, z, 0);
+    }
+
+    public static boolean isYuejinArea(int x, int z, int layer) {
         int cx = Math.floorDiv(x, YUEJIN_CELL);
         int cz = Math.floorDiv(z, YUEJIN_CELL);
-        long h = mix(cx, cz, 0x7975656A696EL);   // 'yuejin'
+        long h = mix(cx, cz, 0x7975656A696EL ^ (layer * 0x9E3779B97F4A7C15L));   // 'yuejin'
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.30;
     }
 
@@ -574,9 +586,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * 目前只判定区域，配色与拱形结构后续接入。</p>
      */
     public static boolean isGothicArea(int x, int z) {
+        return isGothicArea(x, z, 0);
+    }
+
+    public static boolean isGothicArea(int x, int z, int layer) {
         int cx = Math.floorDiv(x, GOTHIC_CELL);
         int cz = Math.floorDiv(z, GOTHIC_CELL);
-        long h = mix(cx, cz, 0x676F74686963L);   // 'gothic'
+        long h = mix(cx, cz, 0x676F74686963L ^ (layer * 0x9E3779B97F4A7C15L));   // 'gothic'
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.20;
     }
 
@@ -603,9 +619,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * 因此这里的结构在视觉上首尾相连。</p>
      */
     public static boolean isOuroborosArea(int x, int z) {
+        return isOuroborosArea(x, z, 0);
+    }
+
+    public static boolean isOuroborosArea(int x, int z, int layer) {
         int cx = Math.floorDiv(x, OUROBOROS_CELL);
         int cz = Math.floorDiv(z, OUROBOROS_CELL);
-        long h = mix(cx, cz, 0x6F75726F62L);   // 'ourob'
+        long h = mix(cx, cz, 0x6F75726F62L ^ (layer * 0x9E3779B97F4A7C15L));   // 'ourob'
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.20;
     }
 
@@ -641,9 +661,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * 大量细长藤条从天花板一直垂到地面。</p>
      */
     public static boolean isGardenArea(int x, int z) {
+        return isGardenArea(x, z, 0);
+    }
+
+    public static boolean isGardenArea(int x, int z, int layer) {
         int cx = Math.floorDiv(x, GARDEN_CELL);
         int cz = Math.floorDiv(z, GARDEN_CELL);
-        long h = mix(cx, cz, 0x67617264656EL);   // 'garden'
+        long h = mix(cx, cz, 0x67617264656EL ^ (layer * 0x9E3779B97F4A7C15L));   // 'garden'
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.20;
     }
 
@@ -679,9 +703,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * 深色天花板挂着长条日光灯，地上散着纸箱与灰尘 —— 像一间废弃办公室。</p>
      */
     public static boolean isLegendArea(int x, int z) {
+        return isLegendArea(x, z, 0);
+    }
+
+    public static boolean isLegendArea(int x, int z, int layer) {
         int cx = Math.floorDiv(x, LEGEND_CELL);
         int cz = Math.floorDiv(z, LEGEND_CELL);
-        long h = mix(cx, cz, 0x6C6567656EL);   // 'legen'
+        long h = mix(cx, cz, 0x6C6567656EL ^ (layer * 0x9E3779B97F4A7C15L));   // 'legen'
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.20;
     }
 
@@ -769,7 +797,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         // 堆叠区段：两层之间的楼梯（每层 2~4 处，顶层没有）。
         // 只在空旷列上生成：柱子 / 房间 / 小径边界 / 区段边界都不允许被替换。
         int step = rampStep(wx, wz, y / LAYER_H);
-        boolean openColumn = !c.pillar() && c.room() < 0 && !c.boundary() && !isSectorEdge(wx, wz);
+        boolean openColumn = !c.pillar() && c.room() < 0 && !c.boundary() && !isSectorEdge(wx, wz, y / LAYER_H);
         if (prof.stacked() && step >= 0 && openColumn) {
             int inSub = offset % h;
             if (inSub >= 1 && inSub <= step) {
@@ -1015,8 +1043,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * 相邻列各画各的墙即可拼成完整一圈。</p>
      */
     public static boolean isSectorEdge(int x, int z) {
-        Region here = regionAt(x, z);
-        return regionAt(x + 1, z) != here || regionAt(x, z + 1) != here;
+        return isSectorEdge(x, z, 0);
+    }
+
+    /** 指定层上的区段边界判定。 */
+    public static boolean isSectorEdge(int x, int z, int layer) {
+        Region here = regionAt(x, z, layer);
+        return regionAt(x + 1, z, layer) != here || regionAt(x, z + 1, layer) != here;
     }
 
     /**
@@ -1090,21 +1123,35 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         AQUILA, YUEJIN, GOTHIC, OUROBOROS, GARDEN, LEGEND, CORRIDOR
     }
 
-    /** 该列属于哪个区段（判定顺序即优先级）。 */
+    /** 该列属于哪个区段（按第 0 层判定，供群系/染色等无层信息的地方使用）。 */
     public static Region regionAt(int x, int z) {
-        if (isYuejinArea(x, z)) {
+        return regionAt(x, z, 0);
+    }
+
+    /**
+     * 该列在指定层上属于哪个区段。
+     *
+     * <p>{@code layer} 参与哈希，因此<b>每一层的区段分布都不一样</b> ——
+     * 这正是「每层结构不同」的来源。</p>
+     */
+    public static Region regionAt(int x, int z, int layer) {
+        return regionAt0(x, z, layer);
+    }
+
+    private static Region regionAt0(int x, int z, int layer) {
+        if (isYuejinArea(x, z, layer)) {
             return Region.YUEJIN;
         }
-        if (isGothicArea(x, z)) {
+        if (isGothicArea(x, z, layer)) {
             return Region.GOTHIC;
         }
-        if (isGardenArea(x, z)) {
+        if (isGardenArea(x, z, layer)) {
             return Region.GARDEN;
         }
-        if (isLegendArea(x, z)) {
+        if (isLegendArea(x, z, layer)) {
             return Region.LEGEND;
         }
-        if (isOuroborosArea(x, z)) {
+        if (isOuroborosArea(x, z, layer)) {
             return Region.OUROBOROS;
         }
         return Region.CORRIDOR;
