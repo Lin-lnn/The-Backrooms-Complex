@@ -429,6 +429,9 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> YELLOWED_CORRUGATED_METAL_FENCE =
             ITEMS.register("yellowed_corrugated_metal_fence", () -> new BlockItem(ModBlocks.YELLOWED_CORRUGATED_METAL_FENCE.get(), new Item.Properties()));
 
+    public static final DeferredItem<BlockItem> CRATE =
+            ITEMS.register("crate", () -> new BlockItem(ModBlocks.CRATE.get(), new Item.Properties()));
+
     private ModItems() {
     }
 }

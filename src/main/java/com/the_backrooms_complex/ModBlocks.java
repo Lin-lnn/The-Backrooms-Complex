@@ -361,6 +361,10 @@ public final class ModBlocks {
     public static final DeferredBlock<FenceBlock> YELLOWED_CORRUGATED_METAL_FENCE =
             BLOCKS.register("yellowed_corrugated_metal_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
 
+    /** 板条箱：跃金段的可搜刮木箱（战利品见后续实现）。 */
+    public static final DeferredBlock<Block> CRATE =
+            BLOCKS.register("crate", () -> new Block(unbreakable().noOcclusion()));
+
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)
