@@ -118,6 +118,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState redPipeState;
     /** 衔尾段的破损补丁（砂砾）。 */
     private final BlockState rubbleState;
+    /** 衔尾段碎屑里的两种混凝土粉末。 */
+    private final BlockState powderLightState;
+    private final BlockState powderWhiteState;
     /** 两层之间的爬升台阶。 */
     private final BlockState stairState;
     /** 花园段从天花板垂下的藤蔓。 */
@@ -155,6 +158,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
         this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
         this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
+        this.powderLightState = net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CONCRETE_POWDER
+                .defaultBlockState();
+        this.powderWhiteState = net.minecraft.world.level.block.Blocks.WHITE_CONCRETE_POWDER
+                .defaultBlockState();
         // 楼梯沿 +Z 方向爬升，因此台阶朝向南（高的一侧在后方）
         this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState()
                 .setValue(net.minecraft.world.level.block.StairBlock.FACING,
@@ -644,10 +651,23 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return Math.floorMod(x, 6) == 2 && Math.floorMod(z, 6) == 2;
     }
 
+    /** 碎屑方块：砂砾为主，混入淡灰与白色混凝土粉末。 */
+    private BlockState debrisState(int x, int y, int z) {
+        long h = mix(x, y * 31 + z, 0x6465627269734CL);   // 'debris'
+        int pick = (int) Math.floorMod(h >>> 7, 100L);
+        if (pick < 62) {
+            return this.rubbleState;
+        }
+        if (pick < 82) {
+            return this.powderLightState;
+        }
+        return this.powderWhiteState;
+    }
+
     /** 衔尾段的地面碎屑：用于后续在毛坯地面上撒杂物。 */
     public static boolean isOuroborosDebris(int x, int z) {
         long h = mix(x, z, 0x646562726973L);   // 'debris'
-        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.06;
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.03;
     }
 
     /**
@@ -796,7 +816,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         // 衔尾段：毛坯地面上的碎屑
         if (region == Region.OUROBOROS && offset % h == 1 && c.room() < 0
                 && !c.pillar() && isOuroborosDebris(wx, wz)) {
-            set(chunk, m, wx, y, wz, this.rubbleState);
+            set(chunk, m, wx, y, wz, debrisState(wx, y, wz));
             return;
         }
         // 地面上偶有板条箱（跃金段最密，其他区段只有十分之一）
