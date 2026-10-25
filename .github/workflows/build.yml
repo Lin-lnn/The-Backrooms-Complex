@@ -39,6 +39,12 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      # 静态检查先跑：死代码 / 层高不变式 / 资源引用 / 语言键
+      - name: Static checks
+        run: |
+          python3 tools/audit.py
+          python3 tools/selfcheck.py
+
       - name: Build with Gradle
         run: ./gradlew build --no-daemon --stacktrace
 
