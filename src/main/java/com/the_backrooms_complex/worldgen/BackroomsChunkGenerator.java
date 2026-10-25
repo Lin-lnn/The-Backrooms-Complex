@@ -127,6 +127,16 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private final BlockState dampFloor;
     private final BlockState dampCeiling;
 
+    // ===== Level 1「宜居地带」专用方块 =====
+    /** 混凝土柱（淡灰色混凝土）。 */
+    private final BlockState concretePillarBlock;
+    /** 混凝土警示柱（强化深板岩）。 */
+    private final BlockState concreteWarningPillarBlock;
+    /** 混凝土地板（石头）。 */
+    private final BlockState concreteFloorBlock;
+    /** 粉刷为白色的混凝土墙壁（去皮苍白橡木原木）。 */
+    private final BlockState whitePlasteredWallBlock;
+
     public BackroomsChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
         // 本模组的维度 JSON 始终使用 BackroomsBiomeSource，因此此处强制转换安全
@@ -148,6 +158,10 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         this.warningWall = ModBlocks.WARNING_CONCRETE_WALL.get().defaultBlockState();
         this.dampFloor = ModBlocks.DAMP_FLOOR.get().defaultBlockState();
         this.dampCeiling = ModBlocks.DAMP_CEILING.get().defaultBlockState();
+        this.concretePillarBlock = ModBlocks.CONCRETE_PILLAR.get().defaultBlockState();
+        this.concreteWarningPillarBlock = ModBlocks.CONCRETE_WARNING_PILLAR.get().defaultBlockState();
+        this.concreteFloorBlock = ModBlocks.CONCRETE_FLOOR.get().defaultBlockState();
+        this.whitePlasteredWallBlock = ModBlocks.WHITE_PLASTERED_WALL.get().defaultBlockState();
     }
 
     // ==================== ChunkGenerator 核心：填充方块与群系 ====================
@@ -204,7 +218,12 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 boolean hall = backroomsBiomeSource.isConcreteHalls(biome);
                 boolean damp = backroomsBiomeSource.isDampCorridors(biome);
                 BlockState plinthState = plinthForBiome(biome);   // 踢脚线也参与渐变
-                BlockState columnFloor = hall ? strippedCarpetFloor : (damp ? dampFloor : floorState);
+                // Level 1：天鹰段 / 仓库过道 使用混凝土地板；其余沿用原配色
+                String biomePath = biome.unwrapKey().map(k -> k.location().getPath()).orElse("");
+                boolean l1ConcreteFloor = "aquila_sector".equals(biomePath) || "warehouse_aisles".equals(biomePath);
+                BlockState columnFloor = l1ConcreteFloor
+                        ? concreteFloorBlock
+                        : (hall ? strippedCarpetFloor : (damp ? dampFloor : floorState));
                 BlockState columnCeiling = hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState);
                 BlockState columnLamp = hall ? ruinedVent : lampState;
                 // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
@@ -213,7 +232,9 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 // 原来越界保护写在下面，但 pillar 的计算已经先访问了 wall[layer]，
                 // 所以 Level 1（36 层、墙网格 36 层）之外的层仍会越界。
                 boolean layerValid = layer < fullLayers(chunk);
-                boolean pillar = layerValid && hall && !inHall && colOnGiantPillar
+                // Level 1 天鹰段的巨柱使用「混凝土柱」方块；Level 0 的 1x1 柱子沿用墙体
+                boolean l1Pillar = "aquila_sector".equals(biomePath);
+                boolean pillar = layerValid && (hall || l1Pillar) && !inHall && colOnGiantPillar
                         // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
                         && lx > 0 && lx < 15 && lz > 0 && lz < 15
                         && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
@@ -267,7 +288,13 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         // 墙壁区（+1..+5）：墙壁列放踢脚线/墙，通道列留空气
                         if (isWall) {
                             // offset == 1 使用踢脚线方块（四边凸出裙边），其余为普通墙壁
-                            BlockState state = (offset == 1) ? plinthState : wallForBiome(biome, worldX, y, worldZ);
+                            BlockState wallState = wallForBiome(biome, worldX, y, worldZ);
+                            // 天鹰段的巨柱：用「混凝土柱」方块，其中少量改用「混凝土警示柱」
+                            if (pillar && l1Pillar) {
+                                boolean warn = Math.floorMod(worldX * 31 + worldZ * 17 + y * 7, 100) == 0;
+                                wallState = warn ? concreteWarningPillarBlock : concretePillarBlock;
+                            }
+                            BlockState state = (offset == 1) ? plinthState : wallState;
                             chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
                         } else {
                     chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
@@ -429,13 +456,29 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
     private BlockState wallForBiome(Holder<Biome> biome) {
         ResourceLocation key = biomeKey(biome);
+        // ---- Level 1 的三个群系（按路径匹配，与维度文件里的映射对应）----
+        String path = key.getPath();
+        if ("aquila_sector".equals(path)) {
+            return concreteWall;             // 天鹰段：灰色混凝土墙
+        }
+        if ("warehouse_aisles".equals(path)) {
+            return whitePlasteredWallBlock;  // 仓库过道：粉刷白墙
+        }
+        if ("puddle_zone".equals(path)) {
+            return dampWall;                 // 积水区：潮湿墙
+        }
+        // ---- Level 0 ----
         if (ModBiomes.CONCRETE_HALLS.location().equals(key)) return concreteWall;
         if (ModBiomes.DAMP_CORRIDORS.location().equals(key)) return dampWall;
-        return yellowWall; // 默认黄色
+        return yellowWall;
     }
 
     private BlockState plinthForBiome(Holder<Biome> biome) {
         ResourceLocation key = biomeKey(biome);
+        String path = key.getPath();
+        if ("aquila_sector".equals(path))    return concretePlinth;
+        if ("warehouse_aisles".equals(path)) return whitePlasteredWallBlock;
+        if ("puddle_zone".equals(path))      return dampPlinth;
         if (ModBiomes.CONCRETE_HALLS.location().equals(key)) return concretePlinth;
         if (ModBiomes.DAMP_CORRIDORS.location().equals(key)) return dampPlinth;
         return yellowPlinth;
