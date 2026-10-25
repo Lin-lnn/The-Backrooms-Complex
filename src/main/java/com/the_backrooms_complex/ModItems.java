@@ -7,7 +7,6 @@ import com.the_backrooms_complex.item.WallpaperItem;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
@@ -16,7 +15,6 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -32,6 +30,7 @@ public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(BackroomsComplex.MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, BackroomsComplex.MODID);
+    // 三个创造模式物品栏的定义见 ModCreativeTabs（保持注册表字段不变，外部无需改动）
 
     // ===== 方块物品 =====
     public static final DeferredItem<BlockItem> WALL_YELLOW =
@@ -173,88 +172,6 @@ public final class ModItems {
                     WALLPAPER_HAT_MATERIAL, ArmorItem.Type.HELMET,
                     new Item.Properties().durability(32)));
 
-    // ===== 创造模式物品栏 =====
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BACKROOMS_TAB =
-            CREATIVE_MODE_TABS.register("backrooms_tab", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.backrooms_complex"))
-                    .icon(() -> new ItemStack(ModBlocks.FLOOR_TILE.get()))
-                    .displayItems((parameters, output) -> {
-                        output.accept(ModBlocks.FLOOR_TILE.get());
-                        output.accept(ModBlocks.CEILING_TILE.get());
-                        output.accept(ModBlocks.WALL_YELLOW.get());
-                        output.accept(ModBlocks.WALL_YELLOW_PLINTH.get());
-                        output.accept(ModBlocks.WALL_MANILA.get());
-                        output.accept(ModBlocks.WALL_MANILA_PLINTH.get());
-                        output.accept(ModBlocks.FLOOR_MANILA.get());
-                        output.accept(ModBlocks.CEILING_MANILA.get());
-                        output.accept(ModItems.MYSTERIOUS_DOOR.get());
-                        output.accept(ModItems.METAL_DOOR.get());
-                        output.accept(ModItems.CONCRETE_PILLAR.get());
-                        output.accept(ModItems.CONCRETE_WARNING_PILLAR.get());
-                        output.accept(ModItems.CONCRETE_FLOOR.get());
-                        output.accept(ModItems.WHITE_PLASTERED_WALL.get());
-                        output.accept(ModItems.CONCRETE_CEILING.get());
-                        output.accept(ModItems.WALL_YELLOW_WALL.get());
-                        output.accept(ModItems.WALL_YELLOW_SLAB.get());
-                        output.accept(ModItems.WALL_YELLOW_STAIRS.get());
-                        output.accept(ModItems.WALL_YELLOW_FENCE.get());
-                        output.accept(ModItems.WALL_DAMP_WALL.get());
-                        output.accept(ModItems.WALL_DAMP_SLAB.get());
-                        output.accept(ModItems.WALL_DAMP_STAIRS.get());
-                        output.accept(ModItems.WALL_DAMP_FENCE.get());
-                        output.accept(ModItems.WALL_CONCRETE_WALL.get());
-                        output.accept(ModItems.WALL_CONCRETE_SLAB.get());
-                        output.accept(ModItems.WALL_CONCRETE_STAIRS.get());
-                        output.accept(ModItems.WALL_CONCRETE_FENCE.get());
-                        output.accept(ModItems.CRACKED_CONCRETE_WALL_WALL.get());
-                        output.accept(ModItems.CRACKED_CONCRETE_WALL_SLAB.get());
-                        output.accept(ModItems.CRACKED_CONCRETE_WALL_STAIRS.get());
-                        output.accept(ModItems.CRACKED_CONCRETE_WALL_FENCE.get());
-                        output.accept(ModItems.FLOOR_TILE_WALL.get());
-                        output.accept(ModItems.FLOOR_TILE_SLAB.get());
-                        output.accept(ModItems.FLOOR_TILE_STAIRS.get());
-                        output.accept(ModItems.FLOOR_TILE_FENCE.get());
-                        output.accept(ModItems.DAMP_FLOOR_WALL.get());
-                        output.accept(ModItems.DAMP_FLOOR_SLAB.get());
-                        output.accept(ModItems.DAMP_FLOOR_STAIRS.get());
-                        output.accept(ModItems.DAMP_FLOOR_FENCE.get());
-                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_WALL.get());
-                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_SLAB.get());
-                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_STAIRS.get());
-                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_FENCE.get());
-                        output.accept(ModBlocks.WALL_CONCRETE.get());
-                        output.accept(ModBlocks.WALL_CONCRETE_PLINTH.get());
-                        output.accept(ModBlocks.WALL_DAMP.get());
-                        output.accept(ModBlocks.WALL_DAMP_PLINTH.get());
-                        output.accept(ModBlocks.FLUORESCENT_LAMP.get());
-                        output.accept(ModItems.LAMP_OFF.get());
-                        output.accept(ModBlocks.HUB_DOOR.get());
-                        output.accept(ModBlocks.WALL_OAKED.get());
-                        output.accept(ModBlocks.STRIPPED_CARPET_FLOOR.get());
-                        output.accept(ModBlocks.RUINED_CEILING.get());
-                        output.accept(ModBlocks.RUINED_VENT.get());
-                        output.accept(ModBlocks.CRACKED_CONCRETE_WALL.get());
-                        output.accept(ModBlocks.WARNING_CONCRETE_WALL.get());
-                        output.accept(ModBlocks.DAMP_FLOOR.get());
-                        output.accept(ModBlocks.DAMP_CEILING.get());
-                        output.accept(ModBlocks.CHISELED_CONCRETE_WALL.get());
-                        output.accept(ModItems.MYCELIUM_CARPET.get());
-                        output.accept(ModItems.CHISEL.get());
-                        output.accept(ModItems.WALL_DUST.get());
-                        output.accept(ModItems.THRESHOLD_KEY.get());
-                        output.accept(ModItems.SCRAPER.get());
-                        output.accept(ModItems.WALLPAPER.get());
-                        output.accept(ModItems.WALLPAPER_COAT.get());
-                        output.accept(ModItems.WALLPAPER_HAT.get());
-                        output.accept(ModItems.UNKNOWN_SEWAGE_BOTTLE.get());
-                        output.accept(ModItems.CARPET_FIBER.get());
-                        output.accept(ModItems.BACTERIA_TISSUE.get());
-                        output.accept(ModItems.DAMP_CANNED_ALMOND_WATER.get());
-                        output.accept(ModItems.CANNED_ALMOND_WATER.get());
-                        output.accept(ModItems.EMPTY_CAN.get());
-                    })
-                    .build());
-
     /** 「未知污水瓶」：用原版水瓶右键潮湿墙壁/地板/天花板获得。 */
     public static final DeferredItem<Item> UNKNOWN_SEWAGE_BOTTLE =
             ITEMS.register("unknown_sewage_bottle",
@@ -296,56 +213,6 @@ public final class ModItems {
     public static final DeferredItem<net.minecraft.world.item.SpawnEggItem> BACTERIA_SPAWN_EGG =
             ITEMS.register("bacteria_spawn_egg", () -> new net.minecraft.world.item.SpawnEggItem(
                     ModEntities.BACTERIA.get(), 0x3A3836, 0x1E1C1A, new Item.Properties().stacksTo(64)));
-
-    /** 家具标签页。 */
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FURNITURE_TAB =
-            CREATIVE_MODE_TABS.register("backrooms_furniture", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.backrooms_complex.furniture"))
-                    .icon(() -> new ItemStack(ModItems.CHAIR_OAK.get()))
-                    .displayItems((parameters, output) -> {
-                        output.accept(ModItems.STOOL_JUNGLE.get());
-                        output.accept(ModItems.STOOL_SPRUCE.get());
-                        output.accept(ModItems.STOOL_CHERRY.get());
-                        output.accept(ModItems.STOOL_OAK.get());
-                        output.accept(ModItems.STOOL_DARK_OAK.get());
-                        output.accept(ModItems.STOOL_BIRCH.get());
-                        output.accept(ModItems.STOOL_BAMBOO.get());
-                        output.accept(ModItems.STOOL_MANGROVE.get());
-                        output.accept(ModItems.STOOL_CRIMSON.get());
-                        output.accept(ModItems.STOOL_WARPED.get());
-                        output.accept(ModItems.STOOL_ACACIA.get());
-                        output.accept(ModItems.TABLE_JUNGLE.get());
-                        output.accept(ModItems.TABLE_SPRUCE.get());
-                        output.accept(ModItems.TABLE_BIRCH.get());
-                        output.accept(ModItems.TABLE_CHERRY.get());
-                        output.accept(ModItems.TABLE_OAK.get());
-                        output.accept(ModItems.TABLE_DARK_OAK.get());
-                        output.accept(ModItems.TABLE_BAMBOO.get());
-                        output.accept(ModItems.TABLE_MANGROVE.get());
-                        output.accept(ModItems.TABLE_CRIMSON.get());
-                        output.accept(ModItems.TABLE_WARPED.get());
-                        output.accept(ModItems.TABLE_ACACIA.get());
-                        output.accept(ModItems.CHAIR_JUNGLE.get());
-                        output.accept(ModItems.CHAIR_SPRUCE.get());
-                        output.accept(ModItems.CHAIR_BIRCH.get());
-                        output.accept(ModItems.CHAIR_CHERRY.get());
-                        output.accept(ModItems.CHAIR_OAK.get());
-                        output.accept(ModItems.CHAIR_DARK_OAK.get());
-                        output.accept(ModItems.CHAIR_BAMBOO.get());
-                        output.accept(ModItems.CHAIR_MANGROVE.get());
-                        output.accept(ModItems.CHAIR_CRIMSON.get());
-                        output.accept(ModItems.CHAIR_WARPED.get());
-                        output.accept(ModItems.CHAIR_ACACIA.get());
-                    })
-                    .build());
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ENTITIES_TAB =
-            CREATIVE_MODE_TABS.register("backrooms_entities", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.backrooms_complex.entities"))
-                    .icon(() -> new ItemStack(BACTERIA_SPAWN_EGG.get()))
-                    .displayItems((parameters, output) -> {
-                        output.accept(BACTERIA_SPAWN_EGG.get());
-                    })
-                    .build());
     // ===== 家具 BlockItem =====
     public static final DeferredItem<BlockItem> STOOL_JUNGLE =
             ITEMS.register("stool_jungle", () -> new BlockItem(ModBlocks.STOOL_JUNGLE.get(), new Item.Properties()));
