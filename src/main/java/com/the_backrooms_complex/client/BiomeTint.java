@@ -1,6 +1,5 @@
 package com.the_backrooms_complex.client;
 
-import com.the_backrooms_complex.BackroomsComplex;
 import com.the_backrooms_complex.ModBlocks;
 import com.the_backrooms_complex.ModNetwork;
 import com.the_backrooms_complex.worldgen.BackroomsChunkGenerator;
@@ -10,10 +9,6 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /**

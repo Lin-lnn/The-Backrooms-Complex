@@ -2,14 +2,10 @@ package com.the_backrooms_complex.worldgen;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureManager;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
@@ -17,11 +13,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import com.the_backrooms_complex.ModBlocks;
 

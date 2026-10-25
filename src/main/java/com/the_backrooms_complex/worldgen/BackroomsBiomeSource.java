@@ -5,12 +5,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.the_backrooms_complex.ModBiomes;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -129,8 +127,6 @@ public class BackroomsBiomeSource extends BiomeSource {
         return yellowRooms;
     }
 
-    /** 群系过渡采样半径（格）。 */
-    public static final int BLEND_RADIUS = 4;
 
     /** 是否是"混凝土大厅"类群系（Level 0）。 */
     public boolean isDampCorridors(Holder<Biome> biome) {
@@ -154,33 +150,8 @@ public class BackroomsBiomeSource extends BiomeSource {
 
     // ==================== 噪声 / 哈希 ====================
 
-    /** 群系单元边长（格）。 */
-    private static final int CELL_SIZE = 32;
-    /** 混凝土大厅单元边长（格）= 256。 */
+    /** 群系单元边长（格）= 256，即 16×16 区块。 */
     private static final int HALL_CELL_BLOCKS = 256;
-
-    /** 值噪声（bilinear）。 */
-    private static double valueNoise(int x, int z, int layer) {
-        int xi = Math.floorDiv(x, CELL_SIZE);
-        int zi = Math.floorDiv(z, CELL_SIZE);
-        double tx = smoothstep((double) Math.floorMod(x, CELL_SIZE) / CELL_SIZE);
-        double tz = smoothstep((double) Math.floorMod(z, CELL_SIZE) / CELL_SIZE);
-        double a = hash01(xi, zi, layer);
-        double b = hash01(xi + 1, zi, layer);
-        double c = hash01(xi, zi + 1, layer);
-        double d = hash01(xi + 1, zi + 1, layer);
-        return lerp(lerp(a, b, tx), lerp(c, d, tx), tz);
-    }
-
-    /** 平滑插值曲线。 */
-    private static double smoothstep(double t) {
-        return t * t * (3.0 - 2.0 * t);
-    }
-
-    /** 线性插值。 */
-    private static double lerp(double a, double b, double t) {
-        return a + (b - a) * t;
-    }
 
     /** 三维确定性哈希 → [0,1)。 */
     private static double hash01(int x, int z, int layer) {
