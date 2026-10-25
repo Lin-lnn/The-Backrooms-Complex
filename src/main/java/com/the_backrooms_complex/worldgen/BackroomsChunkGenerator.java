@@ -250,7 +250,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 BlockState columnCeiling = l1ConcreteFloor
                         ? concreteCeilingBlock
                         : (hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState));
-                BlockState columnLamp = hall ? ruinedVent : lampState;
+                // Level 1 唯一保留的 L0 特例：底部的灯用「荧光灯」
+                BlockState columnLamp = l1ConcreteFloor ? lampState : (hall ? ruinedVent : lampState);
                 // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
                 boolean inHall = hall && colInHallRoom;
                 // 关键：先判断层号是否在有效范围内，再访问 wall[layer]。
@@ -258,8 +259,10 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 // 所以 Level 1（36 层、墙网格 36 层）之外的层仍会越界。
                 boolean layerValid = layer < fullLayers(chunk);
                 // Level 1 天鹰段的巨柱使用「混凝土柱」方块；Level 0 的 1x1 柱子沿用墙体
-                boolean l1Pillar = "aquila_sector".equals(biomePath);
-                boolean pillar = layerValid && (hall || l1Pillar) && !inHall && colOnGiantPillar
+                boolean l1Pillar = "aquila_sector".equals(biomePath) || "warehouse_aisles".equals(biomePath) || "puddle_zone".equals(biomePath);
+                boolean pillar = layerValid && l1Pillar && colOnGiantPillar
+                        ? true
+                        : layerValid && hall && !inHall && colOnGiantPillar
                         // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
                         && lx > 0 && lx < 15 && lz > 0 && lz < 15
                         && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
@@ -334,7 +337,11 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
                     // 大厅房间：整块清空（大厅状空地）
                     // 独立柱子：在没有墙的通道列上立起 1x1 柱
-                    if (inHall) {
+                    if (l1ConcreteFloor) {
+                        // ===== Level 1：停车场式开阔空间 =====
+                        // 除了 4x4 巨柱之外不留任何墙体 => 一整片开放场地
+                        isWall = false;
+                    } else if (inHall) {
                         isWall = false;
                     } else if (pillar && !isWall) {
                         isWall = true;
@@ -660,14 +667,12 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         ResourceLocation key = biomeKey(biome);
         // ---- Level 1 的三个群系（按路径匹配，与维度文件里的映射对应）----
         String path = key.getPath();
-        if ("aquila_sector".equals(path)) {
-            return concreteWall;             // 天鹰段：灰色混凝土墙
-        }
-        if ("warehouse_aisles".equals(path)) {
-            return whitePlasteredWallBlock;  // 仓库过道：粉刷白墙
+        // Level 1 一律使用「混凝土柱」——停车场只有柱，没有整面墙
+        if ("aquila_sector".equals(path) || "warehouse_aisles".equals(path)) {
+            return concretePillarBlock;
         }
         if ("puddle_zone".equals(path)) {
-            return dampWall;                 // 积水区：潮湿墙
+            return concretePillarBlock;
         }
         // ---- Level 0 ----
         if (ModBiomes.CONCRETE_HALLS.location().equals(key)) return concreteWall;
@@ -678,9 +683,10 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private BlockState plinthForBiome(Holder<Biome> biome) {
         ResourceLocation key = biomeKey(biome);
         String path = key.getPath();
-        if ("aquila_sector".equals(path))    return concretePlinth;
-        if ("warehouse_aisles".equals(path)) return whitePlasteredWallBlock;
-        if ("puddle_zone".equals(path))      return dampPlinth;
+        // Level 1 的柱踢脚线统一用「混凝土警示柱」
+        if ("aquila_sector".equals(path) || "warehouse_aisles".equals(path) || "puddle_zone".equals(path)) {
+            return concreteWarningPillarBlock;
+        }
         if (ModBiomes.CONCRETE_HALLS.location().equals(key)) return concretePlinth;
         if (ModBiomes.DAMP_CORRIDORS.location().equals(key)) return dampPlinth;
         return yellowPlinth;
