@@ -746,43 +746,53 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return Region.CORRIDOR;
     }
 
+    /** 一个区段的完整外观定义（新增区段只需在 profileOf 里加一条）。 */
+    public record SectorProfile(BlockState floor, BlockState ceiling, BlockState wall,
+                                LampPattern lamp, boolean stacked) {
+    }
+
+    /** 灯位判定的函数式接口（每段密度不同）。 */
+    @FunctionalInterface
+    public interface LampPattern {
+        boolean test(int x, int z);
+    }
+
+    /** 取某区段的外观定义。 */
+    public SectorProfile profileOf(Region r) {
+        return switch (r) {
+            case YUEJIN -> new SectorProfile(this.yuejinFloorState, this.yuejinCeilingState,
+                    this.yuejinWallState, Level1ChunkGenerator::isYuejinLamp, false);
+            case GARDEN -> new SectorProfile(this.gardenGrassState, this.ceilingState,
+                    this.gardenWallState, Level1ChunkGenerator::isGardenLamp, true);
+            case LEGEND -> new SectorProfile(this.floorState, this.ceilingState,
+                    this.legendWallState, Level1ChunkGenerator::isLegendLamp, true);
+            case GOTHIC -> new SectorProfile(this.floorState, this.ceilingState,
+                    this.whiteWallState, Level1ChunkGenerator::isGothicLamp, false);
+            case OUROBOROS -> new SectorProfile(this.floorState, this.ceilingState,
+                    this.whiteWallState, Level1ChunkGenerator::isOuroborosLamp, true);
+            default -> new SectorProfile(this.floorState, this.ceilingState,
+                    this.whiteWallState, Level1ChunkGenerator::isLamp, true);
+        };
+    }
+
     /** 各段的地板。 */
     private BlockState floorOf(Region r) {
-        return switch (r) {
-            case YUEJIN -> this.yuejinFloorState;
-            case GARDEN -> this.gardenGrassState;
-            default -> this.floorState;
-        };
+        return profileOf(r).floor();
     }
 
     /** 各段的天花板。 */
     private BlockState ceilingOf(Region r) {
-        return switch (r) {
-            case YUEJIN -> this.yuejinCeilingState;
-            default -> this.ceilingState;
-        };
+        return profileOf(r).ceiling();
     }
 
     /** 各段的墙面 / 柱子。 */
     private BlockState wallOf(Region r) {
-        return switch (r) {
-            case YUEJIN -> this.yuejinWallState;
-            case LEGEND -> this.legendWallState;
-            case GARDEN -> this.gardenWallState;
-            default -> this.whiteWallState;
-        };
+        return profileOf(r).wall();
     }
 
     /** 各段的灯位（越亮间距越小）。 */
-    private static boolean lampAt(Region r, int x, int z) {
-        return switch (r) {
-            case YUEJIN -> isYuejinLamp(x, z);
-            case GOTHIC -> isGothicLamp(x, z);
-            case GARDEN -> isGardenLamp(x, z);
-            case LEGEND -> isLegendLamp(x, z);
-            case OUROBOROS -> isOuroborosLamp(x, z);
-            default -> isLamp(x, z);
-        };
+    private boolean lampAt(Region r, int x, int z) {
+        return profileOf(r).lamp().test(x, z);
     }
 
     // ==================== 其余覆写
