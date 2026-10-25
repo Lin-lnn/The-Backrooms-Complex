@@ -118,6 +118,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState vineState;
     /** 传说段的深色木门。 */
     private final BlockState woodDoorState;
+    /** 衔尾段斜靠的钢板。 */
+    private final BlockState steelPlateState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -146,6 +148,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState();
         this.vineState = net.minecraft.world.level.block.Blocks.WEEPING_VINES.defaultBlockState();
         this.woodDoorState = net.minecraft.world.level.block.Blocks.DARK_OAK_DOOR.defaultBlockState();
+        this.steelPlateState = ModBlocks.STEEL_PLATE.get().defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -713,6 +716,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             return;
         }
 
+        // 衔尾段：地面上斜靠着的钢板（贴墙或散放）
+        if (region == Region.OUROBOROS && offset % h == 1 && c.room() < 0
+                && !c.pillar() && isPlateSpot(wx, wz)) {
+            set(chunk, m, wx, y, wz, this.steelPlateState);
+            return;
+        }
         // 花园段：从天花板垂下的藤条（最多 6 格长）
         if (region == Region.GARDEN && !c.pillar() && isGardenVine(wx, wz)) {
             int depthFromTop = (h - 1) - (offset % h);
@@ -807,6 +816,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 爬升带上该列的高度（0 ~ SUB_H-1）。 */
     public static int rampHeight(int z) {
         return Math.floorMod(z, RAMP_PITCH);
+    }
+
+    /** 斜靠钢板落点：约 1.5%。 */
+    public static boolean isPlateSpot(int x, int z) {
+        long h = mix(x, z, 0x706C617465L);   // 'plate'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.015;
     }
 
     /** 衔尾段墙面剥落：约 12%。 */
