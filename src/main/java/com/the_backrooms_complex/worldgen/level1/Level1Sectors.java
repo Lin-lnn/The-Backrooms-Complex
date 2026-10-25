@@ -34,9 +34,6 @@ public final class Level1Sectors {
     /** 区段单元边长（格）。 */
     public static final int SECTOR_CELL = 96;
 
-    /** 区段边界通道宽度（每 16 格留 2 格可通行）。 */
-    public static final int SECTOR_GATE_STEP = 16;
-
     /** Level 1 的区段。 */
     public enum Region {
         AQUILA, YUEJIN, GOTHIC, OUROBOROS, GARDEN, LEGEND, CORRIDOR
@@ -99,11 +96,6 @@ public final class Level1Sectors {
 
     // ==================== 边界与通道 ====================
 
-    /** 该列是否位于区段边界上（按第 0 层）。 */
-    public static boolean isSectorEdge(int x, int z) {
-        return isSectorEdge(x, z, 0);
-    }
-
     /** 指定层上的区段边界判定（四个水平方向都检查，避免只补一侧）。 */
     public static boolean isSectorEdge(int x, int z, int layer) {
         Region here = regionAt(x, z, layer);
@@ -153,22 +145,6 @@ public final class Level1Sectors {
         }
         int along = crossX ? z : x;
         return Math.floorMod(along, 32) < 4;
-    }
-
-    /**
-     * 该高度开门是否安全。
-     *
-     * <p>只在每层最底部的两格开门：那里两侧都一定有地板（地板在层内第 0 格）。
-     * 早先允许堆叠区段在第二层开门，但隔壁若是通高区段就没有地板，门孔会悬在空中。</p>
-     */
-    public static boolean isSafeGateHeight(int offset, boolean thisStacked) {
-        int inSub = offset % LAYER_H;
-        return inSub == 1 || inSub == 2;
-    }
-
-    /** 边界上的通道位置（每 16 格 2 格宽）。 */
-    public static boolean isSectorGate(int x, int z) {
-        return Math.floorMod(x + z, SECTOR_GATE_STEP) < 2;
     }
 
     // ==================== 哈希 ====================

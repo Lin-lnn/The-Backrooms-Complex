@@ -265,11 +265,6 @@ public final class Level1Geometry {
     /** 柱中心（2×2 柱子占 7~8）。 */
     public static final int PILLAR_CENTER = 7;
 
-    /** 巨柱判定：16 格网格，2×2 柱体（占 7..8）。 */
-    public static boolean onPillar(int x, int z) {
-        return onPillar(x, z, 0);
-    }
-
     /** 指定层上的柱网判定（层号参与偏移，因此每层柱位不同）。 */
     public static boolean onPillar(int x, int z, int layer) {
         int shift = Math.floorMod(layer * 5, PILLAR_STEP);   // 每层整体错开
@@ -281,15 +276,6 @@ public final class Level1Geometry {
     }
 
     // ==================== 哥特拱顶 ====================
-
-    /**
-     * 哥特段拱顶外张：距柱网 {@code rows} 格以内即算柱帽的一部分。
-     *
-     * <p>越靠近天花板，外张越宽 —— 视觉上就是柱子向上张开成尖拱。</p>
-     */
-    public static boolean isGothicArchSpread(int x, int z, int rows) {
-        return isGothicArchSpread(x, z, rows, 0);
-    }
 
     /** 指定层上的拱顶外张判定（柱网按层偏移，拱顶必须跟着本层柱子走）。 */
     public static boolean isGothicArchSpread(int x, int z, int rows, int layer) {
@@ -409,16 +395,13 @@ public final class Level1Geometry {
             if (clash) {
                 continue;
             }
-                picked[pickedCount * 2] = ox;
-                picked[pickedCount * 2 + 1] = oz;
-                pickedCount++;
+            picked[pickedCount * 2] = ox;
+            picked[pickedCount * 2 + 1] = oz;
+            pickedCount++;
             }
         }
         int want = STAIRS_MIN + (int) Math.floorMod(h >>> 8, STAIRS_MAX - STAIRS_MIN + 1);
-        int count = Math.min(Math.max(pickedCount, 0), Math.min(want, pickedCount));
-        if (count < STAIRS_MIN) {
-            count = pickedCount;                    // 冲突过多时退化为所有可用位
-        }
+        int count = Math.min(want, pickedCount);
         int[] out = new int[count * 2];
         System.arraycopy(picked, 0, out, 0, count * 2);
         STAIR_CACHE.put(key, out);

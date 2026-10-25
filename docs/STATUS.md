@@ -1,6 +1,6 @@
 # 项目状态与待办（2026-10-25 接手）
 
-> 版本 **1.0.3**　产物 `build/libs/backrooms_complex-1.0.3.jar`（665,844 B，含生成器拆分）
+> 版本 **1.0.3**　产物 `build/libs/backrooms_complex-1.0.3.jar`（665,110 B，含生成器拆分与清理）
 > 编译 0 错　`tools/audit.py` 6/6 全绿　`tools/selfcheck.py` 2836 项 0 问题
 
 ## 一、接手时的基线
@@ -26,7 +26,8 @@
 | 6 | `BiomeTint` 仍按 288 高推断 L1 层高 18；F3 调试信息固定显示第 0 层区段 | 层高改为 12；调试信息按玩家 Y 取层号与区段 |
 | 7 | 缺少资源自检，模型 / 贴图 / 语言键 / 层高漂移只能靠人眼 | 新增 `tools/selfcheck.py`：JSON 解析、层高不变式、模型与贴图引用、`en_us`/`zh_cn` 键对齐，共 2836 项 |
 | 8 | **闪烁只扫到一部分灯**：扫描步长固定 3，而各区灯距是 2/5/6/7/8，衔尾段的灯坐标对 3 取模后永远不会命中 | 改为逐格扫描两个子层天花板（每个区块 2×256 格），覆盖全部灯位；用 `MutableBlockPos` 避免逐格分配对象 |
-| 9 | `Level1ChunkGenerator` 约 1500 行，区段 / 几何 / 地物 / 写方块混在一起 | 拆为 `Level1Sectors`（纯区段计算）、`Level1Geometry`（柱网 / 房间 / 楼梯 / 小径 + 缓存）、`Level1Decor`（灯位 / 箱子 / 草 / 藤 / 碎屑 / 管道）；生成器保留 BlockState 字段与 `fillColumn` / `placeAisle` / `placeSubFloor` / codec，降到 582 行，行为不变 |
+| 9 | `Level1ChunkGenerator` 约 1500 行，区段 / 几何 / 地物 / 写方块混在一起 | 拆为 `Level1Sectors`（纯区段计算）、`Level1Geometry`（柱网 / 房间 / 楼梯 / 小径 + 缓存）、`Level1Decor`（灯位 / 箱子 / 草 / 藤 / 碎屑 / 管道）；生成器保留 BlockState 字段与 `fillColumn` / `placeAisle` / `placeSubFloor` / codec，降到 588 行，行为不变 |
+| 10 | 拆分后仍留有未引用的区段面积 / 门位方法，`SectorProfile` 每次取都新建记录与 lambda | 删除 9 个未引用方法，简化 `stairRects` 计数，`SectorProfile` 改为构造期缓存；净减约 155 行 |
 
 ### 本轮运行时验证（专用服务器）
 
@@ -34,6 +35,8 @@
 - 1.0.2 时在 Level 1 强制加载 25 个区块并完成楼梯逐格验证；1.0.3 只改闪烁扫描，不影响地形。
 - 生成器拆分后，用同一组坐标重新强制加载 25 个区块：`x=-50, z=-62..-57` 的楼梯带逐格结果
   （6 级台阶、净空、上层地板落点）与拆分前完全一致，确认重构未改变世界生成。
+- 清理死代码并缓存 `SectorProfile` 后再次强制加载：楼梯首级 / 顶级、上层地板、哥特通高剖面
+  全部与此前一致，无异常。
 - 在 Level 1 强制加载 25 个区块（`-32,-32 ~ 32,32`），无区块生成异常。
 - 逐格读取真实楼梯带 `x=-50/-49`：6 级台阶分别位于 `Y=1..6`，台阶上方 2 格净空，
   顶层台阶与 `Y=6` 的上层地板齐平；横向相邻列恢复为正常上层地板。
@@ -45,10 +48,10 @@
 
 | 类 | 行数 | 职责 |
 |---|---|---|
-| `Level1Sectors` | 191 | 层高常量、`Region`、每层权重表、区段判定、边界 / 通道、共享哈希 |
-| `Level1Geometry` | 453 | 小径迷宫、过道房间（缓存）、柱网、哥特拱、楼梯（缓存） |
-| `Level1Decor` | 332 | 灯位、板条箱、草簇 / 藤蔓、碎屑、剥落、红 / 灰管道 |
-| `Level1ChunkGenerator` | 582 | BlockState 字段、`fillColumn` / `placeAisle` / `placeSubFloor`、codec |
+| `Level1Sectors` | 167 | 层高常量、`Region`、每层权重表、区段判定、边界 / 通道、共享哈希 |
+| `Level1Geometry` | 436 | 小径迷宫、过道房间（缓存）、柱网、哥特拱、楼梯（缓存） |
+| `Level1Decor` | 211 | 灯位、板条箱、草簇 / 藤蔓、碎屑、剥落、红 / 灰管道 |
+| `Level1ChunkGenerator` | 588 | BlockState 字段、`fillColumn` / `placeAisle` / `placeSubFloor`、codec |
 | `Level1Flicker` | 277 | 闪烁现象 |
 
 ### 结构

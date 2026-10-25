@@ -100,6 +100,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
     private final BlockState metalDoorState;
 
+    /** 每个区段的外观定义；构造时建好，避免逐列分配记录与 lambda。 */
+    private final java.util.EnumMap<Region, SectorProfile> profiles =
+            new java.util.EnumMap<>(Region.class);
+    /** 未单独配置的区段（天鹰 / 走廊）使用的默认外观。 */
+    private final SectorProfile defaultProfile;
+
     public Level1ChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
         this.floorState = ModBlocks.CONCRETE_FLOOR.get().defaultBlockState();
@@ -134,6 +140,19 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
+
+        this.defaultProfile = new SectorProfile(this.floorState, this.ceilingState,
+                this.whiteWallState, Level1Decor::isLamp, true);
+        this.profiles.put(Region.YUEJIN, new SectorProfile(this.yuejinFloorState,
+                this.yuejinCeilingState, this.yuejinWallState, Level1Decor::isYuejinLamp, false));
+        this.profiles.put(Region.GARDEN, new SectorProfile(this.gardenGrassState,
+                this.ceilingState, this.gardenWallState, Level1Decor::isGardenLamp, true));
+        this.profiles.put(Region.LEGEND, new SectorProfile(this.floorState,
+                this.ceilingState, this.legendWallState, Level1Decor::isLegendLamp, true));
+        this.profiles.put(Region.GOTHIC, new SectorProfile(this.floorState,
+                this.ceilingState, this.whiteWallState, Level1Decor::isGothicLamp, false));
+        this.profiles.put(Region.OUROBOROS, new SectorProfile(this.floorState,
+                this.ceilingState, this.whiteWallState, Level1Decor::isOuroborosLamp, true));
     }
 
     @Override
@@ -488,28 +507,15 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         boolean test(int x, int z);
     }
 
-    /** 取某区段的外观定义。 */
+    /** 取某区段的外观定义（构造时已建好，无逐列分配）。 */
     public SectorProfile profileOf(Region r) {
-        return switch (r) {
-            case YUEJIN -> new SectorProfile(this.yuejinFloorState, this.yuejinCeilingState,
-                    this.yuejinWallState, Level1Decor::isYuejinLamp, false);
-            case GARDEN -> new SectorProfile(this.gardenGrassState, this.ceilingState,
-                    this.gardenWallState, Level1Decor::isGardenLamp, true);
-            case LEGEND -> new SectorProfile(this.floorState, this.ceilingState,
-                    this.legendWallState, Level1Decor::isLegendLamp, true);
-            case GOTHIC -> new SectorProfile(this.floorState, this.ceilingState,
-                    this.whiteWallState, Level1Decor::isGothicLamp, false);
-            case OUROBOROS -> new SectorProfile(this.floorState, this.ceilingState,
-                    this.whiteWallState, Level1Decor::isOuroborosLamp, true);
-            default -> new SectorProfile(this.floorState, this.ceilingState,
-                    this.whiteWallState, Level1Decor::isLamp, true);
-        };
+        return this.profiles.getOrDefault(r, this.defaultProfile);
     }
 
     /** 惰性获取板条箱状态：首次使用时才查注册表。 */
     private BlockState crateState() {
         if (this.crateState == null) {
-        this.crateState = ModBlocks.CRATE.get().defaultBlockState()
+            this.crateState = ModBlocks.CRATE.get().defaultBlockState()
                     .setValue(com.the_backrooms_complex.block.CrateBlock.NATURAL, true);
         }
         return this.crateState;

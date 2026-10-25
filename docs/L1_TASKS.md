@@ -40,7 +40,7 @@
 | 17 | `tools/audit.py`（6 项静态审计） |
 | 18 | `tools/selfcheck.py`（JSON / 层高 / 模型贴图 / 语言键，2836 项） |
 | 19 | `docs/ARCHITECTURE.md`、`docs/L1_TASKS.md`、`docs/STATUS.md` |
-| 20 | 生成器拆分 | `Level1Sectors` / `Level1Geometry` / `Level1Decor`；`Level1ChunkGenerator` 只留写方块与 codec，582 行 |
+| 20 | 生成器拆分 | `Level1Sectors` / `Level1Geometry` / `Level1Decor`；`Level1ChunkGenerator` 只留写方块与 codec，588 行 |
 
 ## 二、待办
 
