@@ -154,7 +154,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         // 在注册完成前取值会触发空指针；改为生成时按需取值（见 crateState()）。
         this.grassTuftState = net.minecraft.world.level.block.Blocks.SHORT_GRASS.defaultBlockState();
         this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
-        this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
+        // 红漆管道：沿 X 方向铺设，东西两端相连
+        this.redPipeState = ModBlocks.RED_PIPE.get().defaultBlockState()
+                .setValue(net.minecraft.world.level.block.PipeBlock.EAST, Boolean.TRUE)
+                .setValue(net.minecraft.world.level.block.PipeBlock.WEST, Boolean.TRUE);
         this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
         this.powderLightState = net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CONCRETE_POWDER
                 .defaultBlockState();
@@ -900,6 +903,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 }
             }
         }
+        // 衔尾段：红漆管道吊在天花板下方一格（不替换天花板）
+        if (region == Region.OUROBOROS && offset % h == h - 2
+                && !c.pillar() && isOuroborosPipeLine(wx, wz)) {
+            set(chunk, m, wx, y, wz, this.redPipeState);
+            return;
+        }
         // 哥特段：拱顶外张「顶部最宽、向下收窄」=> 正确的起拱方向。
         // fromTop = 1 贴着天花板（半径 3），往下逐排收成 2、1。
         int fromTop = (h - 1) - (offset % h);
@@ -929,12 +938,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             } else {
                 set(chunk, m, wx, y, wz, this.airState);
             }
-            return;
-        }
-        // 天花板层：灯位按区段密度
-        if (region == Region.OUROBOROS && isOuroborosPipeLine(wx, wz)) {
-            // 衔尾段：天花板上横着红漆管道
-            set(chunk, m, wx, y, wz, this.redPipeState);
             return;
         }
         set(chunk, m, wx, y, wz, prof.lamp().test(wx, wz) ? this.lampState : prof.ceiling());
