@@ -151,6 +151,16 @@ public final class ModCreativeTabs {
                     })
                     .build());
 
+    /**
+     * 触发本类的静态初始化。
+     *
+     * <p>三个页签的注册写在静态字段的初始化表达式里，而 JVM 只有在<b>首次访问</b>
+     * 本类时才会执行它 —— 若没有这行调用，页签就永远不会注册（创造栏里看不到本模组内容）。</p>
+     */
+    public static void init() {
+        // 空方法体：调用即是目的
+    }
+
     private ModCreativeTabs() {
     }
 }
