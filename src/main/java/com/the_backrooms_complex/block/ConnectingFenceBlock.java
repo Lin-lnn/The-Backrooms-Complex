@@ -2,15 +2,13 @@ package com.the_backrooms_complex.block;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.FenceBlock;
-import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * 可与「墙」相连的栅栏。
+ * 我们的栅栏变体。
  *
- * <p>原版栅栏只会连接栅栏 / 栅栏门，不会连墙 —— 因此在后室里把栅栏接在墙上时会出现断口。
- * 这里覆写 {@link #connectsTo}（1.21 里连接判定的真正入口），
- * 让栅栏也接受 {@link WallBlock}，从而能和墙连成一体。</p>
+ * <p>只与栅栏相连，<b>不与墙相连</b> —— 早先为了让栅栏能贴墙而覆写了连接判定，
+ * 结果墙和栅栏会互相吸附，两种结构混在一起。现在显式限制为「仅栅栏」。</p>
  */
 public class ConnectingFenceBlock extends FenceBlock {
 
@@ -20,10 +18,7 @@ public class ConnectingFenceBlock extends FenceBlock {
 
     @Override
     public boolean connectsTo(BlockState state, boolean isSideSolid, Direction direction) {
-        // 墙方块也视为可连接
-        if (state.getBlock() instanceof WallBlock) {
-            return true;
-        }
-        return super.connectsTo(state, isSideSolid, direction);
+        // 只连栅栏；墙不会与本方块相连
+        return state.getBlock() instanceof FenceBlock && super.connectsTo(state, isSideSolid, direction);
     }
 }
