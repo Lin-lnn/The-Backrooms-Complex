@@ -336,8 +336,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
 
     /** 巨柱判定：48 格网格，4×4 柱体（占 22..25）。 */
     public static boolean onPillar(int x, int z) {
-        int ox = Math.floorMod(x, PILLAR_STEP);
-        int oz = Math.floorMod(z, PILLAR_STEP);
+        return onPillar(x, z, 0);
+    }
+
+    /** 指定层上的柱网判定（层号参与偏移，因此每层柱位不同）。 */
+    public static boolean onPillar(int x, int z, int layer) {
+        int shift = Math.floorMod(layer * 5, PILLAR_STEP);   // 每层整体错开
+        int ox = Math.floorMod(x + shift, PILLAR_STEP);
+        int oz = Math.floorMod(z + shift, PILLAR_STEP);
         int lo = PILLAR_CENTER;       // 7
         int hi = PILLAR_CENTER + 1;   // 8
         return ox >= lo && ox <= hi && oz >= lo && oz <= hi;
@@ -350,9 +356,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
 
     /** 过道小房间判定：0 = 内部，1 = 墙，2 = 门，-1 = 无。 */
     public static int roomKind(int x, int z) {
+        return roomKind(x, z, 0);
+    }
+
+    /** 指定层上的房间判定（每层房间位置不同）。 */
+    public static int roomKind(int x, int z, int layer) {
         int cx = Math.floorDiv(x, ROOM_CELL);
         int cz = Math.floorDiv(z, ROOM_CELL);
-        int[] rects = roomRects(cx, cz);            // 扁平数组：ox, oz, ox, oz ...
+        int[] rects = roomRects(cx, cz, layer);     // 扁平数组：ox, oz, ox, oz ...
         int lx = Math.floorMod(x, ROOM_CELL);
         int lz = Math.floorMod(z, ROOM_CELL);
         for (int i = 0; i < rects.length; i += 2) {
@@ -394,8 +405,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * <p>用区坐标作种子做 Fisher-Yates 洗牌，取前 K 个（K = 5~10），
      * 因此<b>每个区的每一层都保证有同样 K 个房间</b>，而不是概率性出现。</p>
      */
-    private static int[] roomRects(int cx, int cz) {
-        long key = ((long) cx << 32) ^ (cz & 0xFFFFFFFFL);
+    private static int[] roomRects(int cx, int cz, int layer) {
+        long key = (((long) cx << 32) ^ (cz & 0xFFFFFFFFL)) * 31L + layer;
         int[] cached = ROOM_CACHE.get(key);
         if (cached != null) {
             return cached;
@@ -408,7 +419,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             slotZ[i] = (i / slots) * ROOM_SLOT + 4;
         }
         // 确定性洗牌
-        long h = (long) cx * 0x94D049BB133111EBL ^ (long) cz * 0x2545F4914F6CDD1DL ^ 0x726F6F6DL;
+        long h = ((long) cx * 0x94D049BB133111EBL ^ (long) cz * 0x2545F4914F6CDD1DL)
+                ^ (0x726F6F6DL ^ (layer * 0x9E3779B97F4A7C15L));
         for (int i = slotX.length - 1; i > 0; i--) {
             h ^= h >>> 33;
             h *= 0xC4CEB9FE1A85EC53L;
@@ -474,10 +486,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     }
 
     /** 计算某一列的全部参数。 */
-    private static Column columnAt(int wx, int wz) {
+    private static Column columnAt(int wx, int wz, int layer) {
         boolean passage = isPassageArea(wx, wz);
         boolean boundary = isPassageBoundary(wx, wz);
-        int room = roomKind(wx, wz);
+        int room = roomKind(wx, wz, layer);
         return new Column(
                 passage,
                 passage && isPassageWall(wx, wz),
@@ -489,7 +501,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 facingOf(wx, wz, boundary),
                 room,
                 // 柱子只出现在「纯过道的开阔区域」，否则会被子层结构覆盖成木板/石板条带
-                onPillar(wx, wz),
+                onPillar(wx, wz, layer),
                 isLamp(wx, wz));
     }
 
@@ -507,14 +519,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 生成一整列（从 minY 到 maxY）。 */
     private void fillColumn(ChunkAccess chunk, BlockPos.MutableBlockPos m,
                             int wx, int wz, int minY, int maxY) {
-        Column c = columnAt(wx, wz);
+        Column c = null;
+        boolean subFloor = false;
         // 柱子列优先：柱子上绝不叠加小径/房间的子层结构（否则会长出木板+石板的混合柱）
         // 区段与配色按「层」计算：每一层的区段布局不同
         Region region = null;
         SectorProfile prof = null;
         int lastLayer = Integer.MIN_VALUE;
-        // 子层结构只属于小径；过道房间在过道自己的 18 格空间里做成封闭盒子
-        boolean subFloor = !c.pillar() && c.passage();
+
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
             // 每层用不同的区段布局
@@ -523,6 +535,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 lastLayer = layer;
                 region = regionAt(wx, wz, layer);
                 prof = profileOf(region);
+                // 柱子 / 房间 / 小径判定同样按层，三层布局才真正不同
+                c = columnAt(wx, wz, layer);
+                subFloor = !c.pillar() && c.passage();
             }
             // 包络墙：边界列完全由这里负责，地物不得抢占。
             // 每隔 32 格打通一条 4 格宽的通道，高度取两侧「单层高度」中较小的一个。
@@ -1047,7 +1062,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         if (cached != null) {
             return cached;
         }
-        int[] rooms = roomRects(cx, cz);
+        int[] rooms = roomRects(cx, cz, 0);
         int[] picked = new int[STAIRS_MAX * 2];
         int pickedCount = 0;
         long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x7374616972L;
