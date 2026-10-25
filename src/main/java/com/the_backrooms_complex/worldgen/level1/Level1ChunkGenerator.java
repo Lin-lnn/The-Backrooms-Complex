@@ -93,6 +93,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState pillarState;
     private final BlockState warningPillarState;
     private final BlockState whiteWallState;
+    /** 跃金段：泛黄的混凝土地板 / 混凝土墙 / 金属瓦楞板天花板。 */
+    private final BlockState yuejinFloorState;
+    private final BlockState yuejinWallState;
+    private final BlockState yuejinCeilingState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -105,6 +109,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.pillarState = ModBlocks.CONCRETE_PILLAR.get().defaultBlockState();
         this.warningPillarState = ModBlocks.CONCRETE_WARNING_PILLAR.get().defaultBlockState();
         this.whiteWallState = ModBlocks.WHITE_PLASTERED_WALL.get().defaultBlockState();
+        this.yuejinFloorState = ModBlocks.YELLOWED_CONCRETE_FLOOR.get().defaultBlockState();
+        this.yuejinWallState = ModBlocks.YELLOWED_CONCRETE_WALL.get().defaultBlockState();
+        this.yuejinCeilingState = ModBlocks.YELLOWED_CORRUGATED_METAL.get().defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -399,6 +406,28 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 placeAisle(chunk, m, c, wx, y, wz, offset);
             }
         }
+    }
+
+    // ==================== 跃金段（Level 1 第三区段）====================
+
+    /** 跃金段区域边长（格），与天鹰段的小径区错开。 */
+    public static final int YUEJIN_CELL = 96;
+
+    /**
+     * 该列是否属于「跃金段」。
+     *
+     * <p>与天鹰段区别：米黄配色、照明更充足（每 2 格一盏灯）、罐料箱更多。</p>
+     */
+    public static boolean isYuejinArea(int x, int z) {
+        int cx = Math.floorDiv(x, YUEJIN_CELL);
+        int cz = Math.floorDiv(z, YUEJIN_CELL);
+        long h = mix(cx, cz, 0x7975656A696EL);   // 'yuejin'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.30;
+    }
+
+    /** 跃金段灯位：每 2 格一盏（比过道的每 5 格更亮）。 */
+    public static boolean isYuejinLamp(int x, int z) {
+        return Math.floorMod(x, 2) == 0 && Math.floorMod(z, 2) == 0;
     }
 
     /**
