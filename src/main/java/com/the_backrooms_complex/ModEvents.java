@@ -141,9 +141,8 @@ public final class ModEvents {
         if (level == null) {
             return;
         }
-        for (net.minecraft.server.level.ServerPlayer sp : level.players()) {
-            com.the_backrooms_complex.worldgen.Level1Flicker.tick(level, sp);
-        }
+        // 闪烁现在按维度统一处理一次：内部只看「有玩家所在的层」
+        com.the_backrooms_complex.worldgen.Level1Flicker.tick(level);
     }
 
     /** 菌毯刷怪计时（每 100 tick = 5 秒尝试一次）。 */
