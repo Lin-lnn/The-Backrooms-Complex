@@ -1,5 +1,6 @@
 package com.the_backrooms_complex.structure;
 
+import com.the_backrooms_complex.worldgen.level0.BackroomsChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.the_backrooms_complex.BackroomsComplex;

@@ -2,7 +2,7 @@ package com.the_backrooms_complex.client;
 
 import com.the_backrooms_complex.ModBlocks;
 import com.the_backrooms_complex.ModNetwork;
-import com.the_backrooms_complex.worldgen.BackroomsChunkGenerator;
+import com.the_backrooms_complex.worldgen.level0.BackroomsChunkGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.BlockAndTintGetter;

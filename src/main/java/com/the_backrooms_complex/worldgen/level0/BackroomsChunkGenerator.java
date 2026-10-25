@@ -1,10 +1,8 @@
-package com.the_backrooms_complex.worldgen;
+package com.the_backrooms_complex.worldgen.level0;
 
-import com.the_backrooms_complex.worldgen.level0.BackroomsAvenue;
-import com.the_backrooms_complex.worldgen.level0.BackroomsMaze;
-import com.the_backrooms_complex.worldgen.level0.BackroomsRooms;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.the_backrooms_complex.worldgen.BackroomsBiomeSource;
 import com.the_backrooms_complex.ModBiomes;
 import com.the_backrooms_complex.ModBalance;
 import com.the_backrooms_complex.ModBlocks;

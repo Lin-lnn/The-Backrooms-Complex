@@ -1,5 +1,6 @@
 package com.the_backrooms_complex;
 
+import com.the_backrooms_complex.worldgen.level0.BackroomsChunkGenerator;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;

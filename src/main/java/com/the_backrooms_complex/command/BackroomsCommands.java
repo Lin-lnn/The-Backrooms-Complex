@@ -1,5 +1,6 @@
 package com.the_backrooms_complex.command;
 
+import com.the_backrooms_complex.worldgen.level0.BackroomsChunkGenerator;
 import com.the_backrooms_complex.worldgen.level0.RoomGraph;
 import com.the_backrooms_complex.worldgen.level0.TopologyWalls;
 import com.mojang.brigadier.CommandDispatcher;
@@ -85,7 +86,7 @@ public final class BackroomsCommands {
             return 0;
         }
         var pos = player.blockPosition();
-        int layer = Math.floorDiv(pos.getY(), com.the_backrooms_complex.worldgen.BackroomsChunkGenerator.LAYER_HEIGHT);
+        int layer = Math.floorDiv(pos.getY(), com.the_backrooms_complex.worldgen.level0.BackroomsChunkGenerator.LAYER_HEIGHT);
         var graph = new com.the_backrooms_complex.worldgen.level0.RoomGraph(0x5EEDBACC0001L);
 
         boolean onSpine = graph.isOnSpine(pos.getX(), pos.getZ(), layer);

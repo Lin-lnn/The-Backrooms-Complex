@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.the_backrooms_complex.command.BackroomsCommands;
 import com.the_backrooms_complex.datagen.DataGenerators;
 import com.the_backrooms_complex.worldgen.BackroomsBiomeSource;
-import com.the_backrooms_complex.worldgen.BackroomsChunkGenerator;
+import com.the_backrooms_complex.worldgen.level0.BackroomsChunkGenerator;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
