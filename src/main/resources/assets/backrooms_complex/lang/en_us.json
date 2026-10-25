@@ -180,5 +180,9 @@
     "block.backrooms_complex.stripped_carpet_floor_slab":  "Stripped Carpet Floor Slab",
     "block.backrooms_complex.stripped_carpet_floor_stairs":  "Stripped Carpet Floor Stairs",
     "block.backrooms_complex.stripped_carpet_floor_fence":  "Stripped Carpet Floor Fence",
-    "block.backrooms_complex.mysterious_door":  "Dim Mysterious Door"
+    "block.backrooms_complex.mysterious_door":  "Dim Mysterious Door",
+    "block.backrooms_complex.concrete_pillar":  "Concrete Pillar",
+    "block.backrooms_complex.concrete_warning_pillar":  "Concrete Warning Pillar",
+    "block.backrooms_complex.concrete_floor":  "Concrete Floor",
+    "block.backrooms_complex.white_plastered_wall":  "White Plastered Concrete Wall"
 }

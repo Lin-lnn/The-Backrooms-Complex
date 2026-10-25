@@ -262,6 +262,20 @@ public final class ModBlocks {
     public static final DeferredBlock<com.the_backrooms_complex.block.MysteriousDoorBlock> MYSTERIOUS_DOOR =
             BLOCKS.register("mysterious_door", () -> new com.the_backrooms_complex.block.MysteriousDoorBlock(unbreakable().noOcclusion()));
 
+    // ===== Level 1 的混凝土构件 =====
+    /** 混凝土柱（贴图使用原版 light_gray_concrete）。 */
+    public static final DeferredBlock<Block> CONCRETE_PILLAR =
+            BLOCKS.register("concrete_pillar", () -> new Block(unbreakable()));
+    /** 混凝土警示柱（贴图使用原版 reinforced_deepslate）。 */
+    public static final DeferredBlock<Block> CONCRETE_WARNING_PILLAR =
+            BLOCKS.register("concrete_warning_pillar", () -> new Block(unbreakable()));
+    /** 混凝土地板（贴图使用原版 stone）。 */
+    public static final DeferredBlock<Block> CONCRETE_FLOOR =
+            BLOCKS.register("concrete_floor", () -> new Block(unbreakable()));
+    /** 粉刷为白色的混凝土墙壁（贴图使用原版 stripped_pale_oak_log）。 */
+    public static final DeferredBlock<Block> WHITE_PLASTERED_WALL =
+            BLOCKS.register("white_plastered_wall", () -> new Block(unbreakable()));
+
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)

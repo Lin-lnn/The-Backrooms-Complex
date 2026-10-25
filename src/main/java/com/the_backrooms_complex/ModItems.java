@@ -189,6 +189,10 @@ public final class ModItems {
                         output.accept(ModBlocks.FLOOR_MANILA.get());
                         output.accept(ModBlocks.CEILING_MANILA.get());
                         output.accept(ModItems.MYSTERIOUS_DOOR.get());
+                        output.accept(ModItems.CONCRETE_PILLAR.get());
+                        output.accept(ModItems.CONCRETE_WARNING_PILLAR.get());
+                        output.accept(ModItems.CONCRETE_FLOOR.get());
+                        output.accept(ModItems.WHITE_PLASTERED_WALL.get());
                         output.accept(ModItems.WALL_YELLOW_WALL.get());
                         output.accept(ModItems.WALL_YELLOW_SLAB.get());
                         output.accept(ModItems.WALL_YELLOW_STAIRS.get());
@@ -470,6 +474,15 @@ public final class ModItems {
             ITEMS.register("stripped_carpet_floor_fence", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_FENCE.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> MYSTERIOUS_DOOR =
             ITEMS.register("mysterious_door", () -> new BlockItem(ModBlocks.MYSTERIOUS_DOOR.get(), new Item.Properties()));
+
+    public static final DeferredItem<BlockItem> CONCRETE_PILLAR =
+            ITEMS.register("concrete_pillar", () -> new BlockItem(ModBlocks.CONCRETE_PILLAR.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_WARNING_PILLAR =
+            ITEMS.register("concrete_warning_pillar", () -> new BlockItem(ModBlocks.CONCRETE_WARNING_PILLAR.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_FLOOR =
+            ITEMS.register("concrete_floor", () -> new BlockItem(ModBlocks.CONCRETE_FLOOR.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WHITE_PLASTERED_WALL =
+            ITEMS.register("white_plastered_wall", () -> new BlockItem(ModBlocks.WHITE_PLASTERED_WALL.get(), new Item.Properties()));
 
     private ModItems() {
     }

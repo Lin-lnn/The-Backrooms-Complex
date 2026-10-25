@@ -180,5 +180,9 @@
     "block.backrooms_complex.stripped_carpet_floor_slab":  "剥去地毯的地板台阶",
     "block.backrooms_complex.stripped_carpet_floor_stairs":  "剥去地毯的地板楼梯",
     "block.backrooms_complex.stripped_carpet_floor_fence":  "剥去地毯的地板栅栏",
-    "block.backrooms_complex.mysterious_door":  "色泽灰暗的神秘的门"
+    "block.backrooms_complex.mysterious_door":  "色泽灰暗的神秘的门",
+    "block.backrooms_complex.concrete_pillar":  "混凝土柱",
+    "block.backrooms_complex.concrete_warning_pillar":  "混凝土警示柱",
+    "block.backrooms_complex.concrete_floor":  "混凝土地板",
+    "block.backrooms_complex.white_plastered_wall":  "粉刷为白色的混凝土墙壁"
 }
