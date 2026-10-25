@@ -635,24 +635,26 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private void placeAisle(ChunkAccess chunk, BlockPos.MutableBlockPos m,
                             Column c, int wx, int y, int wz, int offset) {
         Region region = regionAt(wx, wz);
+        // stacked 的区段按 6 格两层堆叠，其余通高（天鹰 / 跃金 / 哥特）
+        int h = profileOf(region).stacked() ? SUB_H : LAYER_H;
         // 跃金段：地面上偶有板条箱（文中该段堆满箱子）
-        if (region == Region.YUEJIN && offset == 1 && c.room() < 0 && isCrateSpot(wx, wz)) {
+        if (region == Region.YUEJIN && offset % h == 1 && c.room() < 0 && isCrateSpot(wx, wz)) {
             set(chunk, m, wx, y, wz, this.crateState);
             return;
         }
-        if (offset == 0) {
+        if (offset % h == 0) {
             set(chunk, m, wx, y, wz, floorOf(region));
             return;
         }
 
         // ===== 过道房间：四面实心，只在南墙留一扇 2 格高的门 =====
         if (c.room() >= 0) {
-            if (offset == LAYER_H - 1) {
+            if (offset % h == h - 1) {
                 // 房间顶部与过道天花板齐平
                 set(chunk, m, wx, y, wz, c.lamp() ? this.lampState : this.ceilingState);
             } else if (c.room() == 2) {
                 // 门列：1~2 格高放「下半 / 上半」门，其余高度实心 => 除门以外没有入口
-                set(chunk, m, wx, y, wz, (offset == 1 || offset == 2)
+                set(chunk, m, wx, y, wz, (offset % h == 1 || offset % h == 2)
                         ? doorState(Direction.SOUTH, offset == 1)
                         : this.whiteWallState);
             } else if (c.room() == 1) {
@@ -663,7 +665,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             return;
         }
 
-        if (offset < LAYER_H - 1) {
+        if (offset % h < h - 1) {
             boolean doorHeight = (offset % SUB_H == 1) || (offset % SUB_H == 2);
             // 门前必须通畅：紧邻房间门位的列，在门高度处强制空气（否则柱子/边界墙会把门堵死）
             if (doorHeight && roomDoorNeighbor(wx, wz)) {
@@ -674,7 +676,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             if (wall) {
                 // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
                 set(chunk, m, wx, y, wz,
-                        (offset == 1) ? this.warningPillarState : wallOf(region));
+                        (offset % h == 1) ? this.warningPillarState : wallOf(region));
             } else {
                 set(chunk, m, wx, y, wz, this.airState);
             }
