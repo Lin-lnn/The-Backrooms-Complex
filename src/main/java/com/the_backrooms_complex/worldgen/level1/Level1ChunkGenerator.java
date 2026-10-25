@@ -112,6 +112,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState redPipeState;
     /** 衔尾段的破损补丁（砂砾）。 */
     private final BlockState rubbleState;
+    /** 两层之间的爬升台阶。 */
+    private final BlockState stairState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -137,6 +139,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
         this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
         this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
+        this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -672,6 +675,15 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz, this.crateState);
             return;
         }
+        // 堆叠区段：两层之间用台阶做爬升带（否则上层无法到达）
+        if (prof.stacked() && isRampColumn(wx, wz)) {
+            int step = rampHeight(wz);
+            int inSub = offset % h;
+            if (inSub >= 1 && inSub <= 1 + step) {
+                set(chunk, m, wx, y, wz, this.stairState);
+                return;
+            }
+        }
         if (offset % h == 0) {
             set(chunk, m, wx, y, wz, prof.floor());
             return;
@@ -768,6 +780,19 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             }
         }
         return false;
+    }
+
+    /** 爬升带宽度：每 32 格出现一条，占 6 格（正好等于 SUB_H）。 */
+    public static final int RAMP_PITCH = 32;
+
+    /** 该列是否属于爬升带（只在需要爬升的区段生效）。 */
+    public static boolean isRampColumn(int x, int z) {
+        return Math.floorMod(x, RAMP_PITCH) == 0 && Math.floorMod(z, RAMP_PITCH) < SUB_H;
+    }
+
+    /** 爬升带上该列的高度（0 ~ SUB_H-1）。 */
+    public static int rampHeight(int z) {
+        return Math.floorMod(z, RAMP_PITCH);
     }
 
     /** 衔尾段墙面剥落：约 12%。 */
