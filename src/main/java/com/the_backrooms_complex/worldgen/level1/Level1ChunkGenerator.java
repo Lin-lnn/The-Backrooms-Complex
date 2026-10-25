@@ -1300,24 +1300,47 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return regionAt0(x, z, layer);
     }
 
+    /** 区段单元边长（格）。 */
+    public static final int SECTOR_CELL = 96;
+
+    /** 每层的区段计划：主区段在前，占比最大。 */
+    private static final Region[][] LAYER_PLAN = {
+        { Region.AQUILA, Region.GOTHIC, Region.LEGEND },        // 第 0 层：经典停车场
+        { Region.YUEJIN, Region.GARDEN, Region.OUROBOROS },     // 第 1 层：泛黄仓库层
+        { Region.OUROBOROS, Region.GOTHIC, Region.LEGEND },     // 第 2 层：毛坯层
+    };
+
+    /** 与 {@link #LAYER_PLAN} 对应的百分比权重。 */
+    private static final int[][] LAYER_WEIGHTS = {
+        { 70, 15, 15 },
+        { 70, 15, 15 },
+        { 50, 25, 25 },
+    };
+
+    /**
+     * 按层决定区段。
+     *
+     * <p>每层有自己的主区段与权重表，因此三层观感明显不同，同时层内仍保留
+     * 多区段的多样性。层号同时进入哈希，所以同一列在三层的区段不会重合。</p>
+     */
     private static Region regionAt0(int x, int z, int layer) {
-        if (isYuejinArea(x, z, layer)) {
-            return Region.YUEJIN;
+        int plan = Math.floorMod(layer, LAYER_PLAN.length);
+        Region[] regions = LAYER_PLAN[plan];
+        int[] weights = LAYER_WEIGHTS[plan];
+        int cx = Math.floorDiv(x, SECTOR_CELL);
+        int cz = Math.floorDiv(z, SECTOR_CELL);
+        long h = mix(cx, cz, 0x736563746F72L ^ (layer * 0x9E3779B97F4A7C15L));
+        double roll = ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) * 100.0D;
+        double accumulated = 0.0D;
+        for (int i = 0; i < regions.length; i++) {
+            accumulated += weights[i];
+            if (roll < accumulated) {
+                return regions[i];
+            }
         }
-        if (isGothicArea(x, z, layer)) {
-            return Region.GOTHIC;
-        }
-        if (isGardenArea(x, z, layer)) {
-            return Region.GARDEN;
-        }
-        if (isLegendArea(x, z, layer)) {
-            return Region.LEGEND;
-        }
-        if (isOuroborosArea(x, z, layer)) {
-            return Region.OUROBOROS;
-        }
-        return Region.CORRIDOR;
+        return regions[0];
     }
+
 
     /** 一个区段的完整外观定义（新增区段只需在 profileOf 里加一条）。 */
     public record SectorProfile(BlockState floor, BlockState ceiling, BlockState wall,
