@@ -1,15 +1,7 @@
 package com.the_backrooms_complex.block;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
@@ -41,41 +33,6 @@ public class CrateBlock extends Block {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(NATURAL);
     }
-
-    /**
-     * 右键搜刮：自然生成的箱子会吐出 2~4 件物资然后消失。
-     *
-     * <p>玩家自己放置的箱子（{@code natural = false}）不响应，留作建筑方块。</p>
-     */
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
-                                               Player player, BlockHitResult hit) {
-        if (!state.getValue(NATURAL)) {
-            return InteractionResult.PASS;
-        }
-        if (level.isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
-        RandomSource random = level.getRandom();
-        int count = 2 + random.nextInt(3);   // 2 ~ 4 件
-        for (int i = 0; i < count; i++) {
-            Item item = LOOT_POOL[random.nextInt(LOOT_POOL.length)];
-            Block.popResource(level, pos, new ItemStack(item));
-        }
-        level.playSound(null, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 0.8F, 1.1F);
-        // 搜刮完即消失
-        level.removeBlock(pos, false);
-        return InteractionResult.CONSUME;
-    }
-
-    /** 可搜刮到的物资池（食物与饮水）。 */
-    private static final Item[] LOOT_POOL = {
-            Items.BREAD,
-            Items.COOKED_BEEF,
-            Items.APPLE,
-            Items.POTION,
-            Items.ROTTEN_FLESH,
-    };
 
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {

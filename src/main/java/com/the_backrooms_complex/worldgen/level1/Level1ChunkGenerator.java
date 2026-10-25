@@ -541,14 +541,21 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return Math.floorMod(x, 2) == 0 && Math.floorMod(z, 2) == 0;
     }
 
+    /** 跃金段板条箱密度（地面格比例）。 */
+    public static final double CRATE_CHANCE_YUEJIN = 0.0012D;
+
+    /** 其他区段的板条箱密度：跃金段的十分之一。 */
+    public static final double CRATE_CHANCE_OTHER = CRATE_CHANCE_YUEJIN / 10.0D;
+
     /**
-     * 跃金段的板条箱落点：约 6% 的地面格会放一个箱子。
+     * 板条箱落点。
      *
-     * <p>文中设定：跃金段的板条箱数量远超本层任何已探索地点。</p>
+     * <p>跃金段最密（约 0.12%），其他区段只有它的十分之一（约 0.012%）。</p>
      */
-    public static boolean isCrateSpot(int x, int z) {
+    public static boolean isCrateSpot(int x, int z, Region region) {
         long h = mix(x, z, 0x637261746573L);   // 'crates'
-        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.06;
+        double roll = (h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL;
+        return roll < (region == Region.YUEJIN ? CRATE_CHANCE_YUEJIN : CRATE_CHANCE_OTHER);
     }
 
     // ==================== 哥特段（Level 1 第四区段）====================
@@ -750,8 +757,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz, this.rubbleState);
             return;
         }
-        // 跃金段：地面上偶有板条箱（文中该段堆满箱子）
-        if (region == Region.YUEJIN && offset % h == 1 && c.room() < 0 && isCrateSpot(wx, wz)) {
+        // 地面上偶有板条箱（跃金段最密，其他区段只有十分之一）
+        if (offset % h == 1 && c.room() < 0 && isCrateSpot(wx, wz, region)) {
             set(chunk, m, wx, y, wz, this.crateState);
             return;
         }
