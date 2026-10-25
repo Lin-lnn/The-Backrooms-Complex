@@ -69,9 +69,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static final int ROOM_RADIUS = 3;
 
     /** 巨柱间距（格）。 */
-    public static final int PILLAR_STEP = 48;
-    /** 巨柱半径（4×4 ⇒ 2 格偏移，中心 22~25）。 */
-    public static final int PILLAR_CENTER = 23;
+    // 真实车库柱网 8~16 格；取 16 兼顾可玩性与「车库感」
+    public static final int PILLAR_STEP = 16;
+    /** 柱中心（2×2 柱子占 7~8）。 */
+    public static final int PILLAR_CENTER = 7;
 
     /** 荧光灯间距（格）。 */
     public static final int LAMP_STEP = 5;
@@ -324,8 +325,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static boolean onPillar(int x, int z) {
         int ox = Math.floorMod(x, PILLAR_STEP);
         int oz = Math.floorMod(z, PILLAR_STEP);
-        int lo = PILLAR_CENTER - 1;   // 22
-        int hi = PILLAR_CENTER + 2;   // 25
+        int lo = PILLAR_CENTER;       // 7
+        int hi = PILLAR_CENTER + 1;   // 8
         return ox >= lo && ox <= hi && oz >= lo && oz <= hi;
     }
 
