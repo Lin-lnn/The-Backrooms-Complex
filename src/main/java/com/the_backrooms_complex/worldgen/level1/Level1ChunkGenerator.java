@@ -114,6 +114,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState rubbleState;
     /** 两层之间的爬升台阶。 */
     private final BlockState stairState;
+    /** 花园段从天花板垂下的藤蔓。 */
+    private final BlockState vineState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -140,6 +142,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
         this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
         this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState();
+        this.vineState = net.minecraft.world.level.block.Blocks.WEEPING_VINES.defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -707,6 +710,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             return;
         }
 
+        // 花园段：从天花板垂下的藤条（最多 6 格长）
+        if (region == Region.GARDEN && !c.pillar() && isGardenVine(wx, wz)) {
+            int depthFromTop = (h - 1) - (offset % h);
+            if (depthFromTop >= 1 && depthFromTop <= 6) {
+                set(chunk, m, wx, y, wz, this.vineState);
+                return;
+            }
+        }
         // 哥特段：天花板下方 3 排，柱子逐级外张 => 尖拱的起拱
         int fromTop = (h - 1) - (offset % h);
         if (region == Region.GOTHIC && fromTop >= 1 && fromTop <= 3
