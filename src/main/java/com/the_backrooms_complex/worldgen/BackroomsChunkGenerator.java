@@ -125,6 +125,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private final BlockState ruinedVent;
     private final BlockState crackedWall;
     private final BlockState warningWall;
+    private final BlockState myceliumCarpetState;
     private final BlockState dampFloor;
     private final BlockState dampCeiling;
 
@@ -148,6 +149,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         this.crackedWall = ModBlocks.CRACKED_CONCRETE_WALL.get().defaultBlockState();
         this.warningWall = ModBlocks.WARNING_CONCRETE_WALL.get().defaultBlockState();
         this.dampFloor = ModBlocks.DAMP_FLOOR.get().defaultBlockState();
+        this.myceliumCarpetState = ModBlocks.MYCELIUM_CARPET.get().defaultBlockState();
         this.dampCeiling = ModBlocks.DAMP_CEILING.get().defaultBlockState();
     }
 
@@ -316,7 +318,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                                     && chunk.getBlockState(mutable.set(worldX, y - 1, worldZ)) == dampFloor
                                     && chunk.getBlockState(mutable.set(worldX, y, worldZ)).isAir()) {
                                 chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                        ModBlocks.MYCELIUM_CARPET.get().defaultBlockState(), false);
+                                        this.myceliumCarpetState, false);
                             }
                         }
                     } else {
@@ -534,7 +536,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         int minY = height.getMinBuildHeight();
         int maxY = height.getMaxBuildHeight();
         BlockState[] column = new BlockState[maxY - minY];
-        Arrays.fill(column, Blocks.AIR.defaultBlockState());
+        Arrays.fill(column, this.airState);
         column[0] = floorState; // Y=0 处放一层地板，其余为空气
         return new NoiseColumn(minY, column);
     }

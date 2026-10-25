@@ -128,12 +128,12 @@ public class BackroomsBiomeSource extends BiomeSource {
     }
 
 
-    /** 是否是"混凝土大厅"类群系（Level 0）。 */
+    /** 是否是本维度的「第三个」群系（Level 0 为潮湿走廊，Level 1 为积水区）。 */
     public boolean isDampCorridors(Holder<Biome> biome) {
         return biome.is(ModBiomes.DAMP_CORRIDORS);
     }
 
-    /** 是否是"混凝土大厅"类群系（Level 0）。 */
+    /** 是否是本维度的「第二个」群系（Level 0 为混凝土大厅，Level 1 为天鹰段）。 */
     public boolean isConcreteHalls(Holder<Biome> biome) {
         return biome.is(ModBiomes.CONCRETE_HALLS);
     }

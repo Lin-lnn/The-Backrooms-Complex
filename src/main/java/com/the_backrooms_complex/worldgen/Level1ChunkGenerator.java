@@ -90,6 +90,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState whiteWallState;
     private final BlockState lampState;
     private final BlockState lampOffState;
+    /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
+    private final BlockState metalDoorState;
 
     public Level1ChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
@@ -100,6 +102,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.whiteWallState = ModBlocks.WHITE_PLASTERED_WALL.get().defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
+        this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
     }
 
     @Override
@@ -136,11 +139,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static boolean isPassageWall(int x, int z) {
         boolean vWall = Math.floorMod(x, PASSAGE_WALL_STEP) == 0;
         boolean hWall = Math.floorMod(z, PASSAGE_WALL_STEP) == 0;
-        if (vWall && hWall) {
-            return false;   // 交叉点必通
-        }
-        if (!vWall && !hWall) {
-            return false;   // 走廊内部
+        if (vWall == hWall) {
+            return false;   // 走廊内部（都不是墙）或交叉点（一律打通）
         }
         if (vWall) {
             return Math.floorMod(z, PASSAGE_GAP_PERIOD) > 1;
@@ -220,43 +220,23 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                     int layer = y / LAYER_H;
                     int offset = y - layer * LAYER_H;
 
-                    // ===== 小径：3 个子层，每个 6 格 =====
-                    if (colPassage && offset < SUB_COUNT * SUB_H) {
-                        int sub = offset / SUB_H;
-                        int subOff = offset - sub * SUB_H;
+                    // ===== 子层结构：小径与过道小房间共用同一套「3 × 6」分层 =====
+                    // 每层 18 格切成 3 个 6 格子层：0 = 地板，5 = 天花板，1~4 = 门/墙/空气。
+                    // 因为 SUB_COUNT * SUB_H == LAYER_H，offset 必然落在子层范围内。
+                    if (colPassage || colRoom >= 0) {
+                        int subOff = offset % SUB_H;
                         if (subOff == 0) {
                             chunk.setBlockState(m.set(wx, y, wz), floorState, false);
                         } else if (subOff == SUB_H - 1) {
                             chunk.setBlockState(m.set(wx, y, wz), ceilingState, false);
-                        } else if (colGate) {
-                            // 门洞：1~2 格高处放金属门
-                            chunk.setBlockState(m.set(wx, y, wz),
-                                    (subOff == 1 || subOff == 2)
-                                            ? ModBlocks.METAL_DOOR.get().defaultBlockState()
-                                            : airState, false);
                         } else {
-                            chunk.setBlockState(m.set(wx, y, wz),
-                                    isPassageWall(wx, wz) ? whiteWallState : airState, false);
-                        }
-                        continue;
-                    }
-
-                    // ===== 过道小房间 =====
-                    if (!colPassage && colRoom >= 0 && offset < SUB_COUNT * SUB_H) {
-                        int sub = offset / SUB_H;
-                        int subOff = offset - sub * SUB_H;
-                        if (subOff == 0) {
-                            chunk.setBlockState(m.set(wx, y, wz), floorState, false);
-                        } else if (subOff == SUB_H - 1) {
-                            chunk.setBlockState(m.set(wx, y, wz), ceilingState, false);
-                        } else if (colRoom == 2) {
-                            chunk.setBlockState(m.set(wx, y, wz),
-                                    (subOff == 1 || subOff == 2)
-                                            ? ModBlocks.METAL_DOOR.get().defaultBlockState()
-                                            : airState, false);
-                        } else {
-                            chunk.setBlockState(m.set(wx, y, wz),
-                                    colRoom == 1 ? whiteWallState : airState, false);
+                            // 小径：门洞用 colGate、墙壁用迷宫判定；房间：roomKind 同时表达两者
+                            boolean doorCol = colPassage ? colGate : colRoom == 2;
+                            boolean wallCol = colPassage ? isPassageWall(wx, wz) : colRoom == 1;
+                            BlockState st = doorCol
+                                    ? ((subOff == 1 || subOff == 2) ? metalDoorState : airState)
+                                    : (wallCol ? whiteWallState : airState);
+                            chunk.setBlockState(m.set(wx, y, wz), st, false);
                         }
                         continue;
                     }
@@ -330,7 +310,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         int minY = height.getMinBuildHeight();
         int maxY = height.getMaxBuildHeight();
         BlockState[] column = new BlockState[maxY - minY];
-        java.util.Arrays.fill(column, Blocks.AIR.defaultBlockState());
+        java.util.Arrays.fill(column, this.airState);
         column[0] = this.floorState;
         return new NoiseColumn(minY, column);
     }

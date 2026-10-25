@@ -74,6 +74,11 @@ public final class TopologyRuntime {
     public static final int FLICKER_LAMPS = 6;
     public static final int FLICKER_RADIUS = 24;
 
+    /** 黄色墙壁状态（开合门 / 封堵走廊时反复使用，缓存一次）。 */
+    private static final BlockState YELLOW_WALL_STATE = ModBlocks.WALL_YELLOW.get().defaultBlockState();
+    /** 空气状态。 */
+    private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
+
     private static final Map<UUID, Integer> COOLDOWN = new HashMap<>();
     private static final Map<BlockPos, Integer> LAMP_RESTORE = new HashMap<>();
 
@@ -169,7 +174,7 @@ public final class TopologyRuntime {
             }
         }
         for (BlockPos bp : dig) {
-            level.setBlockAndUpdate(bp, Blocks.AIR.defaultBlockState());
+            level.setBlockAndUpdate(bp, AIR_STATE);
         }
         return true;
     }
@@ -241,7 +246,7 @@ public final class TopologyRuntime {
             for (int h = 0; h < DOOR_HEIGHT; h++) {
                 BlockPos up = bp.above(h);
                 if (level.isLoaded(up) && level.getBlockState(up).isAir()) {
-                    level.setBlockAndUpdate(up, ModBlocks.WALL_YELLOW.get().defaultBlockState());
+                    level.setBlockAndUpdate(up, YELLOW_WALL_STATE);
                 }
             }
             return true;
