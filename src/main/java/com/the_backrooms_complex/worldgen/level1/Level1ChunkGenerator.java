@@ -335,28 +335,85 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static int roomKind(int x, int z) {
         int cx = Math.floorDiv(x, ROOM_CELL);
         int cz = Math.floorDiv(z, ROOM_CELL);
-        long h = (long) cx * 0x94D049BB133111EBL ^ (long) cz * 0x2545F4914F6CDD1DL ^ 0x726F6F6DL;
-        h ^= h >>> 33;
-        h *= 0xC4CEB9FE1A85EC53L;
-        h ^= h >>> 33;
-        if (((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) >= 0.60) {
-            return -1;
-        }
-        int ox = Math.floorMod(x, ROOM_CELL) - ROOM_CELL / 2;
-        int oz = Math.floorMod(z, ROOM_CELL) - ROOM_CELL / 2;
-        int ax = Math.abs(ox);
-        int az = Math.abs(oz);
-        if (ax <= ROOM_RADIUS && az <= ROOM_RADIUS) {
-            if (oz == ROOM_RADIUS && ox == 0) {
-                return 2;   // 南墙正中 = 门
+        int[] rects = roomRects(cx, cz);            // 扁平数组：ox, oz, ox, oz ...
+        int lx = Math.floorMod(x, ROOM_CELL);
+        int lz = Math.floorMod(z, ROOM_CELL);
+        for (int i = 0; i < rects.length; i += 2) {
+            int ox = rects[i];
+            int oz = rects[i + 1];
+            int dx = lx - ox;
+            int dz = lz - oz;
+            if (dx < 0 || dz < 0 || dx >= ROOM_SIZE || dz >= ROOM_SIZE) {
+                continue;
             }
-            if (ax == ROOM_RADIUS || az == ROOM_RADIUS) {
-                return 1;   // 墙
+            if (dz == ROOM_SIZE - 1 && dx == ROOM_RADIUS) {
+                return 2;                            // 南墙正中 = 门
             }
-            return 0;
+            if (dx == 0 || dz == 0 || dx == ROOM_SIZE - 1 || dz == ROOM_SIZE - 1) {
+                return 1;                            // 墙
+            }
+            return 0;                                // 房间内部
         }
         return -1;
     }
+
+    /** 每个 96 格区内保证的房间数量下限 / 上限。 */
+    public static final int ROOMS_MIN = 5;
+    public static final int ROOMS_MAX = 10;
+
+    /** 房间边长（含墙）。 */
+    public static final int ROOM_SIZE = 2 * ROOM_RADIUS + 1;
+
+    /** 房间候选格间距：96 / 16 = 6 ⇒ 每区 36 个候选位，足够放下 10 个房间。 */
+    private static final int ROOM_SLOT = 16;
+
+    /** 房间布局缓存（key = 区坐标打包）。 */
+    private static final java.util.concurrent.ConcurrentHashMap<Long, int[]> ROOM_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * 某个 96 格区内的房间位置列表（扁平 {@code ox, oz} 序列）。
+     *
+     * <p>用区坐标作种子做 Fisher-Yates 洗牌，取前 K 个（K = 5~10），
+     * 因此<b>每个区的每一层都保证有同样 K 个房间</b>，而不是概率性出现。</p>
+     */
+    private static int[] roomRects(int cx, int cz) {
+        long key = ((long) cx << 32) ^ (cz & 0xFFFFFFFFL);
+        int[] cached = ROOM_CACHE.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        int slots = ROOM_CELL / ROOM_SLOT;          // 6 x 6
+        int[] slotX = new int[slots * slots];
+        int[] slotZ = new int[slots * slots];
+        for (int i = 0; i < slotX.length; i++) {
+            slotX[i] = (i % slots) * ROOM_SLOT + 4;  // 留 4 格边距，保证 7 宽房间不越界
+            slotZ[i] = (i / slots) * ROOM_SLOT + 4;
+        }
+        // 确定性洗牌
+        long h = (long) cx * 0x94D049BB133111EBL ^ (long) cz * 0x2545F4914F6CDD1DL ^ 0x726F6F6DL;
+        for (int i = slotX.length - 1; i > 0; i--) {
+            h ^= h >>> 33;
+            h *= 0xC4CEB9FE1A85EC53L;
+            h ^= h >>> 33;
+            int j = (int) Math.floorMod(h, i + 1L);
+            int tx = slotX[i];
+            slotX[i] = slotX[j];
+            slotX[j] = tx;
+            int tz = slotZ[i];
+            slotZ[i] = slotZ[j];
+            slotZ[j] = tz;
+        }
+        int count = ROOMS_MIN + (int) Math.floorMod(h >>> 8, ROOMS_MAX - ROOMS_MIN + 1);
+        int[] out = new int[count * 2];
+        for (int i = 0; i < count; i++) {
+            out[i * 2] = slotX[i];
+            out[i * 2 + 1] = slotZ[i];
+        }
+        ROOM_CACHE.put(key, out);
+        return out;
+    }
+
 
     // ==================== 区块生成 ====================
 
