@@ -286,53 +286,9 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                     chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
                 } else {
             chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
-            // ===== 混凝土大厅的地物：紧贴地面的熄灭篝火 / 蜘蛛网 =====
-            if (hall && offset == 1) {
-                long decorSeed = (long) worldX * 341873128712L
-                        + (long) worldZ * 132897987541L
-                        + (long) layer * 9187L;
-                double r = net.minecraft.util.RandomSource.create(decorSeed).nextDouble();
-                if (r < ModBalance.DECOR_COBWEB_CHANCE) {   // 蜘蛛网
-                    // 0.01% 蜘蛛网
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                            net.minecraft.world.level.block.Blocks.COBWEB.defaultBlockState(), false);
-                } else if (r < ModBalance.DECOR_GRAVEL_CHANCE) {
-                    // 0.003% 贴墙的燧石堆：原版没有燧石方块，用"砂砾"表现（燧石即从砂砾中获得）
-                    net.minecraft.world.level.block.state.BlockState wallProbe =
-                            chunk.getBlockState(mutable.set(worldX + 1, y, worldZ));
-                    boolean nextToWall = chunk.getBlockState(mutable.set(worldX + 1, y, worldZ)).isSolidRender(null, null)
-                            || chunk.getBlockState(mutable.set(worldX - 1, y, worldZ)).isSolidRender(null, null)
-                            || chunk.getBlockState(mutable.set(worldX, y, worldZ + 1)).isSolidRender(null, null)
-                            || chunk.getBlockState(mutable.set(worldX, y, worldZ - 1)).isSolidRender(null, null);
-                    if (nextToWall) {
-                        net.minecraft.world.level.block.state.BlockState pile =
-                                net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
-                        chunk.setBlockState(mutable.set(worldX, y, worldZ), pile, false);
-                        // 第二块堆在斜上方，形成"自然堆积"感
-                        if (r < 0.00001D) {
-                            chunk.setBlockState(mutable.set(worldX, y + 1, worldZ), pile, false);
-                        }
-                    }
-                } else if (r < ModBalance.DECOR_CAMPFIRE_CHANCE) {
-                    // 0.005% 熄灭的篝火
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                            net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState()
-                                    .setValue(net.minecraft.world.level.block.CampfireBlock.LIT, Boolean.FALSE),
-                            false);
+            placeHallDecor(chunk, mutable, worldX, y, worldZ, layer, hall);
                 }
-            }
-                }
-                // ===== 潮湿房间地板的菌毯：平滑噪声场，形成不规则的自然斑块 =====
-                if (damp) {
-                    double n = carpetNoise(worldX, worldZ, layer);
-                    // 阈值 0.67：约 10% 的地板被覆盖，斑块更小更分散
-                    if (n > 0.67D
-                            && chunk.getBlockState(mutable.set(worldX, y - 1, worldZ)) == dampFloor
-                            && chunk.getBlockState(mutable.set(worldX, y, worldZ)).isAir()) {
-                        chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                this.myceliumCarpetState, false);
-                    }
-                }
+                placeDampCarpet(chunk, mutable, worldX, y, worldZ, layer, damp);
             } else {
                 // offset == 6：天花板（间隔处放荧光灯）
                 if (colIsLamp) {
@@ -340,6 +296,71 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 } else {
                     chunk.setBlockState(mutable.set(worldX, y, worldZ), columnCeiling, false);
                 }
+            }
+        }
+    }
+
+    /**
+     * 混凝土大厅的地物：蜘蛛网 / 砂砾堆（燧石）/ 熄灭的篝火。
+     *
+     * <p>只在 {@code offset == 1}（紧贴地板）尝试，概率见 {@link ModBalance}。</p>
+     */
+    private void placeHallDecor(ChunkAccess chunk, BlockPos.MutableBlockPos mutable,
+                               int worldX, int y, int worldZ, int layer, boolean hall) {
+        if (!hall || (y % LAYER_HEIGHT) != 1) {
+            return;
+        }
+        long decorSeed = (long) worldX * 341873128712L
+                + (long) worldZ * 132897987541L
+                + (long) layer * 9187L;
+        double r = net.minecraft.util.RandomSource.create(decorSeed).nextDouble();
+        if (r < ModBalance.DECOR_COBWEB_CHANCE) {   // 蜘蛛网
+            // 0.01% 蜘蛛网
+            chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                    net.minecraft.world.level.block.Blocks.COBWEB.defaultBlockState(), false);
+        } else if (r < ModBalance.DECOR_GRAVEL_CHANCE) {
+            // 0.003% 贴墙的燧石堆：原版没有燧石方块，用"砂砾"表现（燧石即从砂砾中获得）
+            net.minecraft.world.level.block.state.BlockState wallProbe =
+                    chunk.getBlockState(mutable.set(worldX + 1, y, worldZ));
+            boolean nextToWall = chunk.getBlockState(mutable.set(worldX + 1, y, worldZ)).isSolidRender(null, null)
+                    || chunk.getBlockState(mutable.set(worldX - 1, y, worldZ)).isSolidRender(null, null)
+                    || chunk.getBlockState(mutable.set(worldX, y, worldZ + 1)).isSolidRender(null, null)
+                    || chunk.getBlockState(mutable.set(worldX, y, worldZ - 1)).isSolidRender(null, null);
+            if (nextToWall) {
+                net.minecraft.world.level.block.state.BlockState pile =
+                        net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
+                chunk.setBlockState(mutable.set(worldX, y, worldZ), pile, false);
+                // 第二块堆在斜上方，形成"自然堆积"感
+                if (r < 0.00001D) {
+                    chunk.setBlockState(mutable.set(worldX, y + 1, worldZ), pile, false);
+                }
+            }
+        } else if (r < ModBalance.DECOR_CAMPFIRE_CHANCE) {
+            // 0.005% 熄灭的篝火
+            chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                    net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState()
+                            .setValue(net.minecraft.world.level.block.CampfireBlock.LIT, Boolean.FALSE),
+                    false);
+        }
+    }
+
+    /**
+     * 潮湿房间地板上的菌毯：平滑噪声场，形成不规则的自然斑块。
+     */
+    private void placeDampCarpet(ChunkAccess chunk, BlockPos.MutableBlockPos mutable,
+                                 int worldX, int y, int worldZ, int layer, boolean damp) {
+        if (!damp) {
+            return;
+        }
+        // ===== 潮湿房间地板的菌毯：平滑噪声场，形成不规则的自然斑块 =====
+        if (damp) {
+            double n = carpetNoise(worldX, worldZ, layer);
+            // 阈值 0.67：约 10% 的地板被覆盖，斑块更小更分散
+            if (n > 0.67D
+                    && chunk.getBlockState(mutable.set(worldX, y - 1, worldZ)) == dampFloor
+                    && chunk.getBlockState(mutable.set(worldX, y, worldZ)).isAir()) {
+                chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                        this.myceliumCarpetState, false);
             }
         }
     }
