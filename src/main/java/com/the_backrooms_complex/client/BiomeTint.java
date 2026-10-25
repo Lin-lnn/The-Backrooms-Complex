@@ -107,7 +107,6 @@ public final class BiomeTint {
         return HUE_YELLOW;   // 裙边与墙身统一着色（原来裙边返回纯白 0xFFFFFF）
     }
 
-    /** 取该位置的群系：优先 LevelReader，区块编译期回退到客户端世界。 */
     /**
      * 当前维度（层级）的单层高度。
      *

@@ -42,7 +42,6 @@ public final class ModPlayerData {
     /** 精神值在黄色房间恢复（每 5 秒 1 点）。 */
     private static final int SANITY_YELLOW_INTERVAL = ModBalance.SANITY_YELLOW_INTERVAL;
 
-    /** 污水瓶：恢复饮水值 / 扣精神值。 */
     /** 方块变暗红的精神值阈值（跨过此值瞬间给一次黑暗）。 */
     public static final int DARK_RED_THRESHOLD = ModBalance.DARK_RED_THRESHOLD;
     /** 跨越阈值时的黑暗时长：2 秒。 */

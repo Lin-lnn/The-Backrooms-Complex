@@ -81,7 +81,6 @@ public class Level0Structure extends Structure {
     /** 结构可占据的最高 Y 坐标。 */
     public static final int MAX_STRUCTURE_Y = MAX_LAYER_INDEX * LAYER_PERIOD + 6;
 
-    /** 可用结构模板数量（level0_1 .. level0_5）。 */
     /** 旧模板数量（level0_1..level0_5），权重 1。 */
     public static final int OLD_TEMPLATE_COUNT = 5;
     /** 新模板数量（level0_6..level0_9），权重 2。 */

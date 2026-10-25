@@ -148,12 +148,6 @@ public class BacteriaEntity extends Monster {
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
-    /**
-     * 不在头顶显示原版名牌（1.21.1 的签名是<b>无参</b>的 shouldShowName）。
-     *
-     * <p>细菌的名称只由「玉」等模组的信息浮层显示，
-     * 头顶再挂一个原版名牌会造成"名字出现两次"的观感。</p>
-     */
     /** 双重保险：即使有自定义名称也不可见。 */
     @Override
     public boolean isCustomNameVisible() {

@@ -85,7 +85,6 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> CHISELED_CONCRETE_WALL =
             ITEMS.register("chiseled_concrete_wall", () -> new BlockItem(ModBlocks.CHISELED_CONCRETE_WALL.get(), new Item.Properties()));
 
-    /** 「菌毯」的方块物品。 */
     /** 「熄灭的荧光灯」的方块物品。 */
     public static final DeferredItem<BlockItem> LAMP_OFF =
             ITEMS.register("lamp_off", () -> new BlockItem(ModBlocks.LAMP_OFF.get(), new Item.Properties()));
@@ -298,7 +297,6 @@ public final class ModItems {
             ITEMS.register("bacteria_spawn_egg", () -> new net.minecraft.world.item.SpawnEggItem(
                     ModEntities.BACTERIA.get(), 0x3A3836, 0x1E1C1A, new Item.Properties().stacksTo(64)));
 
-    /** 实体标签页：后室综合体：实体。 */
     /** 家具标签页。 */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FURNITURE_TAB =
             CREATIVE_MODE_TABS.register("backrooms_furniture", () -> CreativeModeTab.builder()

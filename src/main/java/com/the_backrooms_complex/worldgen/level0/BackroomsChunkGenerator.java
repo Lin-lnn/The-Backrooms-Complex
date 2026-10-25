@@ -82,14 +82,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private static final int WORLD_HEIGHT = 256;
     /** 世界最小 Y。 */
     private static final int MIN_Y = 0;
-    /** 完整层数（0..35），第 36 层为顶部 4 格残层。 */
-    /**
-     * 实际可用层数 —— <b>按维度高度动态计算</b>。
-     *
-     * <p>原来写死 32 层，而 Level 1 的高度是 288（36 层）⇒ 访问第 33 层时越界，
-     * 区块生成抛异常，玩家看到的就是虚空。现在改为 {@code getGenDepth() / LAYER_HEIGHT}，
-     * 任何高度的维度都能正确工作。</p>
-     */
     /**
      * 当前区块实际可用的层数。
      *
@@ -164,9 +156,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
     // ==================== ChunkGenerator 核心：填充方块与群系 ====================
 
-    /**
-     * 填充噪声阶段（对应规格中的 populateNoise + populateBiomes）。
-     */
     /** 供客户端染色器使用：直接按 (x, z, 层) 查群系，与生成器完全一致。 */
     public BackroomsBiomeSource biomeSource() {
         return this.backroomsBiomeSource;
@@ -454,18 +443,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         return CODEC;
     }
 
-    /**
-     * 菌毯分布的平滑噪声场。
-     *
-     * <p>做法：把世界坐标按 {@value #CARPET_CELL} 格划分成网格，网格顶点处用一个
-     * 确定性哈希生成 0~1 的值，再在格子内做<b>平滑双线性插值</b>（smoothstep）。
-     * 这样得到的等高线是自然的不规则团块，而不是方块状的矩形。</p>
-     *
-     * @param x     世界 X
-     * @param z     世界 Z
-     * @param layer 层索引（不同层的斑块形状不同）
-     * @return 0~1 的噪声值
-     */
     /** 菌毯噪声网格边长（格）；越小斑块越碎、越分散。 */
     private static final double CARPET_CELL = 4.5D;
 
