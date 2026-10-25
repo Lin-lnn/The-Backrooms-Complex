@@ -102,8 +102,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState gardenWallState;
     /** 传说段：深色木板护墙。 */
     private final BlockState legendWallState;
-    /** 板条箱（跃金段地物）。 */
-    private final BlockState crateState;
+    /** 板条箱方块状态（惰性取，避免注册顺序问题）。 */
+    private BlockState crateState;
     /** 花园段地面的草簇。 */
     private final BlockState grassTuftState;
     /** 传说段墙面的磨砂玻璃格。 */
@@ -138,9 +138,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.gardenGrassState = net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState();
         this.gardenWallState = net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState();
         this.legendWallState = net.minecraft.world.level.block.Blocks.DARK_OAK_PLANKS.defaultBlockState();
-        // 自然生成的箱子带 natural=true，无人时消失
-        this.crateState = ModBlocks.CRATE.get().defaultBlockState()
-                .setValue(com.the_backrooms_complex.block.CrateBlock.NATURAL, true);
+        // 注意：不能在这里取 CRATE 的方块状态。
+        // CrateBlock 现在是 BaseEntityBlock，其 BlockEntityType 需要 ModBlocks.CRATE.get()，
+        // 在注册完成前取值会触发空指针；改为生成时按需取值（见 crateState()）。
         this.grassTuftState = net.minecraft.world.level.block.Blocks.SHORT_GRASS.defaultBlockState();
         this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
         this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
@@ -759,7 +759,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         }
         // 地面上偶有板条箱（跃金段最密，其他区段只有十分之一）
         if (offset % h == 1 && c.room() < 0 && isCrateSpot(wx, wz, region)) {
-            set(chunk, m, wx, y, wz, this.crateState);
+            set(chunk, m, wx, y, wz, crateState());
             return;
         }
         // 堆叠区段：两层之间的楼梯（每层 2~4 处，顶层没有）
@@ -1131,6 +1131,15 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             default -> new SectorProfile(this.floorState, this.ceilingState,
                     this.whiteWallState, Level1ChunkGenerator::isLamp, true);
         };
+    }
+
+    /** 惰性获取板条箱状态：首次使用时才查注册表。 */
+    private BlockState crateState() {
+        if (this.crateState == null) {
+            this.crateState = ModBlocks.CRATE.get().defaultBlockState()
+                    .setValue(com.the_backrooms_complex.block.CrateBlock.NATURAL, true);
+        }
+        return this.crateState;
     }
 
     // ==================== 其余覆写
