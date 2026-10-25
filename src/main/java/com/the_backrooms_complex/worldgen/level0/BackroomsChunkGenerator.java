@@ -187,147 +187,158 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
         // 2. 逐列生成
+        // 2. 逐列生成（每列独立处理，逻辑集中在 fillColumn）
         for (int lx = 0; lx < 16; lx++) {
             for (int lz = 0; lz < 16; lz++) {
-                int worldX = chunkX * 16 + lx;
-                int worldZ = chunkZ * 16 + lz;
-                // 列级常量：只依赖 (worldX, worldZ)，提到 y 循环外避免每个方块重算
-                final boolean colInHallRoom = inHallRoom(worldX, worldZ);
-                final boolean colOnGiantPillar = onGiantPillar(worldX, worldZ);
-                final boolean colIsLamp = isLamp(worldX, worldZ);
+                fillColumn(chunk, mutable, wall, chunkX * 16 + lx, chunkZ * 16 + lz, lx, lz, minY, maxY);
+            }
+        }
+    }
+
+    /**
+     * 生成一整列（从 {@code minY} 到 {@code maxY}）。
+     *
+     * <p>由 {@link #populateNoise(ChunkAccess)} 逐列调用：列级常量与按层缓存的群系
+     * 在这里只算一次，然后逐格放置方块。</p>
+     */
+    private void fillColumn(ChunkAccess chunk, BlockPos.MutableBlockPos mutable,
+                            boolean[][][] wall, int worldX, int worldZ,
+                            int lx, int lz, int minY, int maxY) {
+        // 列级常量：只依赖 (worldX, worldZ)，提到 y 循环外避免每个方块重算
+        final boolean colInHallRoom = inHallRoom(worldX, worldZ);
+        final boolean colOnGiantPillar = onGiantPillar(worldX, worldZ);
+        final boolean colIsLamp = isLamp(worldX, worldZ);
 
 
-                for (int y = minY; y < maxY; y++) {
-                    int lh = LAYER_HEIGHT;
-                    int layer = y / lh;
-                    int offset = y - layer * lh;   // 层内偏移
-                // 三维群系：本层的群系决定本层的墙壁花纹 / 地板 / 天花板 / 通风口
-                // biome = 未抖动的原始群系；踢脚线用它，避免墙脚出现黄/黑斑块
-                Holder<Biome> biome = backroomsBiomeSource.biomeAt(worldX, worldZ, layer);
-                boolean hall = backroomsBiomeSource.isConcreteHalls(biome);
-                boolean damp = backroomsBiomeSource.isDampCorridors(biome);
-                BlockState plinthState = plinthForBiome(biome);   // 踢脚线也参与渐变
-                BlockState columnFloor = hall ? strippedCarpetFloor : (damp ? dampFloor : floorState);
-                BlockState columnCeiling = hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState);
-                BlockState columnLamp = hall ? ruinedVent : lampState;
-                // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
-                boolean inHall = hall && colInHallRoom;
-                // 先判断层号是否在有效范围内，再访问 wall[layer]
-                boolean layerValid = layer < fullLayers(chunk);
-                boolean pillar = layerValid && hall && !inHall && colOnGiantPillar
-                        // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
-                        && lx > 0 && lx < 15 && lz > 0 && lz < 15
-                        && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
-                        && !wall[layer][lx][lz - 1] && !wall[layer][lx][lz + 1];
+        for (int y = minY; y < maxY; y++) {
+            int lh = LAYER_HEIGHT;
+            int layer = y / lh;
+            int offset = y - layer * lh;   // 层内偏移
+        // 三维群系：本层的群系决定本层的墙壁花纹 / 地板 / 天花板 / 通风口
+        // biome = 未抖动的原始群系；踢脚线用它，避免墙脚出现黄/黑斑块
+        Holder<Biome> biome = backroomsBiomeSource.biomeAt(worldX, worldZ, layer);
+        boolean hall = backroomsBiomeSource.isConcreteHalls(biome);
+        boolean damp = backroomsBiomeSource.isDampCorridors(biome);
+        BlockState plinthState = plinthForBiome(biome);   // 踢脚线也参与渐变
+        BlockState columnFloor = hall ? strippedCarpetFloor : (damp ? dampFloor : floorState);
+        BlockState columnCeiling = hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState);
+        BlockState columnLamp = hall ? ruinedVent : lampState;
+        // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
+        boolean inHall = hall && colInHallRoom;
+        // 先判断层号是否在有效范围内，再访问 wall[layer]
+        boolean layerValid = layer < fullLayers(chunk);
+        boolean pillar = layerValid && hall && !inHall && colOnGiantPillar
+                // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
+                && lx > 0 && lx < 15 && lz > 0 && lz < 15
+                && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
+                && !wall[layer][lx][lz - 1] && !wall[layer][lx][lz + 1];
 
-                    if (!layerValid) {
-                        // 顶部残层（Y >= 252）：用天花板封顶，闭合维度
-                        chunk.setBlockState(mutable.set(worldX, y, worldZ), ceilingState, false);
-                        continue;
-                    }
+            if (!layerValid) {
+                // 顶部残层（Y >= 252）：用天花板封顶，闭合维度
+                chunk.setBlockState(mutable.set(worldX, y, worldZ), ceilingState, false);
+                continue;
+            }
 
-                    // 本层自己的布局（逐层种子不同）
-                    boolean isWall = wall[layer][lx][lz];
+            // 本层自己的布局（逐层种子不同）
+            boolean isWall = wall[layer][lx][lz];
 
-                    // 大厅房间：整块清空（大厅状空地）
-                    // 独立柱子：在没有墙的通道列上立起 1x1 柱
-                    if (inHall) {
-                        isWall = false;
-                    } else if (pillar && !isWall) {
+            // 大厅房间：整块清空（大厅状空地）
+            // 独立柱子：在没有墙的通道列上立起 1x1 柱
+            if (inHall) {
+                isWall = false;
+            } else if (pillar && !isWall) {
+                isWall = true;
+            }
+
+            // ===== 房间（长宽 11~49 的矩形空间，由走廊相连）=====
+            // 宽阔走廊地带（主干道 >16 格宽、>50 格长；两侧每 8 格一条 3 格宽支廊）
+            if (!inHall && BackroomsAvenue.isWideArea(worldX, worldZ, layer)) {
+                isWall = false;
+            }
+
+            BackroomsRooms.Room room = BackroomsRooms.roomAt(worldX, worldZ, layer, hall);
+            if (room != null) {
+                if (BackroomsRooms.isInterior(room, worldX, worldZ)) {
+                    // 房间内部整块清空
+                    isWall = false;
+                    // 大房间内的 1x1 柱子：用同样的踢脚线 + 墙壁格式
+                    if (BackroomsRooms.isPillar(room, worldX, worldZ)) {
                         isWall = true;
                     }
+                } else if (BackroomsRooms.isDoorway(room, worldX, worldZ)) {
+                    // 四边中点各开一个 3 格宽门洞
+                    isWall = false;
+            } else if (BackroomsRooms.isPerimeter(room, worldX, worldZ)) {
+                // 房间边界强制为墙（门洞除外）=> 房间内部成为规整矩形
+                isWall = true;
+            }
+            }
 
-                    // ===== 房间（长宽 11~49 的矩形空间，由走廊相连）=====
-                    // 宽阔走廊地带（主干道 >16 格宽、>50 格长；两侧每 8 格一条 3 格宽支廊）
-                    if (!inHall && BackroomsAvenue.isWideArea(worldX, worldZ, layer)) {
-                        isWall = false;
-                    }
-
-                    BackroomsRooms.Room room = BackroomsRooms.roomAt(worldX, worldZ, layer, hall);
-                    if (room != null) {
-                        if (BackroomsRooms.isInterior(room, worldX, worldZ)) {
-                            // 房间内部整块清空
-                            isWall = false;
-                            // 大房间内的 1x1 柱子：用同样的踢脚线 + 墙壁格式
-                            if (BackroomsRooms.isPillar(room, worldX, worldZ)) {
-                                isWall = true;
-                            }
-                        } else if (BackroomsRooms.isDoorway(room, worldX, worldZ)) {
-                            // 四边中点各开一个 3 格宽门洞
-                            isWall = false;
-                    } else if (BackroomsRooms.isPerimeter(room, worldX, worldZ)) {
-                        // 房间边界强制为墙（门洞除外）=> 房间内部成为规整矩形
-                        isWall = true;
-                    }
-                    }
-
-                    if (offset == 0) {
-                        // 地板：整层满铺（层间不再有竖井连接）
-                        chunk.setBlockState(mutable.set(worldX, y, worldZ), columnFloor, false);
-                    } else if (offset <= lh - 2) {
-                        // 墙壁区（+1..+5）：墙壁列放踢脚线/墙，通道列留空气
-                        if (isWall) {
-                            // offset == 1 使用踢脚线方块（四边凸出裙边），其余为普通墙壁
-                            BlockState wallState = wallForBiome(biome, worldX, y, worldZ);
-                            BlockState state = (offset == 1) ? plinthState : wallState;
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
-                        } else {
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
-                    // ===== 混凝土大厅的地物：紧贴地面的熄灭篝火 / 蜘蛛网 =====
-                    if (hall && offset == 1) {
-                        long decorSeed = (long) worldX * 341873128712L
-                                + (long) worldZ * 132897987541L
-                                + (long) layer * 9187L;
-                        double r = net.minecraft.util.RandomSource.create(decorSeed).nextDouble();
-                        if (r < ModBalance.DECOR_COBWEB_CHANCE) {   // 蜘蛛网
-                            // 0.01% 蜘蛛网
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                    net.minecraft.world.level.block.Blocks.COBWEB.defaultBlockState(), false);
-                        } else if (r < ModBalance.DECOR_GRAVEL_CHANCE) {
-                            // 0.003% 贴墙的燧石堆：原版没有燧石方块，用"砂砾"表现（燧石即从砂砾中获得）
-                            net.minecraft.world.level.block.state.BlockState wallProbe =
-                                    chunk.getBlockState(mutable.set(worldX + 1, y, worldZ));
-                            boolean nextToWall = chunk.getBlockState(mutable.set(worldX + 1, y, worldZ)).isSolidRender(null, null)
-                                    || chunk.getBlockState(mutable.set(worldX - 1, y, worldZ)).isSolidRender(null, null)
-                                    || chunk.getBlockState(mutable.set(worldX, y, worldZ + 1)).isSolidRender(null, null)
-                                    || chunk.getBlockState(mutable.set(worldX, y, worldZ - 1)).isSolidRender(null, null);
-                            if (nextToWall) {
-                                net.minecraft.world.level.block.state.BlockState pile =
-                                        net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
-                                chunk.setBlockState(mutable.set(worldX, y, worldZ), pile, false);
-                                // 第二块堆在斜上方，形成"自然堆积"感
-                                if (r < 0.00001D) {
-                                    chunk.setBlockState(mutable.set(worldX, y + 1, worldZ), pile, false);
-                                }
-                            }
-                        } else if (r < ModBalance.DECOR_CAMPFIRE_CHANCE) {
-                            // 0.005% 熄灭的篝火
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                    net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState()
-                                            .setValue(net.minecraft.world.level.block.CampfireBlock.LIT, Boolean.FALSE),
-                                    false);
+            if (offset == 0) {
+                // 地板：整层满铺（层间不再有竖井连接）
+                chunk.setBlockState(mutable.set(worldX, y, worldZ), columnFloor, false);
+            } else if (offset <= lh - 2) {
+                // 墙壁区（+1..+5）：墙壁列放踢脚线/墙，通道列留空气
+                if (isWall) {
+                    // offset == 1 使用踢脚线方块（四边凸出裙边），其余为普通墙壁
+                    BlockState wallState = wallForBiome(biome, worldX, y, worldZ);
+                    BlockState state = (offset == 1) ? plinthState : wallState;
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
+                } else {
+            chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
+            // ===== 混凝土大厅的地物：紧贴地面的熄灭篝火 / 蜘蛛网 =====
+            if (hall && offset == 1) {
+                long decorSeed = (long) worldX * 341873128712L
+                        + (long) worldZ * 132897987541L
+                        + (long) layer * 9187L;
+                double r = net.minecraft.util.RandomSource.create(decorSeed).nextDouble();
+                if (r < ModBalance.DECOR_COBWEB_CHANCE) {   // 蜘蛛网
+                    // 0.01% 蜘蛛网
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                            net.minecraft.world.level.block.Blocks.COBWEB.defaultBlockState(), false);
+                } else if (r < ModBalance.DECOR_GRAVEL_CHANCE) {
+                    // 0.003% 贴墙的燧石堆：原版没有燧石方块，用"砂砾"表现（燧石即从砂砾中获得）
+                    net.minecraft.world.level.block.state.BlockState wallProbe =
+                            chunk.getBlockState(mutable.set(worldX + 1, y, worldZ));
+                    boolean nextToWall = chunk.getBlockState(mutable.set(worldX + 1, y, worldZ)).isSolidRender(null, null)
+                            || chunk.getBlockState(mutable.set(worldX - 1, y, worldZ)).isSolidRender(null, null)
+                            || chunk.getBlockState(mutable.set(worldX, y, worldZ + 1)).isSolidRender(null, null)
+                            || chunk.getBlockState(mutable.set(worldX, y, worldZ - 1)).isSolidRender(null, null);
+                    if (nextToWall) {
+                        net.minecraft.world.level.block.state.BlockState pile =
+                                net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
+                        chunk.setBlockState(mutable.set(worldX, y, worldZ), pile, false);
+                        // 第二块堆在斜上方，形成"自然堆积"感
+                        if (r < 0.00001D) {
+                            chunk.setBlockState(mutable.set(worldX, y + 1, worldZ), pile, false);
                         }
                     }
-                        }
-                        // ===== 潮湿房间地板的菌毯：平滑噪声场，形成不规则的自然斑块 =====
-                        if (damp) {
-                            double n = carpetNoise(worldX, worldZ, layer);
-                            // 阈值 0.67：约 10% 的地板被覆盖，斑块更小更分散
-                            if (n > 0.67D
-                                    && chunk.getBlockState(mutable.set(worldX, y - 1, worldZ)) == dampFloor
-                                    && chunk.getBlockState(mutable.set(worldX, y, worldZ)).isAir()) {
-                                chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                        this.myceliumCarpetState, false);
-                            }
-                        }
-                    } else {
-                        // offset == 6：天花板（间隔处放荧光灯）
-                        if (colIsLamp) {
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ), columnLamp, false);
-                        } else {
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ), columnCeiling, false);
-                        }
+                } else if (r < ModBalance.DECOR_CAMPFIRE_CHANCE) {
+                    // 0.005% 熄灭的篝火
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                            net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState()
+                                    .setValue(net.minecraft.world.level.block.CampfireBlock.LIT, Boolean.FALSE),
+                            false);
+                }
+            }
+                }
+                // ===== 潮湿房间地板的菌毯：平滑噪声场，形成不规则的自然斑块 =====
+                if (damp) {
+                    double n = carpetNoise(worldX, worldZ, layer);
+                    // 阈值 0.67：约 10% 的地板被覆盖，斑块更小更分散
+                    if (n > 0.67D
+                            && chunk.getBlockState(mutable.set(worldX, y - 1, worldZ)) == dampFloor
+                            && chunk.getBlockState(mutable.set(worldX, y, worldZ)).isAir()) {
+                        chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                                this.myceliumCarpetState, false);
                     }
+                }
+            } else {
+                // offset == 6：天花板（间隔处放荧光灯）
+                if (colIsLamp) {
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ), columnLamp, false);
+                } else {
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ), columnCeiling, false);
                 }
             }
         }
