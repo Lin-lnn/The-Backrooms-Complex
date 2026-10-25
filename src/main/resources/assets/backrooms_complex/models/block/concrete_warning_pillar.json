@@ -1,22 +1,8 @@
 {
-  "parent": "minecraft:block/block",
+  "parent": "minecraft:block/cube_bottom_top",
   "textures": {
-    "end": "minecraft:block/reinforced_deepslate_top",
-    "side": "minecraft:block/reinforced_deepslate_side",
-    "particle": "minecraft:block/reinforced_deepslate_side"
-  },
-  "elements": [
-    {
-      "from": [0, 0, 0],
-      "to": [16, 16, 16],
-      "faces": {
-        "north": { "uv": [0, 0, 16, 16], "texture": "#side" },
-        "east":  { "uv": [0, 0, 16, 16], "texture": "#side" },
-        "south": { "uv": [0, 0, 16, 16], "texture": "#side" },
-        "west":  { "uv": [0, 0, 16, 16], "texture": "#side" },
-        "up":    { "uv": [0, 0, 16, 16], "texture": "#end" },
-        "down":  { "uv": [0, 0, 16, 16], "texture": "#end" }
-      }
-    }
-  ]
+    "top": "backrooms_complex:block/concrete_pillar",
+    "bottom": "backrooms_complex:block/concrete_pillar",
+    "side": "backrooms_complex:block/concrete_warning_pillar"
+  }
 }

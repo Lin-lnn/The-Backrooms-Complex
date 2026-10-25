@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "minecraft:block/smooth_stone"
+    "all": "backrooms_complex:block/concrete_ceiling"
   }
 }
