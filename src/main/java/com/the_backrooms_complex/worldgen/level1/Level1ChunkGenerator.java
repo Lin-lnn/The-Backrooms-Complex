@@ -1,6 +1,5 @@
 package com.the_backrooms_complex.worldgen.level1;
 
-import com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,14 +31,16 @@ import java.util.concurrent.CompletableFuture;
  *
  * <h2>结构</h2>
  * <ul>
- *   <li><b>层高 18 格</b>（地板 1 + 空气 16 + 天花板 1），288 高 ⇒ 16 层；</li>
- *   <li><b>过道（停车场）</b>：一整片开阔石头地面，只有 <b>4×4 混凝土柱</b>
- *       按 48 格网格排布，柱脚是强化深板岩警示柱；</li>
- *   <li><b>小径</b>：约 45% 的 96×96 方块区，是 <b>3 个子层 × 6 格高</b>的
+ *   <li><b>层高 12 格</b>（2 个 6 格子层：地板 1 + 空气 4 + 天花板 1），
+ *       288 高最多容纳 24 层，实际只生成前 3 层（总高 36）；</li>
+ *   <li><b>过道（停车场）</b>：一整片开阔地面，只有 <b>2×2 混凝土柱</b>
+ *       按 16 格网格排布；</li>
+ *   <li><b>小径</b>：约 45% 的 96×96 方块区，是 <b>2 个子层 × 6 格高</b>的
  *       白墙窄迷宫；</li>
- *   <li><b>过道小房间</b>：64 格网格里 60% 概率有 7×7 房间，南墙正中一扇金属门；</li>
- *   <li><b>连接</b>：过道与小径的交界是混凝土柱墙，每 24 格开一扇金属门；</li>
- *   <li><b>光照</b>：天花板层每 5 格一个荧光灯（唯一沿用的 Level 0 方块）。</li>
+ *   <li><b>过道小房间</b>：64 格网格里每层 5~10 个 7×7 房间，南墙正中一扇门；</li>
+ *   <li><b>连接</b>：区段交界处用本区段墙体封边，每 32 格开一条 4 格宽通道；
+ *       两层区段的上下两个子层都开通道；</li>
+ *   <li><b>光照</b>：天花板层按各区段灯距嵌入荧光灯（唯一沿用的 Level 0 方块）。</li>
  * </ul>
  */
 public class Level1ChunkGenerator extends ChunkGenerator {
@@ -56,8 +57,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /**
      * 实际生成的层数。
      *
-     * <p>世界高度是 288（{@code 288 / 18 = 16} 层），但只生成 {@value #LAYERS} 层，其余留空 ——
-     * 逐方块循环的上界因此从 288 格降到 {@code 3 × 18 = 54} 格，区块生成快约 5 倍。</p>
+     * <p>世界高度是 288（{@code 288 / 12 = 24} 层），但只生成 {@value #LAYERS} 层，其余留空 ——
+     * 逐方块循环的上界因此从 288 格降到 {@code 3 × 12 = 36} 格，区块生成快约 8 倍。</p>
      */
     public static final int LAYERS = 3;
 
@@ -544,7 +545,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 int openHeight = Math.min(Math.min(storeyHeight(region), storeyHeight(other)),
                         LAYER_H - 1);
                 boolean tunnel = isTunnelOpening(wx, wz, layer);
-                if (tunnel && offset < openHeight) {
+                // 两侧都是两层区段时，上层子层也开同一条通道；两层的开口上下对齐，
+                // 中间保留 offset == SUB_H 的楼板，因此是两条独立隧道而不是一个挑空。
+                boolean upperTunnel = tunnel
+                        && isStackedRegion(region) && isStackedRegion(other)
+                        && LAYER_H >= 2 * SUB_H
+                        && offset > SUB_H && offset < LAYER_H - 1;
+                if ((tunnel && offset < openHeight) || upperTunnel) {
                     set(chunk, m, wx, y, wz, this.airState);
                 } else if (offset == 1) {
                     // 包络墙底部同样使用踢脚线
@@ -821,6 +828,29 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                             Region region, SectorProfile prof) {
         // stacked 的区段按 6 格两层堆叠，其余通高（天鹰 / 跃金 / 哥特）
         int h = prof.stacked() ? SUB_H : LAYER_H;
+        int layer = y / LAYER_H;
+        // 楼梯优先：楼梯井必须贯穿本子层的天花板和上一子层的地板，否则会撞头。
+        // 台阶表面在 offset = step + 1，表面以下实心、表面以上留 2 格净空；
+        // 最后一列的表面正好落在上一子层的地板上（offset = SUB_H），因此能真正走上去。
+        // 只在空旷列上生成：柱子 / 房间 / 小径边界 / 区段边界都不允许被替换。
+        if (prof.stacked() && allowsStairs(region) && offset > 0) {
+            int step = rampStep(wx, wz, layer);
+            boolean openColumn = !c.pillar() && c.room() < 0 && !c.boundary()
+                    && !isSectorEdge(wx, wz, layer);
+            if (step >= 0 && openColumn) {
+                int surface = step + 1;
+                if (offset <= surface + 2) {
+                    if (offset < surface) {
+                        set(chunk, m, wx, y, wz, prof.wall());      // 台阶下方的实心填充
+                    } else if (offset == surface) {
+                        set(chunk, m, wx, y, wz, this.stairState); // 台阶表面
+                    } else {
+                        set(chunk, m, wx, y, wz, this.airState);   // 头顶净空（含天花板 / 上层地板）
+                    }
+                    return;
+                }
+            }
+        }
         // 花园段：地板上散布草簇（该格若不是墙才长）
         if (region == Region.GARDEN && offset % h == 1 && c.room() < 0
                 && !c.pillar() && isGardenTuft(wx, wz)) {
@@ -837,24 +867,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         if (offset % h == 1 && c.room() < 0 && isCrateSpot(wx, wz, region)) {
             set(chunk, m, wx, y, wz, crateState());
             return;
-        }
-        // 堆叠区段：两层之间的楼梯（每层 2~4 处，顶层没有）。
-        // 只在空旷列上生成：柱子 / 房间 / 小径边界 / 区段边界都不允许被替换。
-        int step = rampStep(wx, wz, y / LAYER_H);
-        boolean openColumn = !c.pillar() && c.room() < 0 && !c.boundary() && !isSectorEdge(wx, wz, y / LAYER_H);
-        if (prof.stacked() && allowsStairs(region) && step >= 0 && openColumn) {
-            int inSub = offset % h;
-            if (inSub >= 1 && inSub <= step) {
-                // 台阶下方的实心填充
-                set(chunk, m, wx, y, wz, prof.wall());
-                return;
-            }
-            if (inSub == step + 1) {
-                // 每列顶部一个台阶，逐列抬高 => 真正可走的楼梯。
-                // step 为最后一列时这里正好是上一层的地板高度，台阶会替换掉那块楼板。
-                set(chunk, m, wx, y, wz, this.stairState);
-                return;
-            }
         }
         if (offset % h == 0) {
             set(chunk, m, wx, y, wz, prof.floor());
@@ -889,7 +901,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             }
             // ② 贴墙：某个水平邻居是区段边界墙，就在该侧生成藤蔓
             if (inSub >= 2 && inSub <= h - 3) {
-                var face = vineFace(wx, wz, y / LAYER_H);
+                var face = vineFace(wx, wz, layer);
                 if (face != null) {
                     set(chunk, m, wx, y, wz, this.vineState
                             .setValue(vineProperty(face), Boolean.TRUE));
@@ -910,7 +922,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         // fromTop = 1 贴着天花板（半径 3），往下逐排收成 2、1。
         int fromTop = (h - 1) - (offset % h);
         if (region == Region.GOTHIC && fromTop >= 1 && fromTop <= 3
-                && isGothicArchSpread(wx, wz, 4 - fromTop)) {
+                && isGothicArchSpread(wx, wz, 4 - fromTop, layer)) {
             set(chunk, m, wx, y, wz, prof.wall());
             return;
         }
@@ -994,9 +1006,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * <p>越靠近天花板，外张越宽 —— 视觉上就是柱子向上张开成尖拱。</p>
      */
     public static boolean isGothicArchSpread(int x, int z, int rows) {
+        return isGothicArchSpread(x, z, rows, 0);
+    }
+
+    /** 指定层上的拱顶外张判定（柱网按层偏移，拱顶必须跟着本层柱子走）。 */
+    public static boolean isGothicArchSpread(int x, int z, int rows, int layer) {
         for (int dx = -rows; dx <= rows; dx++) {
             for (int dz = -rows; dz <= rows; dz++) {
-                if (onPillar(x + dx, z + dz)) {
+                if (onPillar(x + dx, z + dz, layer)) {
                     return true;
                 }
             }
@@ -1063,7 +1080,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         if (cached != null) {
             return cached;
         }
-        int[] rooms = roomRects(cx, cz, 0);
+        int[] rooms = roomRects(cx, cz, layer);
         int[] picked = new int[STAIRS_MAX * 2];
         int pickedCount = 0;
         long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x7374616972L;
@@ -1082,7 +1099,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             boolean sameSector = true;
             for (int wx2 = 0; wx2 < STAIR_WIDTH && sameSector; wx2++) {
                 for (int wz2 = 0; wz2 < SUB_H; wz2++) {
-                    Region r2 = regionAt(cx * ROOM_CELL + ox + wx2, cz * ROOM_CELL + oz + wz2);
+                    Region r2 = regionAt(cx * ROOM_CELL + ox + wx2, cz * ROOM_CELL + oz + wz2, layer);
                     if (lane == null) {
                         lane = r2;
                     } else if (lane != r2) {
@@ -1094,22 +1111,22 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             if (!sameSector || lane == null || !isStackedRegion(lane)) {
                 continue;
             }
-            // 上层必须空旷：房间 / 柱子 / 包络墙都不允许，否则楼梯口会被堵住
-            boolean upperClear = true;
-            int up = layer + 1;
-            for (int wc = 0; wc < STAIR_WIDTH && upperClear; wc++) {
+            // 整条楼梯带必须空旷：房间 / 柱子 / 包络墙都不允许，否则楼梯口会被堵住。
+            // 楼梯只在本层内爬升 6 格进入上一子层，因此检查的就是本层（不是 layer + 1）。
+            boolean laneClear = true;
+            for (int wc = 0; wc < STAIR_WIDTH && laneClear; wc++) {
                 for (int wd = 0; wd < SUB_H; wd++) {
                     int gx = cx * ROOM_CELL + ox + wc;
                     int gz = cz * ROOM_CELL + oz + wd;
-                    if (roomKind(gx, gz, up) != -1
-                            || onPillar(gx, gz, up)
-                            || isSectorEdge(gx, gz, up)) {
-                        upperClear = false;
+                    if (roomKind(gx, gz, layer) != -1
+                            || onPillar(gx, gz, layer)
+                            || isSectorEdge(gx, gz, layer)) {
+                        laneClear = false;
                         break;
                     }
                 }
             }
-            if (!upperClear) {
+            if (!laneClear) {
                 continue;
             }
             // 与已选楼梯保持间距：横竖都太近就跳过（楼梯带 2 宽 x SUB_H 长，不能重叠）
@@ -1469,10 +1486,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     @Override
     public void addDebugScreenInfo(List<String> info, RandomState random, BlockPos pos) {
         info.add("Backrooms Level 1  (" + LAYER_H + " 格每层 / 生成 " + LAYERS + " 层)");
-        // 当前所处区段与分层方式（便于核对各段是否正确出现）
-        Region region = regionAt(pos.getX(), pos.getZ());
+        // 当前所处区段与分层方式（按玩家所在层判定，而不是固定第 0 层）
+        int layer = Math.floorDiv(pos.getY(), LAYER_H);
+        Region region = regionAt(pos.getX(), pos.getZ(), layer);
         SectorProfile prof = profileOf(region);
-        info.add("区段: " + region + "  /  " + (prof.stacked() ? "两层 6 格" : "12 格通高"));
+        info.add("第 " + layer + " 层  /  区段: " + region + "  /  "
+                + (prof.stacked() ? "两层 6 格" : "12 格通高"));
         if (isPassageArea(pos.getX(), pos.getZ())) {
             info.add("小径区（" + SUB_COUNT + " 层 × " + SUB_H + " 格）");
         }
