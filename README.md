@@ -33,7 +33,7 @@ gradlew.bat build
 ./gradlew build
 ```
 
-产物：`build/libs/backrooms_complex-1.0.2.jar`，放入游戏目录的 `mods/` 即可。
+产物：`build/libs/backrooms_complex-1.0.3.jar`，放入游戏目录的 `mods/` 即可。
 
 ## 开发检查
 
