@@ -689,6 +689,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             return;
         }
 
+        // 哥特段：天花板下方 3 排，柱子逐级外张 => 尖拱的起拱
+        int fromTop = (h - 1) - (offset % h);
+        if (region == Region.GOTHIC && fromTop >= 1 && fromTop <= 3
+                && isGothicArchSpread(wx, wz, fromTop)) {
+            set(chunk, m, wx, y, wz, wallOf(region));
+            return;
+        }
         if (offset % h < h - 1) {
             boolean doorHeight = (offset % SUB_H == 1) || (offset % SUB_H == 2);
             // 门前必须通畅：紧邻房间门位的列，在门高度处强制空气（否则柱子/边界墙会把门堵死）
@@ -739,6 +746,22 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static boolean isGardenTuft(int x, int z) {
         long h = mix(x, z, 0x74756666L);   // 'tuff'
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.30;
+    }
+
+    /**
+     * 哥特段拱顶外张：距柱网 {@code rows} 格以内即算柱帽的一部分。
+     *
+     * <p>越靠近天花板，外张越宽 —— 视觉上就是柱子向上张开成尖拱。</p>
+     */
+    public static boolean isGothicArchSpread(int x, int z, int rows) {
+        for (int dx = -rows; dx <= rows; dx++) {
+            for (int dz = -rows; dz <= rows; dz++) {
+                if (onPillar(x + dx, z + dz)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** 衔尾段墙面剥落：约 12%。 */
