@@ -821,11 +821,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 set(chunk, m, wx, y, wz, this.stairState);
                 return;
             }
-            if (inSub == step + 2 || inSub == step + 3) {
-                // 打通：清出楼梯上方的两格，避免上层楼板或墙体把楼梯口堵死
-                set(chunk, m, wx, y, wz, this.airState);
-                return;
-            }
         }
         if (offset % h == 0) {
             set(chunk, m, wx, y, wz, prof.floor());
