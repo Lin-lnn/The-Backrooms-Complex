@@ -1,91 +1,124 @@
 package com.the_backrooms_complex.worldgen;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.the_backrooms_complex.ModBiomes;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * 后室群系源。
+ * 后室三维群系源。
  *
- * <p>根据 XZ 坐标的确定性二维值噪声分配 3 种群系。噪声完全由坐标决定，因此每个区块的
- * 群系分布独立可复现（无需跨区块全局状态）。</p>
+ * <p>三个字段（黄房间 / 混凝土大厅 / 潮湿走廊）由<b>每个维度的 JSON 独立指定</b>：
+ * Level 0 用 {@code yellow_rooms / concrete_halls / damp_corridors}，
+ * Level 1 用 {@code warehouse_aisles / aquila_sector / puddle_zone}。</p>
  *
- * <p>群系之间的边界由双线性插值 + 平滑阶梯（smoothstep）产生，形成大块连续的群系斑块，
- * 而非随机散点。</p>
+ * <h2>维度独立性</h2>
+ * <ul>
+ *   <li>缓存改为<b>实例级</b>（见 {@link #cacheKeys}）—— 原来是 {@code static}，
+ *       导致 Level 0 与 Level 1 共用同一份缓存，同一 (x,z,layer) 会返回
+ *       先算出来的那个维度的群系（串维度 bug）；</li>
+ *   <li>层高由 {@link #layerHeight} 字段决定，不再硬编码 Level 0 的 8 格，
+ *       因此 Level 1 可以在自己的维度 JSON 里写 {@code "layer_height": 18}。</li>
+ * </ul>
  */
 public class BackroomsBiomeSource extends BiomeSource {
 
-    /** 群系源编解码器：三个字段分别引用三种群系（以资源位置字符串序列化）。 */
+    /** 未指定 {@code layer_height} 时的默认单层高度（Level 0 的 8 格）。 */
+    public static final int DEFAULT_LAYER_HEIGHT = 8;
+
+    /** 群系源编解码器。 */
     public static final MapCodec<BackroomsBiomeSource> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     Biome.CODEC.fieldOf("yellow_rooms").forGetter(s -> s.yellowRooms),
                     Biome.CODEC.fieldOf("concrete_halls").forGetter(s -> s.concreteHalls),
-                    Biome.CODEC.fieldOf("damp_corridors").forGetter(s -> s.dampCorridors)
+                    Biome.CODEC.fieldOf("damp_corridors").forGetter(s -> s.dampCorridors),
+                    // 可选：单层高度。省略时默认 Level 0 的 8 格。
+                    Codec.INT.optionalFieldOf("layer_height", DEFAULT_LAYER_HEIGHT)
+                            .forGetter(s -> s.layerHeight)
             ).apply(instance, BackroomsBiomeSource::new));
 
     private final Holder<Biome> yellowRooms;
     private final Holder<Biome> concreteHalls;
     private final Holder<Biome> dampCorridors;
+    /** 本维度的单层高度（格）。 */
+    private final int layerHeight;
 
-    public BackroomsBiomeSource(Holder<Biome> yellowRooms, Holder<Biome> concreteHalls, Holder<Biome> dampCorridors) {
+    public BackroomsBiomeSource(Holder<Biome> yellowRooms, Holder<Biome> concreteHalls,
+                                Holder<Biome> dampCorridors, int layerHeight) {
         this.yellowRooms = yellowRooms;
         this.concreteHalls = concreteHalls;
         this.dampCorridors = dampCorridors;
+        this.layerHeight = layerHeight <= 0 ? DEFAULT_LAYER_HEIGHT : layerHeight;
+    }
+
+    /** 兼容旧的 3 参数构造（层高取 Level 0 的默认值）。 */
+    public BackroomsBiomeSource(Holder<Biome> yellowRooms, Holder<Biome> concreteHalls,
+                                Holder<Biome> dampCorridors) {
+        this(yellowRooms, concreteHalls, dampCorridors, DEFAULT_LAYER_HEIGHT);
+    }
+
+    /** 本维度的单层高度。 */
+    public int layerHeight() {
+        return this.layerHeight;
     }
 
     @Override
     public Holder<Biome> getNoiseBiome(int x, int y, int z, Climate.Sampler sampler) {
-        // 本群系源与高度无关，忽略 sampler
-        // 注意：getNoiseBiome 的三个坐标都是"quart"（1/4 方块）分辨率，
-        // 必须乘 4 还原成方块坐标，否则群系场会被拉伸 4 倍并与生成器错位。
-        return biomeAt(x * 4, z * 4, Math.floorDiv(y * 4, BackroomsChunkGenerator.LAYER_HEIGHT));
+        // 本群系源只按 (x, z, layer) 决定，忽略 sampler。
+        // getNoiseBiome 的三个坐标都是 "quart"（1/4 方块）分辨率，必须乘 4 还原成方块坐标。
+        // 层高用本实例自己的 layerHeight，不再借用 Level 0 的常量。
+        return biomeAt(x * 4, z * 4, Math.floorDiv(y * 4, this.layerHeight));
     }
 
-    /**
-     * 按 XZ 坐标确定性返回群系（供 ChunkGenerator 直接调用，无需 Climate.Sampler）。
-     */
-    // ==================== 缓存（性能） ====================
+    // ==================== 缓存（每实例独立） ====================
 
     /** 缓存槽位（2 的幂）。 */
     private static final int BIOME_CACHE_SLOTS = 4096;
-    private static final long[] BIOME_CACHE_KEYS = new long[BIOME_CACHE_SLOTS];
-    private static final Holder<Biome>[] BIOME_CACHE_VALS =
-            (Holder<Biome>[]) new Holder<?>[BIOME_CACHE_SLOTS];
+
+    /**
+     * 每实例独立的缓存。
+     *
+     * <p>原先是 {@code static} —— Level 0 与 Level 1 会命中同一份缓存，
+     * 同一 (x,z,layer) 直接返回另一个维度的群系，属于跨维度串色的严重 bug。
+     * 改为实例字段后，每个维度各有一份缓存，互不影响。</p>
+     */
+    private final long[] cacheKeys = new long[BIOME_CACHE_SLOTS];
+    @SuppressWarnings("unchecked")
+    private final Holder<Biome>[] cacheVals = (Holder<Biome>[]) new Holder<?>[BIOME_CACHE_SLOTS];
 
     /**
      * 带缓存的群系查询。
      *
-     * <p>{@code biomeAt} 内部要做值噪声 + 双线性插值，是逐方块生成里最贵的操作之一。
-     * 同一次区块生成会对<b>同一个 (x, z, layer)</b> 反复查询 8 次（一层 8 格高），
-     * 这里直接映射缓存，命中即 O(1)。</p>
+     * <p>{@code computeBiomeAt} 要做哈希 + 单元吸附，是逐方块生成里较贵的操作；
+     * 同一次区块生成会对同一个 (x, z, layer) 反复查询多次，这里 O(1) 命中。</p>
      */
     public Holder<Biome> biomeAt(int x, int z, int layer) {
         long key = ((long) (x & 0xFFFFFF) << 34) | ((long) (z & 0xFFFFFF) << 10) | (layer & 0x3FF);
         int slot = (int) ((key * 0x9E3779B97F4A7C15L) >>> 52) & (BIOME_CACHE_SLOTS - 1);
-        if (BIOME_CACHE_KEYS[slot] == key && key != 0L) {
-            return BIOME_CACHE_VALS[slot];
+        if (this.cacheKeys[slot] == key && key != 0L) {
+            return this.cacheVals[slot];
         }
         Holder<Biome> v = computeBiomeAt(x, z, layer);
-        BIOME_CACHE_KEYS[slot] = key;
-        BIOME_CACHE_VALS[slot] = v;
+        this.cacheKeys[slot] = key;
+        this.cacheVals[slot] = v;
         return v;
     }
 
     /** 真正的群系计算（无缓存）。 */
     private Holder<Biome> computeBiomeAt(int x, int z, int layer) {
-        // 三个群系都以 256x256 格（面积 65536）为单元整体分配，远超"单个 >= 40000 格"。
-        // 整单元分配 => 每个群系斑块都是完整的 65536 格。
-        // 先把坐标吸附到 16 格区块网格，再划分群系单元：
-        // 群系单元 256 = 16 x 16 区块，因此每个区块必然完整属于同一个群系，
+        // 三个群系都以 256x256 格为单元整体分配，每个区块必然完整属于同一个群系，
         // 不会出现"区块内一半黄一半混凝土"的错位。
         int cx = Math.floorDiv(Math.floorDiv(x, 16), HALL_CELL_BLOCKS / 16);
         int cz = Math.floorDiv(Math.floorDiv(z, 16), HALL_CELL_BLOCKS / 16);
-        // 群系比例：黄 4 : 混凝土 1 : 潮湿 1（单个哈希分三段，避免两次哈希的相关性）
+        // 群系比例：主群系 4 : 次群系 1 : 第三群系 1
         double roll = hash01(cx, cz, layer);
         if (roll < 1.0 / 6.0) {
             return concreteHalls;
@@ -94,21 +127,19 @@ public class BackroomsBiomeSource extends BiomeSource {
             return dampCorridors;
         }
         return yellowRooms;
-        // 其余区域在黄色房间 / 潮湿走廊之间由原噪声划分
-
     }
 
-    /** 该群系是否为混凝土大厅（供 ChunkGenerator 判定额外特征）。 */
-    /** 群系交接处的过渡带宽度（格）。 */
+    /** 群系过渡采样半径（格）。 */
     public static final int BLEND_RADIUS = 4;
 
-    /** 该群系是否为潮湿走廊。 */
+    /** 是否是"混凝土大厅"类群系（Level 0）。 */
     public boolean isDampCorridors(Holder<Biome> biome) {
-        return biome == dampCorridors;
+        return biome.is(ModBiomes.DAMP_CORRIDORS);
     }
 
+    /** 是否是"混凝土大厅"类群系（Level 0）。 */
     public boolean isConcreteHalls(Holder<Biome> biome) {
-        return biome == concreteHalls;
+        return biome.is(ModBiomes.CONCRETE_HALLS);
     }
 
     @Override
@@ -118,41 +149,44 @@ public class BackroomsBiomeSource extends BiomeSource {
 
     @Override
     protected Stream<Holder<Biome>> collectPossibleBiomes() {
-        return Stream.of(yellowRooms, concreteHalls, dampCorridors);
+        return Stream.of(this.yellowRooms, this.concreteHalls, this.dampCorridors);
     }
 
-    // ==================== 确定性二维值噪声 ====================
+    // ==================== 噪声 / 哈希 ====================
 
-    /** 单元格尺寸（格）：群系斑块大致以该尺寸为过渡尺度。 */
+    /** 群系单元边长（格）。 */
     private static final int CELL_SIZE = 32;
-
-    /** 混凝土大厅的单元尺寸（格）：6 区块 = 96 格，保证单区域 >= 5x5 区块。 */
+    /** 混凝土大厅单元边长（格）= 256。 */
     private static final int HALL_CELL_BLOCKS = 256;
 
-    /** 二维值噪声：对四个角点哈希值做双线性插值 + smoothstep 平滑。 */
+    /** 值噪声（bilinear）。 */
     private static double valueNoise(int x, int z, int layer) {
-        int gx = Math.floorDiv(x, CELL_SIZE);
-        int gz = Math.floorDiv(z, CELL_SIZE);
-        double fx = smoothstep((x - gx * CELL_SIZE) / (double) CELL_SIZE);
-        double fz = smoothstep((z - gz * CELL_SIZE) / (double) CELL_SIZE);
-        double v00 = hash01(gx, gz, layer);
-        double v10 = hash01(gx + 1, gz, layer);
-        double v01 = hash01(gx, gz + 1, layer);
-        double v11 = hash01(gx + 1, gz + 1, layer);
-        return lerp(lerp(v00, v10, fx), lerp(v01, v11, fx), fz);
+        int xi = Math.floorDiv(x, CELL_SIZE);
+        int zi = Math.floorDiv(z, CELL_SIZE);
+        double tx = smoothstep((double) Math.floorMod(x, CELL_SIZE) / CELL_SIZE);
+        double tz = smoothstep((double) Math.floorMod(z, CELL_SIZE) / CELL_SIZE);
+        double a = hash01(xi, zi, layer);
+        double b = hash01(xi + 1, zi, layer);
+        double c = hash01(xi, zi + 1, layer);
+        double d = hash01(xi + 1, zi + 1, layer);
+        return lerp(lerp(a, b, tx), lerp(c, d, tx), tz);
     }
 
+    /** 平滑插值曲线。 */
     private static double smoothstep(double t) {
         return t * t * (3.0 - 2.0 * t);
     }
 
+    /** 线性插值。 */
     private static double lerp(double a, double b, double t) {
         return a + (b - a) * t;
     }
 
-    /** 将整数坐标哈希到 [0, 1) 区间（splitmix64 风格的确定性哈希）。 */
+    /** 三维确定性哈希 → [0,1)。 */
     private static double hash01(int x, int z, int layer) {
-        long h = (long) x * 0x9E3779B97F4A7C15L ^ (long) z * 0xC2B2AE3D27D4EB4FL ^ (long) layer * 0xD6E8FEB86659FD93L;
+        long h = (long) x * 0x9E3779B97F4A7C15L
+                ^ (long) z * 0xC2B2AE3D27D4EB4FL
+                ^ (long) layer * 0x165667B19E3779F9L;
         h ^= h >>> 33;
         h *= 0xFF51AFD7ED558CCDL;
         h ^= h >>> 33;

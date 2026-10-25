@@ -6,7 +6,8 @@
       "type": "backrooms_complex:backrooms_biome_source",
       "yellow_rooms": "backrooms_complex:warehouse_aisles",
       "concrete_halls": "backrooms_complex:aquila_sector",
-      "damp_corridors": "backrooms_complex:puddle_zone"
+      "damp_corridors": "backrooms_complex:puddle_zone",
+      "layer_height": 18
     }
   }
 }
