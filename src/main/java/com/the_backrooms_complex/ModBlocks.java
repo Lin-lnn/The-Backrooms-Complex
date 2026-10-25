@@ -366,11 +366,6 @@ public final class ModBlocks {
             BLOCKS.register("crate", () -> new com.the_backrooms_complex.block.CrateBlock(
                     unbreakable().noOcclusion().randomTicks()));
 
-    /** 斜靠钢板：衔尾段的散落地物（无碰撞）。 */
-    public static final DeferredBlock<Block> STEEL_PLATE =
-            BLOCKS.register("steel_plate", () -> new Block(
-                    unbreakable().noOcclusion().noCollission().instabreak()));
-
     /** 黄铜管道：纯外观的六向连接管道。 */
     public static final DeferredBlock<com.the_backrooms_complex.block.BrassPipeBlock> BRASS_PIPE =
             BLOCKS.register("brass_pipe",

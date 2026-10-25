@@ -432,10 +432,6 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> CRATE =
             ITEMS.register("crate", () -> new BlockItem(ModBlocks.CRATE.get(), new Item.Properties()));
 
-    public static final DeferredItem<BlockItem> STEEL_PLATE =
-            ITEMS.register("steel_plate", () -> new BlockItem(ModBlocks.STEEL_PLATE.get(),
-                    new Item.Properties()));
-
     public static final DeferredItem<BlockItem> BRASS_PIPE =
             ITEMS.register("brass_pipe", () -> new BlockItem(ModBlocks.BRASS_PIPE.get(),
                     new Item.Properties()));

@@ -127,8 +127,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState vineState;
     /** 传说段的深色木门。 */
     private final BlockState woodDoorState;
-    /** 衔尾段斜靠的钢板。 */
-    private final BlockState steelPlateState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -170,7 +168,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.vineState = net.minecraft.world.level.block.Blocks.VINE.defaultBlockState()
                 .setValue(net.minecraft.world.level.block.VineBlock.UP, Boolean.TRUE);
         this.woodDoorState = net.minecraft.world.level.block.Blocks.DARK_OAK_DOOR.defaultBlockState();
-        this.steelPlateState = ModBlocks.STEEL_PLATE.get().defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -865,12 +862,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             return;
         }
 
-        // 衔尾段：地面上斜靠着的钢板（贴墙或散放）
-        if (region == Region.OUROBOROS && offset % h == 1 && c.room() < 0
-                && !c.pillar() && isPlateSpot(wx, wz)) {
-            set(chunk, m, wx, y, wz, this.steelPlateState);
-            return;
-        }
         // 花园段藤蔓：只贴墙或贴天花板，不向下悬挂。
         if (region == Region.GARDEN && !c.pillar() && isGardenVine(wx, wz)) {
             int inSub = offset % h;
@@ -1207,11 +1198,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return Math.floorMod(x + z, SECTOR_GATE_STEP) < 2;
     }
 
-    /** 斜靠钢板落点：约 1.5%。 */
-    public static boolean isPlateSpot(int x, int z) {
-        long h = mix(x, z, 0x706C617465L);   // 'plate'
-        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.015;
-    }
 
     /** 衔尾段墙面剥落：约 12%。 */
     public static boolean isOuroborosPeeling(int x, int z, int offset) {
