@@ -319,8 +319,22 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 // 小径墙壁只依赖 XZ，且 3 个子层共用 => 每列只算一次（原本逐方块重复计算）
                 final boolean colPassageWallBlock = colPassage && isPassageWall(wx, wz);
                 final boolean colBoundary = isPassageBoundary(wx, wz);
-                final boolean colGate = colBoundary && Math.floorMod(wx + wz, 24) == 0;
+                final boolean colGate = colBoundary && isGateColumn(wx, wz);
                 final boolean colPassageWall = !colPassage && colBoundary;
+                // 过道侧紧邻门洞的列：门高度处也要打通，否则两列实心会把门堵死
+                final boolean colGateAdjacent = colBoundary && (
+                        isGateColumn(wx + 1, wz) || isGateColumn(wx - 1, wz)
+                                || isGateColumn(wx, wz + 1) || isGateColumn(wx, wz - 1));
+                // 门的朝向：边界法线落在 X 还是 Z 轴；小径在正方向则朝东 / 朝南
+                final net.minecraft.core.Direction colFacing = colBoundary
+                        ? (isPassageArea(wx + 1, wz) != isPassageArea(wx - 1, wz)
+                                ? (isPassageArea(wx + 1, wz)
+                                        ? net.minecraft.core.Direction.EAST
+                                        : net.minecraft.core.Direction.WEST)
+                                : (isPassageArea(wx, wz + 1)
+                                        ? net.minecraft.core.Direction.SOUTH
+                                        : net.minecraft.core.Direction.NORTH))
+                        : net.minecraft.core.Direction.NORTH;
                 final int colRoom = roomKind(wx, wz);
                 // 柱子只出现在「纯过道的开阔区域」：
                 // 若该列同时落在小径区 / 小径房间里，就交给子层结构去画，
@@ -341,9 +355,18 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                             chunk.setBlockState(m.set(wx, y, wz), floorState, false);
                         } else if (subOff == SUB_H - 1) {
                             chunk.setBlockState(m.set(wx, y, wz), ceilingState, false);
+                        } else if (colPassage && colBoundary) {
+                            // ===== 小径边界：整面实心，只在门位开 1 宽 × 2 高的洞 =====
+                            // 避免出现"贯穿全高的裂缝"，也不漏光。
+                            if (colGate && (subOff == 1 || subOff == 2)) {
+                                chunk.setBlockState(m.set(wx, y, wz),
+                                        doorState(colFacing, subOff == 1), false);
+                            } else {
+                                chunk.setBlockState(m.set(wx, y, wz), whiteWallState, false);
+                            }
                         } else {
-                            // 小径：门洞用 colGate、墙壁用迷宫判定；房间：roomKind 同时表达两者
-                            boolean doorCol = colPassage ? colGate : colRoom == 2;
+                            // 小径内部 / 过道小房间：门位开洞，其余按墙壁判定
+                            boolean doorCol = !colPassage && colRoom == 2;
                             boolean wallCol = colPassage ? colPassageWallBlock : colRoom == 1;
                             BlockState st = doorCol
                                     ? ((subOff == 1 || subOff == 2) ? metalDoorState : airState)
@@ -357,7 +380,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                     if (offset == 0) {
                         chunk.setBlockState(m.set(wx, y, wz), floorState, false);
                     } else if (offset < LAYER_H - 1) {
-                        boolean wall = colPillar || (colPassageWall && !colGate);
+                        // 边界实心；门洞所在列的过道一侧在「子层第 1~2 格」高度打通
+                        boolean doorHeight = (offset % SUB_H == 1) || (offset % SUB_H == 2);
+                        boolean wall = colPillar
+                                || (colPassageWall && !(colGateAdjacent && doorHeight));
                         if (wall) {
                             // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
                             chunk.setBlockState(m.set(wx, y, wz),
@@ -374,6 +400,27 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             }
         }
         return CompletableFuture.completedFuture(chunk);
+    }
+
+    /** 门位判定：沿边界每 24 格一个（用 x+z 取模，保证是单独一列而非整行）。 */
+    public static boolean isGateColumn(int x, int z) {
+        return Math.floorMod(x + z, 24) == 0;
+    }
+
+    /**
+     * 构造金属门的指定一半：朝向、上下半、初始关闭。
+     *
+     * @param facing 门面朝向（由边界法线决定）
+     * @param lower  {@code true} = 下半，{@code false} = 上半
+     */
+    private BlockState doorState(net.minecraft.core.Direction facing, boolean lower) {
+        return this.metalDoorState
+                .setValue(net.minecraft.world.level.block.DoorBlock.FACING, facing)
+                .setValue(net.minecraft.world.level.block.DoorBlock.HALF,
+                        lower
+                                ? net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER
+                                : net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER)
+                .setValue(net.minecraft.world.level.block.DoorBlock.OPEN, Boolean.FALSE);
     }
 
     // ==================== 其余覆写 ====================
