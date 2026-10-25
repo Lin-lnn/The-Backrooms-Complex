@@ -159,7 +159,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState()
                 .setValue(net.minecraft.world.level.block.StairBlock.FACING,
                         net.minecraft.core.Direction.SOUTH);
-        // 用普通藤蔓并开启「向上附着」，它从天花板垂下且是绿色（垂泪藤是暗红色，观感不对）
+        // 普通绿色藤蔓；贴顶时置 UP，贴墙时置对应方向
         this.vineState = net.minecraft.world.level.block.Blocks.VINE.defaultBlockState()
                 .setValue(net.minecraft.world.level.block.VineBlock.UP, Boolean.TRUE);
         this.woodDoorState = net.minecraft.world.level.block.Blocks.DARK_OAK_DOOR.defaultBlockState();
@@ -855,12 +855,22 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz, this.steelPlateState);
             return;
         }
-        // 花园段：从天花板垂下的藤条（最多 6 格长）
+        // 花园段藤蔓：只贴墙或贴天花板，不向下悬挂。
         if (region == Region.GARDEN && !c.pillar() && isGardenVine(wx, wz)) {
-            int depthFromTop = (h - 1) - (offset % h);
-            if (depthFromTop >= 1 && depthFromTop <= 3) {
+            int inSub = offset % h;
+            // ① 贴天花板：紧贴天花板下一格，朝上的藤蔓
+            if (inSub == h - 2) {
                 set(chunk, m, wx, y, wz, this.vineState);
                 return;
+            }
+            // ② 贴墙：某个水平邻居是区段边界墙，就在该侧生成藤蔓
+            if (inSub >= 2 && inSub <= h - 3) {
+                var face = vineFace(wx, wz, y / LAYER_H);
+                if (face != null) {
+                    set(chunk, m, wx, y, wz, this.vineState
+                            .setValue(vineProperty(face), Boolean.TRUE));
+                    return;
+                }
             }
         }
         // 哥特段：拱顶外张「顶部最宽、向下收窄」=> 正确的起拱方向。
@@ -915,6 +925,34 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static boolean isPassageLamp(int x, int z) {
         return Math.floorMod(x, PASSAGE_LAMP_STEP) == 1
                 && Math.floorMod(z, PASSAGE_LAMP_STEP) == 1;
+    }
+
+    /** 藤蔓在当前格应贴的方向；没有可贴的墙时返回 {@code null}。 */
+    private static net.minecraft.core.Direction vineFace(int x, int z, int layer) {
+        if (isSectorEdge(x - 1, z, layer)) {
+            return net.minecraft.core.Direction.WEST;
+        }
+        if (isSectorEdge(x + 1, z, layer)) {
+            return net.minecraft.core.Direction.EAST;
+        }
+        if (isSectorEdge(x, z - 1, layer)) {
+            return net.minecraft.core.Direction.NORTH;
+        }
+        if (isSectorEdge(x, z + 1, layer)) {
+            return net.minecraft.core.Direction.SOUTH;
+        }
+        return null;
+    }
+
+    /** 方向 -> 藤蔓方块的方向属性。 */
+    private static net.minecraft.world.level.block.state.properties.BooleanProperty
+            vineProperty(net.minecraft.core.Direction direction) {
+        return switch (direction) {
+            case NORTH -> net.minecraft.world.level.block.VineBlock.NORTH;
+            case SOUTH -> net.minecraft.world.level.block.VineBlock.SOUTH;
+            case EAST -> net.minecraft.world.level.block.VineBlock.EAST;
+            default -> net.minecraft.world.level.block.VineBlock.WEST;
+        };
     }
 
     /** 花园段草簇落点：约 30%。 */
