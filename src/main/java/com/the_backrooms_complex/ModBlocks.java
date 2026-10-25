@@ -371,6 +371,11 @@ public final class ModBlocks {
             BLOCKS.register("steel_plate", () -> new Block(
                     unbreakable().noOcclusion().noCollission().instabreak()));
 
+    /** 黄铜管道：纯外观的六向连接管道。 */
+    public static final DeferredBlock<com.the_backrooms_complex.block.BrassPipeBlock> BRASS_PIPE =
+            BLOCKS.register("brass_pipe",
+                    () -> new com.the_backrooms_complex.block.BrassPipeBlock(unbreakable()));
+
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)
