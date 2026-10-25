@@ -354,7 +354,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                         if (subOff == 0) {
                             chunk.setBlockState(m.set(wx, y, wz), floorState, false);
                         } else if (subOff == SUB_H - 1) {
-                            chunk.setBlockState(m.set(wx, y, wz), ceilingState, false);
+                            // 小径天花板：每 3 格一盏荧光灯（只在可走列上，避免嵌进墙里）
+                            boolean lamp = colPassage && !colPassageWallBlock && isPassageLamp(wx, wz);
+                            chunk.setBlockState(m.set(wx, y, wz),
+                                    lamp ? lampState : ceilingState, false);
                         } else if (colPassage && colBoundary) {
                             // ===== 小径边界：整面实心，只在门位开 1 宽 × 2 高的洞 =====
                             // 避免出现"贯穿全高的裂缝"，也不漏光。
@@ -400,6 +403,15 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             }
         }
         return CompletableFuture.completedFuture(chunk);
+    }
+
+    /** 小径荧光灯间距（格）。 */
+    public static final int PASSAGE_LAMP_STEP = 3;
+
+    /** 小径天花板灯位：每 3 格一个，居中偏移 1 格。 */
+    public static boolean isPassageLamp(int x, int z) {
+        return Math.floorMod(x, PASSAGE_LAMP_STEP) == 1
+                && Math.floorMod(z, PASSAGE_LAMP_STEP) == 1;
     }
 
     /** 门位判定：沿边界每 24 格一个（用 x+z 取模，保证是单独一列而非整行）。 */
