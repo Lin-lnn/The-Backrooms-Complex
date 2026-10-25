@@ -1135,22 +1135,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     }
 
     /**
-     * 该高度开门是否安全（两侧都有地板，玩家不会掉下去）。
+     * 该高度开门是否安全。
      *
-     * <p>只有「每个 12 格层的最底部两格」两侧一定都有地板：地板在 {@code offset 0}，
-     * 上方两格在两种分层方式下都是空的。上层（{@code offset 6} 起）只有同样是两层
-     * 区段时才两侧都有地板，因此堆叠区段之间也允许在第二层开门，
-     * 但两层区段与通高区段之间只在一层相通，避免从 6 格高处踏空。</p>
+     * <p>只在每层最底部的两格开门：那里两侧都一定有地板（地板在层内第 0 格）。
+     * 早先允许堆叠区段在第二层开门，但隔壁若是通高区段就没有地板，门孔会悬在空中。</p>
      */
     public static boolean isSafeGateHeight(int offset, boolean thisStacked) {
         int inSub = offset % LAYER_H;
-        if (inSub == 1 || inSub == 2) {
-            return true;                      // 底层：两侧都有地板
-        }
-        if (thisStacked && (inSub == SUB_H + 1 || inSub == SUB_H + 2)) {
-            return true;                      // 第二层：仅堆叠区段之间
-        }
-        return false;
+        return inSub == 1 || inSub == 2;
     }
 
     /** 边界上的通道位置（每 16 格 2 格宽）。 */
