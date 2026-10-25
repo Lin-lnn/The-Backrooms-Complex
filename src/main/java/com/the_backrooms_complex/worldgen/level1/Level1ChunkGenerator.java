@@ -807,10 +807,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 return;
             }
         }
-        // 哥特段：天花板下方 3 排，柱子逐级外张 => 尖拱的起拱
+        // 哥特段：仅在天花板下方一排、各向外扩 1 格。
+        // 之前外扩 3 圈会形成蘑菇状的「斗拱」，与参考图的尖拱不符。
         int fromTop = (h - 1) - (offset % h);
-        if (region == Region.GOTHIC && fromTop >= 1 && fromTop <= 3
-                && isGothicArchSpread(wx, wz, fromTop)) {
+        if (region == Region.GOTHIC && fromTop == 1
+                && isGothicArchSpread(wx, wz, 1)) {
             set(chunk, m, wx, y, wz, prof.wall());
             return;
         }
