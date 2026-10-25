@@ -67,8 +67,10 @@ public final class BiomeTint {
         if (com.the_backrooms_complex.ModBlocks.isManila(state.getBlock())) {
             return 0xFFFFFF;
         }
-        int layerBaseY = Math.floorDiv(pos.getY(), BackroomsChunkGenerator.LAYER_HEIGHT)
-                * BackroomsChunkGenerator.LAYER_HEIGHT;
+        // 层高按维度决定：Level 0 = 8 格，Level 1 = 18 格。
+        // 之前硬编码 L0 的 8，导致在 Level 1 里采样到错误的 Y，是跨层级的干涉项。
+        int layerH = layerHeightOf(level);
+        int layerBaseY = Math.floorDiv(pos.getY(), layerH) * layerH;
 
         // 结果缓存：同一方块位置在一次网格重建内会被询问多次（每个面一次），
         // 每次都要做 25 次群系采样，是客户端最热的方法之一。
@@ -111,6 +113,26 @@ public final class BiomeTint {
     }
 
     /** 取该位置的群系：优先 LevelReader，区块编译期回退到客户端世界。 */
+    /**
+     * 当前维度（层级）的单层高度。
+     *
+     * <p>Level 0 世界高 256 ⇒ 8 格/层；Level 1 世界高 288 ⇒ 18 格/层。
+     * 用世界真实总高度推断，避免把 Level 0 的常量泄漏到 Level 1。</p>
+     */
+    public static int layerHeightOf(BlockAndTintGetter level) {
+        int total = 256;
+        if (level instanceof net.minecraft.world.level.LevelHeightAccessor h) {
+            total = h.getHeight();
+        } else {
+            net.minecraft.client.multiplayer.ClientLevel cl =
+                    net.minecraft.client.Minecraft.getInstance().level;
+            if (cl != null) {
+                total = cl.getHeight();
+            }
+        }
+        return total >= 288 ? 18 : BackroomsChunkGenerator.LAYER_HEIGHT;
+    }
+
     private static Holder<Biome> biomeAt(BlockAndTintGetter level, BlockPos pos) {
         if (level instanceof net.minecraft.world.level.LevelReader reader) {
             return reader.getBiome(pos);
