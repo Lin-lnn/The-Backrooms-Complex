@@ -116,6 +116,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState stairState;
     /** 花园段从天花板垂下的藤蔓。 */
     private final BlockState vineState;
+    /** 传说段的深色木门。 */
+    private final BlockState woodDoorState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -143,6 +145,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
         this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState();
         this.vineState = net.minecraft.world.level.block.Blocks.WEEPING_VINES.defaultBlockState();
+        this.woodDoorState = net.minecraft.world.level.block.Blocks.DARK_OAK_DOOR.defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -435,7 +438,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
             if (subFloor) {
-                placeSubFloor(chunk, m, c, wx, y, wz, offset, prof);
+                placeSubFloor(chunk, m, c, wx, y, wz, offset, region, prof);
             } else {
                 placeAisle(chunk, m, c, wx, y, wz, offset, region, prof);
             }
@@ -624,7 +627,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      */
     private void placeSubFloor(ChunkAccess chunk, BlockPos.MutableBlockPos m,
                                Column c, int wx, int y, int wz, int offset,
-                               SectorProfile prof) {
+                               Region region, SectorProfile prof) {
         int subOff = offset % SUB_H;
         if (subOff == 0) {
             set(chunk, m, wx, y, wz, prof.floor());
@@ -640,7 +643,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             // 小径边界：整面实心，只在门位开 1 宽 × 2 高的洞（避免贯穿裂缝）
             boolean doorHalf = c.gate() && (subOff == 1 || subOff == 2);
             set(chunk, m, wx, y, wz, doorHalf
-                    ? doorState(c.facing(), subOff == 1)
+                    ? doorState(c.facing(), subOff == 1, region)
                     : prof.wall());
             return;
         }
@@ -700,7 +703,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             } else if (c.room() == 2) {
                 // 门列：1~2 格高放「下半 / 上半」门，其余高度实心 => 除门以外没有入口
                 set(chunk, m, wx, y, wz, (offset % h == 1 || offset % h == 2)
-                        ? doorState(Direction.SOUTH, offset == 1)
+                        ? doorState(Direction.SOUTH, offset % h == 1, region)
                         : this.whiteWallState);
             } else if (c.room() == 1) {
                 set(chunk, m, wx, y, wz, prof.wall());
@@ -828,8 +831,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * @param facing 门面朝向（由边界法线决定）
      * @param lower  {@code true} = 下半，{@code false} = 上半
      */
-    private BlockState doorState(net.minecraft.core.Direction facing, boolean lower) {
-        return this.metalDoorState
+    private BlockState doorState(net.minecraft.core.Direction facing, boolean lower, Region region) {
+        // 传说段的木护墙板配深色木门，其余区段仍是金属门
+        BlockState base = region == Region.LEGEND ? this.woodDoorState : this.metalDoorState;
+        return base
                 .setValue(net.minecraft.world.level.block.DoorBlock.FACING, facing)
                 .setValue(net.minecraft.world.level.block.DoorBlock.HALF,
                         lower
