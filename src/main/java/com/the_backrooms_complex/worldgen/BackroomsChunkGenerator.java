@@ -230,8 +230,12 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 final boolean colIsLamp = isLamp(worldX, worldZ);
                 // Level 1 的三个纯 XZ 判定也提到 y 循环外（原本每方块算 6 次哈希）
                 final boolean colPassage = isPassageArea(worldX, worldZ);
+                // 门洞：边界上每 24 格「单独一列」（用 x+z 取模，避免整行都成了门）
                 final boolean colPassageGate = isPassageBoundary(worldX, worldZ)
-                        && (Math.floorMod(worldX, 24) <= 1 || Math.floorMod(worldZ, 24) <= 1);
+                        && Math.floorMod(worldX + worldZ, 24) == 0;
+                // 过道一侧的边界：用「混凝土柱」包裹住小径
+                final boolean colPassageWall = !isPassageArea(worldX, worldZ)
+                        && isPassageBoundary(worldX, worldZ);
                 final int colRoomKind = aisleRoomAt(worldX, worldZ);
 
 
@@ -347,8 +351,9 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                     // 独立柱子：在没有墙的通道列上立起 1x1 柱
                     if (l1ConcreteFloor) {
                         // ===== Level 1：停车场式开阔空间 =====
-                        // 除了 4x4 巨柱之外不留任何墙体 => 一整片开放场地
-                        isWall = false;
+                        // 除了 4x4 巨柱之外不留任何墙体 => 一整片开放场地；
+                        // 但小径的边界要用「混凝土柱」包起来（除了门洞）。
+                        isWall = colPassageWall && !colPassageGate;
                     } else if (inHall) {
                         isWall = false;
                     } else if (pillar && !isWall) {
@@ -386,11 +391,17 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         // 墙壁区（+1..+5）：墙壁列放踢脚线/墙，通道列留空气
                         if (isWall) {
                             // offset == 1 使用踢脚线方块（四边凸出裙边），其余为普通墙壁
-                            BlockState wallState = wallForBiome(biome, worldX, y, worldZ);
-                            // 天鹰段的巨柱：用「混凝土柱」方块，其中少量改用「混凝土警示柱」
-                            if (pillar && l1Pillar) {
+                            // Level 1：所有墙体（含柱、含边界包裹）一律用「混凝土柱」，
+                            // 彻底避免出现 Level 0 的破败/警示墙。
+                            BlockState wallState = l1ConcreteFloor
+                                    ? concretePillarBlock
+                                    : wallForBiome(biome, worldX, y, worldZ);
+                            // 天鹰段的巨柱：少量改用「混凝土警示柱」
+                            if (pillar && l1Pillar && l1ConcreteFloor) {
                                 boolean warn = Math.floorMod(worldX * 31 + worldZ * 17 + y * 7, 100) == 0;
-                                wallState = warn ? concreteWarningPillarBlock : concretePillarBlock;
+                                if (warn) {
+                                    wallState = concreteWarningPillarBlock;
+                                }
                             }
                             BlockState state = (offset == 1) ? plinthState : wallState;
                             chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
@@ -463,6 +474,13 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * 相邻列（相差 1 或 2）不可能同时命中，因此<b>同种变种永不相邻</b>，同时概率精确。</p>
      */
     private BlockState wallForBiome(Holder<Biome> biome, int x, int y, int z) {
+        // Level 1 的群系不走 Level 0 的"破败/警示墙"差分，直接返回该群系的主墙方块
+        ResourceLocation l1key = biomeKey(biome);
+        String l1path = l1key.getPath();
+        if ("aquila_sector".equals(l1path) || "warehouse_aisles".equals(l1path)
+                || "puddle_zone".equals(l1path)) {
+            return wallForBiome(biome);
+        }
         if (backroomsBiomeSource.isConcreteHalls(biome)) {
             // 三轴都参与：相邻方块（x±1 / z±1 / y±1）的 k 值分别相差 1 / 2 / 3，
             // 不可能同时命中同一余数 => 同种变种在三维上永不相邻。
