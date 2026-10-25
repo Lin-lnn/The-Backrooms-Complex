@@ -241,7 +241,10 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 boolean damp = backroomsBiomeSource.isDampCorridors(biome);
                 BlockState plinthState = plinthForBiome(biome);   // 踢脚线也参与渐变
                 // Level 1：天鹰段 / 仓库过道 使用混凝土地板；其余沿用原配色
-                String biomePath = biome.unwrapKey().map(k -> k.location().getPath()).orElse("");
+                // 注意：biomePath 由 biome 决定，而 biome 在层内是同一个对象 —— 但这里在 y 循环里，
+                // 为了不每方块都做一次 unwrapKey().map(getPath())（会分配 String），
+                // 用一个按层缓存的小数组（见下方 columnBiomePath）。
+                String biomePath = columnBiomePath(biome, layer);
                 boolean l1ConcreteFloor = "aquila_sector".equals(biomePath) || "warehouse_aisles".equals(biomePath);
                 BlockState columnFloor = l1ConcreteFloor
                         ? concreteFloorBlock
@@ -659,6 +662,34 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     /** 荧光灯：每 {@link #LAMP_SPACING} 格一个（间隔 4~6 格）。 */
     private boolean isLamp(int worldX, int worldZ) {
         return Math.floorMod(worldX, LAMP_SPACING) == 2 && Math.floorMod(worldZ, LAMP_SPACING) == 2;
+    }
+
+    // ==================== 群系路径按层缓存 ====================
+
+    /** 缓存：层 → (biome 引用, path)。每层只算一次，避免每方块分配 String。 */
+    private Holder<Biome>[] biomeCacheRef;
+    private String[] biomeCachePath;
+
+    /** 取当前层群系的路径（带缓存，同一层同一 biome 直接命中）。 */
+    private String columnBiomePath(Holder<Biome> biome, int layer) {
+        if (this.biomeCacheRef == null || this.biomeCacheRef.length <= layer) {
+            int n = Math.max(layer + 8, 64);
+            Holder<Biome>[] r = new Holder[n];
+            String[] p = new String[n];
+            if (this.biomeCacheRef != null) {
+                System.arraycopy(this.biomeCacheRef, 0, r, 0, this.biomeCacheRef.length);
+                System.arraycopy(this.biomeCachePath, 0, p, 0, this.biomeCachePath.length);
+            }
+            this.biomeCacheRef = r;
+            this.biomeCachePath = p;
+        }
+        if (this.biomeCacheRef[layer] == biome && this.biomeCachePath[layer] != null) {
+            return this.biomeCachePath[layer];
+        }
+        String path = biome.unwrapKey().map(k -> k.location().getPath()).orElse("");
+        this.biomeCacheRef[layer] = biome;
+        this.biomeCachePath[layer] = path;
+        return path;
     }
 
     // ==================== 群系 → 方块映射 ====================
