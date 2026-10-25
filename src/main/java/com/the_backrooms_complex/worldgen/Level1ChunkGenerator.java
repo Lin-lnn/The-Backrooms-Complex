@@ -24,7 +24,6 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import com.the_backrooms_complex.ModBlocks;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -32,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * <b>Level 1「宜居地带」专用区块生成器</b>。
  *
- * <p>与 Level 0 的 {@link BackroomsChunkGenerator} <b>完全独立</b>，
+ * <p>与 Level 0 的生成器 <b>完全独立</b>，
  * 没有任何共享的方块、配色或布局逻辑 —— 它自己就是一套生成规则。</p>
  *
  * <h2>结构</h2>

@@ -90,26 +90,9 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * 这里改为读取<b>区块自身</b>的高度，任何维度都能正确工作。</p>
      */
     private static int fullLayers(net.minecraft.world.level.LevelHeightAccessor heightAccessor) {
-        return Math.max(1, heightAccessor.getHeight() / layerHeight(heightAccessor));
+        return Math.max(1, heightAccessor.getHeight() / LAYER_HEIGHT);
     }
 
-    /**
-     * 当前层级的<b>单层高度</b>（格）。
-     *
-     * <ul>
-     *   <li><b>Level 0</b>：256 高 ⇒ 8 格/层，共 32 层；</li>
-     *   <li><b>Level 1</b>：288 高 ⇒ <b>18 格/层</b>，共 16 层
-     *       （天鹰段的复式大空间：地板 1 + 空气 16 + 天花板 1）。</li>
-     * </ul>
-     */
-    private static int layerHeight(net.minecraft.world.level.LevelHeightAccessor heightAccessor) {
-        return layerHeight(heightAccessor.getHeight());
-    }
-
-    /** 按世界总高度推断单层高度。 */
-    private static int layerHeight(int totalHeight) {
-        return totalHeight >= 288 ? 18 : LAYER_HEIGHT;
-    }
     /** 荧光灯间隔（格）。 */
     private static final int LAMP_SPACING = 5;
 
@@ -145,18 +128,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private final BlockState dampFloor;
     private final BlockState dampCeiling;
 
-    // ===== Level 1「宜居地带」专用方块 =====
-    /** 混凝土柱（淡灰色混凝土）。 */
-    private final BlockState concretePillarBlock;
-    /** 混凝土警示柱（强化深板岩）。 */
-    private final BlockState concreteWarningPillarBlock;
-    /** 混凝土地板（石头）。 */
-    private final BlockState concreteFloorBlock;
-    /** 粉刷为白色的混凝土墙壁（去皮苍白橡木原木）。 */
-    private final BlockState whitePlasteredWallBlock;
-    /** 混凝土天花板（平滑石头）。 */
-    private final BlockState concreteCeilingBlock;
-
     public BackroomsChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
         // 本模组的维度 JSON 始终使用 BackroomsBiomeSource，因此此处强制转换安全
@@ -178,11 +149,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         this.warningWall = ModBlocks.WARNING_CONCRETE_WALL.get().defaultBlockState();
         this.dampFloor = ModBlocks.DAMP_FLOOR.get().defaultBlockState();
         this.dampCeiling = ModBlocks.DAMP_CEILING.get().defaultBlockState();
-        this.concretePillarBlock = ModBlocks.CONCRETE_PILLAR.get().defaultBlockState();
-        this.concreteWarningPillarBlock = ModBlocks.CONCRETE_WARNING_PILLAR.get().defaultBlockState();
-        this.concreteFloorBlock = ModBlocks.CONCRETE_FLOOR.get().defaultBlockState();
-        this.whitePlasteredWallBlock = ModBlocks.WHITE_PLASTERED_WALL.get().defaultBlockState();
-        this.concreteCeilingBlock = ModBlocks.CONCRETE_CEILING.get().defaultBlockState();
     }
 
     // ==================== ChunkGenerator 核心：填充方块与群系 ====================
@@ -228,19 +194,10 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 final boolean colInHallRoom = inHallRoom(worldX, worldZ);
                 final boolean colOnGiantPillar = onGiantPillar(worldX, worldZ);
                 final boolean colIsLamp = isLamp(worldX, worldZ);
-                // Level 1 的三个纯 XZ 判定也提到 y 循环外（原本每方块算 6 次哈希）
-                final boolean colPassage = isPassageArea(worldX, worldZ);
-                // 门洞：边界上每 24 格「单独一列」（用 x+z 取模，避免整行都成了门）
-                final boolean colPassageGate = isPassageBoundary(worldX, worldZ)
-                        && Math.floorMod(worldX + worldZ, 24) == 0;
-                // 过道一侧的边界：用「混凝土柱」包裹住小径
-                final boolean colPassageWall = !isPassageArea(worldX, worldZ)
-                        && isPassageBoundary(worldX, worldZ);
-                final int colRoomKind = aisleRoomAt(worldX, worldZ);
 
 
                 for (int y = minY; y < maxY; y++) {
-                    int lh = layerHeight(chunk);
+                    int lh = LAYER_HEIGHT;
                     int layer = y / lh;
                     int offset = y - layer * lh;   // 层内偏移
                 // 三维群系：本层的群系决定本层的墙壁花纹 / 地板 / 天花板 / 通风口
@@ -249,32 +206,14 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 boolean hall = backroomsBiomeSource.isConcreteHalls(biome);
                 boolean damp = backroomsBiomeSource.isDampCorridors(biome);
                 BlockState plinthState = plinthForBiome(biome);   // 踢脚线也参与渐变
-                // Level 1：天鹰段 / 仓库过道 使用混凝土地板；其余沿用原配色
-                // 注意：biomePath 由 biome 决定，而 biome 在层内是同一个对象 —— 但这里在 y 循环里，
-                // 为了不每方块都做一次 unwrapKey().map(getPath())（会分配 String），
-                // 用一个按层缓存的小数组（见下方 columnBiomePath）。
-                String biomePath = columnBiomePath(biome, layer);
-                boolean l1ConcreteFloor = "aquila_sector".equals(biomePath) || "warehouse_aisles".equals(biomePath);
-                BlockState columnFloor = l1ConcreteFloor
-                        ? concreteFloorBlock
-                        : (hall ? strippedCarpetFloor : (damp ? dampFloor : floorState));
-                // Level 1 的天鹰段 / 仓库过道 使用混凝土地板 + 混凝土天花板
-                BlockState columnCeiling = l1ConcreteFloor
-                        ? concreteCeilingBlock
-                        : (hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState));
-                // Level 1 唯一保留的 L0 特例：底部的灯用「荧光灯」
-                BlockState columnLamp = l1ConcreteFloor ? lampState : (hall ? ruinedVent : lampState);
+                BlockState columnFloor = hall ? strippedCarpetFloor : (damp ? dampFloor : floorState);
+                BlockState columnCeiling = hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState);
+                BlockState columnLamp = hall ? ruinedVent : lampState;
                 // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
                 boolean inHall = hall && colInHallRoom;
-                // 关键：先判断层号是否在有效范围内，再访问 wall[layer]。
-                // 原来越界保护写在下面，但 pillar 的计算已经先访问了 wall[layer]，
-                // 所以 Level 1（36 层、墙网格 36 层）之外的层仍会越界。
+                // 先判断层号是否在有效范围内，再访问 wall[layer]
                 boolean layerValid = layer < fullLayers(chunk);
-                // Level 1 天鹰段的巨柱使用「混凝土柱」方块；Level 0 的 1x1 柱子沿用墙体
-                boolean l1Pillar = "aquila_sector".equals(biomePath) || "warehouse_aisles".equals(biomePath) || "puddle_zone".equals(biomePath);
-                boolean pillar = layerValid && l1Pillar && colOnGiantPillar
-                        ? true
-                        : layerValid && hall && !inHall && colOnGiantPillar
+                boolean pillar = layerValid && hall && !inHall && colOnGiantPillar
                         // 柱子四邻必须都是通道，避免出现"贴着墙角的突出柱状拐角"
                         && lx > 0 && lx < 15 && lz > 0 && lz < 15
                         && !wall[layer][lx - 1][lz] && !wall[layer][lx + 1][lz]
@@ -286,75 +225,12 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         continue;
                     }
 
-                    // ===== Level 1 小径：3 层 × 6 格高的堆叠窄迷宫 =====
-                    // 小径区总高 18 格（与层高一致），每 6 格一个子层：
-                    //   subOffset 0 -> 地板；5 -> 天花板；其余 -> 迷宫墙
-                    boolean passage = l1ConcreteFloor && colPassage;
-                    if (passage) {
-                        int sub = offset / 6;            // 0,1,2
-                        int subOff = offset - sub * 6;   // 0..5
-                        if (subOff == 0) {
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteFloorBlock, false);
-                            continue;
-                        }
-                        if (subOff == 5) {
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteCeilingBlock, false);
-                            continue;
-                        }
-                        // 边界格：开 2 格宽的门洞，并在 subOff 1~2 处放「金属门」
-                        boolean gate = colPassageGate;
-                        if (gate) {
-                            if (subOff == 1 || subOff == 2) {
-                                chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                        ModBlocks.METAL_DOOR.get().defaultBlockState(), false);
-                            } else {
-                                chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
-                            }
-                            continue;
-                        }
-                        boolean pWall = isPassageWall(worldX, worldZ);
-                        chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                pWall ? whitePlasteredWallBlock : airState, false);
-                        continue;
-                    }
-
-                    // ===== 过道里的小房间（64 格网格，7x7，金属门朝南）=====
-                    int roomKind = l1ConcreteFloor ? colRoomKind : -1;
-                    if (roomKind >= 0) {
-                        int rSub = offset / 6;
-                        int rOff = offset - rSub * 6;
-                        if (rOff == 0) {
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteFloorBlock, false);
-                            continue;
-                        }
-                        if (rOff == 5) {
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteCeilingBlock, false);
-                            continue;
-                        }
-                        if (roomKind == 2) {
-                            // 门：1~2 格高处放金属门
-                            chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                    (rOff == 1 || rOff == 2)
-                                            ? ModBlocks.METAL_DOOR.get().defaultBlockState()
-                                            : airState, false);
-                            continue;
-                        }
-                        chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                                roomKind == 1 ? whitePlasteredWallBlock : airState, false);
-                        continue;
-                    }
-
                     // 本层自己的布局（逐层种子不同）
                     boolean isWall = wall[layer][lx][lz];
 
                     // 大厅房间：整块清空（大厅状空地）
                     // 独立柱子：在没有墙的通道列上立起 1x1 柱
-                    if (l1ConcreteFloor) {
-                        // ===== Level 1：停车场式开阔空间 =====
-                        // 除了 4x4 巨柱之外不留任何墙体 => 一整片开放场地；
-                        // 但小径的边界要用「混凝土柱」包起来（除了门洞）。
-                        isWall = colPassageWall && !colPassageGate;
-                    } else if (inHall) {
+                    if (inHall) {
                         isWall = false;
                     } else if (pillar && !isWall) {
                         isWall = true;
@@ -391,18 +267,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         // 墙壁区（+1..+5）：墙壁列放踢脚线/墙，通道列留空气
                         if (isWall) {
                             // offset == 1 使用踢脚线方块（四边凸出裙边），其余为普通墙壁
-                            // Level 1：所有墙体（含柱、含边界包裹）一律用「混凝土柱」，
-                            // 彻底避免出现 Level 0 的破败/警示墙。
-                            BlockState wallState = l1ConcreteFloor
-                                    ? concretePillarBlock
-                                    : wallForBiome(biome, worldX, y, worldZ);
-                            // 天鹰段的巨柱：少量改用「混凝土警示柱」
-                            if (pillar && l1Pillar && l1ConcreteFloor) {
-                                boolean warn = Math.floorMod(worldX * 31 + worldZ * 17 + y * 7, 100) == 0;
-                                if (warn) {
-                                    wallState = concreteWarningPillarBlock;
-                                }
-                            }
+                            BlockState wallState = wallForBiome(biome, worldX, y, worldZ);
                             BlockState state = (offset == 1) ? plinthState : wallState;
                             chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
                         } else {
@@ -474,13 +339,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * 相邻列（相差 1 或 2）不可能同时命中，因此<b>同种变种永不相邻</b>，同时概率精确。</p>
      */
     private BlockState wallForBiome(Holder<Biome> biome, int x, int y, int z) {
-        // Level 1 的群系不走 Level 0 的"破败/警示墙"差分，直接返回该群系的主墙方块
-        ResourceLocation l1key = biomeKey(biome);
-        String l1path = l1key.getPath();
-        if ("aquila_sector".equals(l1path) || "warehouse_aisles".equals(l1path)
-                || "puddle_zone".equals(l1path)) {
-            return wallForBiome(biome);
-        }
         if (backroomsBiomeSource.isConcreteHalls(biome)) {
             // 三轴都参与：相邻方块（x±1 / z±1 / y±1）的 k 值分别相差 1 / 2 / 3，
             // 不可能同时命中同一余数 => 同种变种在三维上永不相邻。
@@ -511,138 +369,9 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         return Math.abs(ox) <= 5 && Math.abs(oz) <= 5;
     }
 
-    /** 独立柱子：每 16 格一个候选点，命中且该处原本是通道时立一根 1x1 柱。 */
-    private static boolean onPillarColumn(int x, int z) {
-        if (Math.floorMod(x, 16) != 8 || Math.floorMod(z, 16) != 8) {
-            return false;
-        }
-        return pillarHash(Math.floorDiv(x, 16), Math.floorDiv(z, 16));
-    }
-
     /**
-     * 「巨柱停车楼」的柱子判定（Level 1 天鹰段）。
-     *
-     * <p>柱体是 <b>4×4 格</b>的实心混凝土柱，按 <b>48 格</b>的间距排布，
-     * 与文中"巨型混凝土柱子支撑着整个结构"的描述一致。</p>
+     * 独立柱子 / 巨柱判定：每 48 格一个网格，柱体占 {@code 22..25}（4×4）。
      */
-    // ==================== Level 1「小径」区域 ====================
-
-    /** 小径每个"区"的边长（格）。一个区内全部是小径，区外是过道。 */
-    public static final int PASSAGE_CELL = 96;
-
-    /**
-     * 某个 XZ 坐标是否落在「小径」区域里。
-     *
-     * <p>小径按 <b>96×96 格</b>的方块区划分，每区约 <b>45%</b> 的概率是小径
-     * —— 与文中"打开门就来到小径"的设定对应：小径是<b>独立的、封闭的</b>迷宫区块。</p>
-     */
-    public static boolean isPassageArea(int x, int z) {
-        int cx = Math.floorDiv(x, PASSAGE_CELL);
-        int cz = Math.floorDiv(z, PASSAGE_CELL);
-        long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x70617373616765L;
-        h ^= h >>> 33; h *= 0xFF51AFD7ED558CCDL; h ^= h >>> 33;
-        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.45;
-    }
-
-    /**
-     * 小径内部的墙体判定：<b>狭窄、迷宫般曲折</b>的 4 格走廊 + 1~2 格墙。
-     *
-     * <p>用两个正交的"一维折线"叠加出迷宫感：</p>
-     * <ul>
-     *   <li>每 5 格一条竖墙，按 z 方向每 7 格开一个 2 格宽的缺口；</li>
-     *   <li>每 5 格一条横墙，按 x 方向每 7 格开一个 2 格宽的缺口。</li>
-     * </ul>
-     * <p>两者取"且"，形成可通行的小径网络，且不会出现死路（缺口交错）。</p>
-     */
-    /**
-     * 是否是「过道 ↔ 小径」的边界格（四个水平邻格中有不同区域的）。
-     */
-    // ==================== 过道里的「小房间」 ====================
-
-    /** 小房间网格边长（格）。 */
-    public static final int ROOM_CELL = 64;
-    /** 房间内部半径（7x7 => 半径 3）。 */
-    public static final int ROOM_RADIUS = 3;
-
-    /**
-     * 过道小房间的三种判定（-1 表示不在房间格子上）。
-     *
-     * <ul>
-     *   <li>返回 0 = 房间内部（清空）；</li>
-     *   <li>返回 1 = 房间墙壁（粉刷白墙）；</li>
-     *   <li>返回 2 = 房间门（金属门位置）；</li>
-     *   <li>返回 -1 = 不在房间范围。</li>
-     * </ul>
-     */
-    public static int aisleRoomAt(int x, int z) {
-        int cx = Math.floorDiv(x, ROOM_CELL);
-        int cz = Math.floorDiv(z, ROOM_CELL);
-        // 只有约 60% 的网格有房间
-        long h = (long) cx * 0x94D049BB133111EBL ^ (long) cz * 0x2545F4914F6CDD1DL ^ 0x726F6F6DL;
-        h ^= h >>> 33; h *= 0xC4CEB9FE1A85EC53L; h ^= h >>> 33;
-        if (((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) >= 0.60) {
-            return -1;
-        }
-        int ox = Math.floorMod(x, ROOM_CELL) - ROOM_CELL / 2;
-        int oz = Math.floorMod(z, ROOM_CELL) - ROOM_CELL / 2;
-        int ax = Math.abs(ox);
-        int az = Math.abs(oz);
-        int r = ROOM_RADIUS;
-        if (ax <= r && az <= r) {
-            // 门：南墙正中 1 格
-            if (oz == r && ox == 0) {
-                return 2;
-            }
-            if (ax == r || az == r) {
-                return 1;   // 墙
-            }
-            return 0;       // 内部
-        }
-        return -1;
-    }
-
-    public static boolean isPassageBoundary(int x, int z) {
-        boolean here = isPassageArea(x, z);
-        return here != isPassageArea(x + 1, z) || here != isPassageArea(x - 1, z)
-                || here != isPassageArea(x, z + 1) || here != isPassageArea(x, z - 1);
-    }
-
-    /**
-     * 是否在这一列上开一个「金属门」。
-     *
-     * <p>沿边界每 <b>24 格</b>开一个 2 格宽的门洞，保证过道与小径之间始终有路可走，
-     * 且不会开得太密（否则边界会变成筛子）。</p>
-     */
-    public static boolean isPassageGate(int x, int z, int sub) {
-        if (!isPassageBoundary(x, z)) {
-            return false;
-        }
-        // 沿边界方向每 24 格一个门，门宽 2 格
-        return Math.floorMod(x, 24) <= 1 || Math.floorMod(z, 24) <= 1;
-    }
-
-    public static boolean isPassageWall(int x, int z) {
-        int mx = Math.floorMod(x, 5);
-        int mz = Math.floorMod(z, 5);
-        boolean vWall = (mx == 0);   // 竖墙（沿 z 延伸）
-        boolean hWall = (mz == 0);   // 横墙（沿 x 延伸）
-
-        // 交叉点一律打通：保证每个 5x5 格子四周至少有一个开口，
-        // 不会出现「四面全封、玩家无法进入」的密闭空腔。
-        if (vWall && hWall) {
-            return false;
-        }
-        if (!vWall && !hWall) {
-            return false;            // 走廊内部
-        }
-        // 竖墙：沿 z 方向每 7 格开 2 格缺口
-        // 横墙：沿 x 方向每 7 格开 2 格缺口
-        if (vWall) {
-            return Math.floorMod(z, 7) > 1;
-        }
-        return Math.floorMod(x, 7) > 1;
-    }
-
     private static boolean onGiantPillar(int x, int z) {
         // 48 格网格，每格中心放一根 4x4 柱
         int cx = Math.floorDiv(x, 48);
@@ -662,13 +391,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.55;
     }
 
-    private static boolean pillarHash(int cx, int cz) {
-        long h = (long) cx * 0x94D049BB133111EBL ^ (long) cz * 0x2545F4914F6CDD1DL ^ 0x2545F4914F6CDD1DL;
-        h ^= h >>> 33; h *= 0xC4CEB9FE1A85EC53L; h ^= h >>> 33;
-        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.30;
-    }
-
-    /**
+/**
      * 为每个方块列分配群系。
      *
      * <p>1.21.1 中 {@link ChunkAccess} 没有公开的 {@code setBiome} 方法，群系填充应使用
@@ -689,45 +412,11 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
     // ==================== 群系路径按层缓存 ====================
 
-    /** 缓存：层 → (biome 引用, path)。每层只算一次，避免每方块分配 String。 */
-    private Holder<Biome>[] biomeCacheRef;
-    private String[] biomeCachePath;
-
-    /** 取当前层群系的路径（带缓存，同一层同一 biome 直接命中）。 */
-    private String columnBiomePath(Holder<Biome> biome, int layer) {
-        if (this.biomeCacheRef == null || this.biomeCacheRef.length <= layer) {
-            int n = Math.max(layer + 8, 64);
-            Holder<Biome>[] r = new Holder[n];
-            String[] p = new String[n];
-            if (this.biomeCacheRef != null) {
-                System.arraycopy(this.biomeCacheRef, 0, r, 0, this.biomeCacheRef.length);
-                System.arraycopy(this.biomeCachePath, 0, p, 0, this.biomeCachePath.length);
-            }
-            this.biomeCacheRef = r;
-            this.biomeCachePath = p;
-        }
-        if (this.biomeCacheRef[layer] == biome && this.biomeCachePath[layer] != null) {
-            return this.biomeCachePath[layer];
-        }
-        String path = biome.unwrapKey().map(k -> k.location().getPath()).orElse("");
-        this.biomeCacheRef[layer] = biome;
-        this.biomeCachePath[layer] = path;
-        return path;
-    }
-
-    // ==================== 群系 → 方块映射 ====================
+// ==================== 群系 → 方块映射 ====================
 
     private BlockState wallForBiome(Holder<Biome> biome) {
         ResourceLocation key = biomeKey(biome);
-        // ---- Level 1 的三个群系（按路径匹配，与维度文件里的映射对应）----
         String path = key.getPath();
-        // Level 1 一律使用「混凝土柱」——停车场只有柱，没有整面墙
-        if ("aquila_sector".equals(path) || "warehouse_aisles".equals(path)) {
-            return concretePillarBlock;
-        }
-        if ("puddle_zone".equals(path)) {
-            return concretePillarBlock;
-        }
         // ---- Level 0 ----
         if (ModBiomes.CONCRETE_HALLS.location().equals(key)) return concreteWall;
         if (ModBiomes.DAMP_CORRIDORS.location().equals(key)) return dampWall;
@@ -737,10 +426,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private BlockState plinthForBiome(Holder<Biome> biome) {
         ResourceLocation key = biomeKey(biome);
         String path = key.getPath();
-        // Level 1 的柱踢脚线统一用「混凝土警示柱」
-        if ("aquila_sector".equals(path) || "warehouse_aisles".equals(path) || "puddle_zone".equals(path)) {
-            return concreteWarningPillarBlock;
-        }
         if (ModBiomes.CONCRETE_HALLS.location().equals(key)) return concretePlinth;
         if (ModBiomes.DAMP_CORRIDORS.location().equals(key)) return dampPlinth;
         return yellowPlinth;
@@ -856,11 +541,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
     @Override
     public void addDebugScreenInfo(List<String> info, RandomState random, BlockPos pos) {
-        // 本方法没有维度参数，但「层级」与世界上限一一对应：
-        //   Level 0 = 256 高（32 层）  /  Level 1 = 288 高（36 层）
-        // 因此直接按世界高度推断当前层级，F3 里就能显示正确的层级名。
-        // addDebugScreenInfo 只在客户端调用，因此可以直接读客户端当前世界的高度，
-        // 而不是 getGenDepth()（那个值是本类硬编码的 256，与 Level 1 的 288 不符）。
+        // 读客户端当前世界的真实高度：Level 0 是 256 高，共 32 层
         int height = this.getGenDepth();
         try {
             var cl = net.minecraft.client.Minecraft.getInstance().level;
@@ -868,13 +549,9 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 height = cl.getHeight();
             }
         } catch (Throwable ignored) {
-            // 服务端/专用服务器调用时没有客户端世界，退回 getGenDepth()
+            // 专用服务器上拿不到客户端世界，退回 getGenDepth()
         }
-        String level = switch (height) {
-            case 288 -> "Level 1";
-            case 320 -> "Level 2";
-            default -> "Level 0";
-        };
-        info.add("Backrooms " + level + "  (" + height + " 高 / " + layerHeight(height) + " 格每层 / " + (height / layerHeight(height)) + " 层)");
+        info.add("Backrooms Level 0  (" + height + " 高 / " + LAYER_HEIGHT + " 格每层 / "
+                + (height / LAYER_HEIGHT) + " 层)");
     }
 }
