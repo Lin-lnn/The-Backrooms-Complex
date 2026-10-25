@@ -442,9 +442,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         boolean subFloor = !c.pillar() && c.passage();
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
-            // 区段边界：用本区段自己的墙方块包裹整段（每 16 格留 2 格通道）
+            // 区段边界：用本区段自己的墙方块包裹整段（每 16 格留通道，且只在两侧都有地板的高度开）
+            boolean gateOpen = isSectorGate(wx, wz) && isSafeGateHeight(offset, prof.stacked());
             if (offset > 0 && offset < LAYER_H - 1
-                    && isSectorEdge(wx, wz) && !isSectorGate(wx, wz)) {
+                    && isSectorEdge(wx, wz) && !gateOpen) {
                 // 边界墙：本区段的特色墙
                 set(chunk, m, wx, y, wz, prof.wall());
                 continue;
@@ -845,6 +846,25 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static boolean isSectorEdge(int x, int z) {
         Region here = regionAt(x, z);
         return regionAt(x + 1, z) != here || regionAt(x, z + 1) != here;
+    }
+
+    /**
+     * 该高度开门是否安全（两侧都有地板，玩家不会掉下去）。
+     *
+     * <p>只有「每个 12 格层的最底部两格」两侧一定都有地板：地板在 {@code offset 0}，
+     * 上方两格在两种分层方式下都是空的。上层（{@code offset 6} 起）只有同样是两层
+     * 区段时才两侧都有地板，因此堆叠区段之间也允许在第二层开门，
+     * 但两层区段与通高区段之间只在一层相通，避免从 6 格高处踏空。</p>
+     */
+    public static boolean isSafeGateHeight(int offset, boolean thisStacked) {
+        int inSub = offset % LAYER_H;
+        if (inSub == 1 || inSub == 2) {
+            return true;                      // 底层：两侧都有地板
+        }
+        if (thisStacked && (inSub == SUB_H + 1 || inSub == SUB_H + 2)) {
+            return true;                      // 第二层：仅堆叠区段之间
+        }
+        return false;
     }
 
     /** 边界上的通道位置（每 16 格 2 格宽）。 */
