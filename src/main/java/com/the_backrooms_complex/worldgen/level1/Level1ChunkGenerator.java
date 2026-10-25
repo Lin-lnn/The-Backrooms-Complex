@@ -145,7 +145,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
         this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
         this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
-        this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState();
+        // 楼梯沿 +Z 方向爬升，因此台阶朝向南（高的一侧在后方）
+        this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState()
+                .setValue(net.minecraft.world.level.block.StairBlock.FACING,
+                        net.minecraft.core.Direction.SOUTH);
         // 用普通藤蔓并开启「向上附着」，它从天花板垂下且是绿色（垂泪藤是暗红色，观感不对）
         this.vineState = net.minecraft.world.level.block.Blocks.VINE.defaultBlockState()
                 .setValue(net.minecraft.world.level.block.VineBlock.UP, Boolean.TRUE);
@@ -762,9 +765,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz, crateState());
             return;
         }
-        // 堆叠区段：两层之间的楼梯（每层 2~4 处，顶层没有）
+        // 堆叠区段：两层之间的楼梯（每层 2~4 处，顶层没有）。
+        // 只在空旷列上生成：柱子 / 房间 / 小径边界 / 区段边界都不允许被替换。
         int step = rampStep(wx, wz, y / LAYER_H);
-        if (prof.stacked() && step >= 0) {
+        boolean openColumn = !c.pillar() && c.room() < 0 && !c.boundary() && !isSectorEdge(wx, wz);
+        if (prof.stacked() && step >= 0 && openColumn) {
             int inSub = offset % h;
             if (inSub >= 1 && inSub <= step) {
                 // 台阶下方的实心填充
