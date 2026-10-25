@@ -1,7 +1,7 @@
 {
   "type": "backrooms_complex:level_1",
   "generator": {
-    "type": "backrooms_complex:backrooms",
+    "type": "backrooms_complex:level1",
     "biome_source": {
       "type": "backrooms_complex:backrooms_biome_source",
       "yellow_rooms": "backrooms_complex:warehouse_aisles",

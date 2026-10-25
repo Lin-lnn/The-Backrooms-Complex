@@ -43,6 +43,8 @@ public class BackroomsComplex {
 
         // 注册区块生成器编解码器（维度 JSON 中 "type": "backrooms_complex:backrooms"）
         CHUNK_GENERATORS.register("backrooms", () -> BackroomsChunkGenerator.CODEC);
+        // Level 1 使用独立的生成器
+        CHUNK_GENERATORS.register("level1", () -> com.the_backrooms_complex.worldgen.Level1ChunkGenerator.CODEC);
         // 注册群系源编解码器（维度 JSON 中 "type": "backrooms_complex:backrooms_biome_source"）
         BIOME_SOURCES.register("backrooms_biome_source", () -> BackroomsBiomeSource.CODEC);
 
