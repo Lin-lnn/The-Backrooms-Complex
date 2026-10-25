@@ -855,26 +855,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         };
     }
 
-    /** 各段的地板。 */
-    private BlockState floorOf(Region r) {
-        return profileOf(r).floor();
-    }
-
-    /** 各段的天花板。 */
-    private BlockState ceilingOf(Region r) {
-        return profileOf(r).ceiling();
-    }
-
-    /** 各段的墙面 / 柱子。 */
-    private BlockState wallOf(Region r) {
-        return profileOf(r).wall();
-    }
-
-    /** 各段的灯位（越亮间距越小）。 */
-    private boolean lampAt(Region r, int x, int z) {
-        return profileOf(r).lamp().test(x, z);
-    }
-
     // ==================== 其余覆写
 
     @Override
