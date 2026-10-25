@@ -897,9 +897,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 }
             }
         }
-        // 衔尾段：红漆管道吊在天花板下方一格（横纵成网，不替换天花板）
-        if (region == Region.OUROBOROS && offset % h == h - 2 && !c.pillar()) {
-            BlockState pipe = ouroborosPipeAt(wx, wz);
+        // 衔尾段(红) / 传说段(灰)：管道吊在天花板下方一格，交叉处带吊架
+        if ((region == Region.OUROBOROS || region == Region.LEGEND)
+                && offset % h == h - 2 && !c.pillar()) {
+            BlockState pipe = pipeAt(region, wx, wz);
             if (pipe != null) {
                 set(chunk, m, wx, y, wz, pipe);
                 return;
@@ -1254,13 +1255,26 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      *
      * @return 该列应放的管道状态；不是管线时返回 {@code null}
      */
-    private BlockState ouroborosPipeAt(int x, int z) {
-        boolean eastWest = Math.floorMod(z, 8) == 3;
-        boolean northSouth = Math.floorMod(x, 8) == 3;
+    private BlockState pipeAt(Region region, int x, int z) {
+        // 衔尾段用红漆管道（每 8 格），传说段用灰色管道（每 12 格）
+        int step;
+        net.neoforged.neoforge.registries.DeferredBlock<?> block;
+        if (region == Region.OUROBOROS) {
+            step = 8;
+            block = ModBlocks.RED_PIPE;
+        } else if (region == Region.LEGEND) {
+            step = 12;
+            block = ModBlocks.BRASS_PIPE;
+        } else {
+            return null;
+        }
+        int offset = step / 2 + 1;
+        boolean eastWest = Math.floorMod(z, step) == offset;
+        boolean northSouth = Math.floorMod(x, step) == offset;
         if (!eastWest && !northSouth) {
             return null;
         }
-        BlockState state = ModBlocks.RED_PIPE.get().defaultBlockState();
+        BlockState state = block.get().defaultBlockState();
         if (eastWest) {
             state = state.setValue(net.minecraft.world.level.block.PipeBlock.EAST, Boolean.TRUE)
                     .setValue(net.minecraft.world.level.block.PipeBlock.WEST, Boolean.TRUE);
@@ -1268,6 +1282,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         if (northSouth) {
             state = state.setValue(net.minecraft.world.level.block.PipeBlock.NORTH, Boolean.TRUE)
                     .setValue(net.minecraft.world.level.block.PipeBlock.SOUTH, Boolean.TRUE);
+        }
+        // 交叉处向上接天花板，形成吊架（每 step 格一个）
+        if (eastWest && northSouth) {
+            state = state.setValue(net.minecraft.world.level.block.PipeBlock.UP, Boolean.TRUE);
         }
         return state;
     }
