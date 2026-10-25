@@ -219,10 +219,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         Holder<Biome> biome = backroomsBiomeSource.biomeAt(worldX, worldZ, layer);
         boolean hall = backroomsBiomeSource.isConcreteHalls(biome);
         boolean damp = backroomsBiomeSource.isDampCorridors(biome);
-        BlockState plinthState = plinthForBiome(biome);   // 踢脚线也参与渐变
-        BlockState columnFloor = hall ? strippedCarpetFloor : (damp ? dampFloor : floorState);
-        BlockState columnCeiling = hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState);
-        BlockState columnLamp = hall ? ruinedVent : lampState;
+        Palette pal = paletteFor(biome);   // 本层配色：踢脚线 / 地板 / 天花板 / 灯
         // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
         boolean inHall = hall && colInHallRoom;
         // 先判断层号是否在有效范围内，再访问 wall[layer]
@@ -244,13 +241,13 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
             if (offset == 0) {
                 // 地板：整层满铺（层间不再有竖井连接）
-                chunk.setBlockState(mutable.set(worldX, y, worldZ), columnFloor, false);
+                chunk.setBlockState(mutable.set(worldX, y, worldZ), pal.floor(), false);
             } else if (offset <= lh - 2) {
                 // 墙壁区（+1..+5）：墙壁列放踢脚线/墙，通道列留空气
                 if (isWall) {
                     // offset == 1 使用踢脚线方块（四边凸出裙边），其余为普通墙壁
                     BlockState wallState = wallForBiome(biome, worldX, y, worldZ);
-                    BlockState state = (offset == 1) ? plinthState : wallState;
+                    BlockState state = (offset == 1) ? pal.plinth() : wallState;
                     chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
                 } else {
             chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
@@ -260,12 +257,27 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
             } else {
                 // offset == 6：天花板（间隔处放荧光灯）
                 if (colIsLamp) {
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ), columnLamp, false);
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ), pal.lamp(), false);
                 } else {
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ), columnCeiling, false);
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ), pal.ceiling(), false);
                 }
             }
         }
+    }
+
+    /** 某一层（某群系）的四件套配色。 */
+    private record Palette(BlockState plinth, BlockState floor, BlockState ceiling, BlockState lamp) {
+    }
+
+    /** 按群系取出本层配色：混凝土大厅 / 潮湿走廊 / 默认黄色房间。 */
+    private Palette paletteFor(Holder<Biome> biome) {
+        boolean isHall = this.backroomsBiomeSource.isConcreteHalls(biome);
+        boolean isDamp = this.backroomsBiomeSource.isDampCorridors(biome);
+        return new Palette(
+                plinthForBiome(biome),
+                isHall ? strippedCarpetFloor : (isDamp ? dampFloor : floorState),
+                isHall ? ruinedCeiling : (isDamp ? dampCeiling : ceilingState),
+                isHall ? ruinedVent : lampState);
     }
 
     /**
