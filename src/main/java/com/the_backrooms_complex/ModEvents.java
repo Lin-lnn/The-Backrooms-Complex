@@ -127,6 +127,25 @@ public final class ModEvents {
         }
     }
 
+    /**
+     * Level 1「闪烁」现象的 tick 钩子。
+     *
+     * <p>每 tick 检查所有在 Level 1 的玩家，由 {@link com.the_backrooms_complex.worldgen.Level1Flicker}
+     * 负责计时、收集灯光、闪烁与恢复。</p>
+     */
+    @SubscribeEvent
+    public static void onLevel1FlickerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+        net.minecraft.server.MinecraftServer server = event.getServer();
+        net.minecraft.server.level.ServerLevel level =
+                server.getLevel(ModDimensions.LEVEL_1_WORLD);
+        if (level == null) {
+            return;
+        }
+        for (net.minecraft.server.level.ServerPlayer sp : level.players()) {
+            com.the_backrooms_complex.worldgen.Level1Flicker.tick(level, sp);
+        }
+    }
+
     /** 菌毯刷怪计时（每 100 tick = 5 秒尝试一次）。 */
     private static final int CARPET_SPAWN_INTERVAL = 100;
     /** 每次尝试检查多少个区块。 */
