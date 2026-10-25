@@ -103,8 +103,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState gardenWallState;
     /** 传说段：深色木板护墙。 */
     private final BlockState legendWallState;
-    /** 板条箱方块状态（惰性取，避免注册顺序问题）。 */
     /** 各墙体的踢脚线（立体裙边）。 */
+    /** 板条箱方块状态（惰性取，避免注册顺序问题）。 */
     private final BlockState whiteSkirtState;
     private final BlockState yuejinSkirtState;
     private final BlockState gardenSkirtState;
