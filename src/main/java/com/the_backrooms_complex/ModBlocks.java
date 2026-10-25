@@ -366,12 +366,12 @@ public final class ModBlocks {
             BLOCKS.register("crate", () -> new com.the_backrooms_complex.block.CrateBlock(
                     unbreakable().noOcclusion().randomTicks()));
 
-    /** 黄铜管道：纯外观的六向连接管道。 */
     /** 涂抹红油漆的管道：与灰色管道同一套六向连接，只是配色不同。 */
     public static final DeferredBlock<com.the_backrooms_complex.block.BrassPipeBlock> RED_PIPE =
             BLOCKS.register("red_pipe",
                     () -> new com.the_backrooms_complex.block.BrassPipeBlock(unbreakable()));
 
+    /** 黄铜管道：纯外观的六向连接管道。 */
     public static final DeferredBlock<com.the_backrooms_complex.block.BrassPipeBlock> BRASS_PIPE =
             BLOCKS.register("brass_pipe",
                     () -> new com.the_backrooms_complex.block.BrassPipeBlock(unbreakable()));
