@@ -497,6 +497,44 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return isOuroborosArea(x, z);
     }
 
+    // ==================== 花园段（Level 1 第六区段）====================
+
+    /** 花园段区域边长（格）。 */
+    public static final int GARDEN_CELL = 96;
+
+    /**
+     * 该列是否属于「花园段」。
+     *
+     * <p>参考图效果：混凝土结构被植物接管 —— 地面长满草、柱脚包裹着藤蔓、
+     * 大量细长藤条从天花板一直垂到地面。</p>
+     */
+    public static boolean isGardenArea(int x, int z) {
+        int cx = Math.floorDiv(x, GARDEN_CELL);
+        int cz = Math.floorDiv(z, GARDEN_CELL);
+        long h = mix(cx, cz, 0x67617264656EL);   // 'garden'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.20;
+    }
+
+    /** 花园段灯位：每 8 格一盏，且偏暖（模拟阳光透过藤蔓）。 */
+    public static boolean isGardenLamp(int x, int z) {
+        return Math.floorMod(x, 8) == 4 && Math.floorMod(z, 8) == 4;
+    }
+
+    /**
+     * 该列是否有一根从天花板垂到地面的藤条。
+     *
+     * <p>用较稀疏的哈希撒点，密度约 8%，形成「垂落的藤帘」。</p>
+     */
+    public static boolean isGardenVine(int x, int z) {
+        long h = mix(x, z, 0x76696E6573L);   // 'vines'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.08;
+    }
+
+    /** 花园段的草地方块：地面整体换草。 */
+    public static boolean isGardenGrass(int x, int z) {
+        return isGardenArea(x, z);
+    }
+
     /**
      * 子层结构（小径与过道小房间共用）。
      *
