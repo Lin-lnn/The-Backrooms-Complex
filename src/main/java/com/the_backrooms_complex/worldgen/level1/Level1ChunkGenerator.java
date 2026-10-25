@@ -114,8 +114,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState grassTuftState;
     /** 传说段墙面的磨砂玻璃格。 */
     private final BlockState frostedGlassState;
-    /** 衔尾段天花板上的红漆管道。 */
-    private final BlockState redPipeState;
     /** 衔尾段的破损补丁（砂砾）。 */
     private final BlockState rubbleState;
     /** 衔尾段碎屑里的两种混凝土粉末。 */
@@ -154,10 +152,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         // 在注册完成前取值会触发空指针；改为生成时按需取值（见 crateState()）。
         this.grassTuftState = net.minecraft.world.level.block.Blocks.SHORT_GRASS.defaultBlockState();
         this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
-        // 红漆管道：沿 X 方向铺设，东西两端相连
-        this.redPipeState = ModBlocks.RED_PIPE.get().defaultBlockState()
-                .setValue(net.minecraft.world.level.block.PipeBlock.EAST, Boolean.TRUE)
-                .setValue(net.minecraft.world.level.block.PipeBlock.WEST, Boolean.TRUE);
         this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
         this.powderLightState = net.minecraft.world.level.block.Blocks.LIGHT_GRAY_CONCRETE_POWDER
                 .defaultBlockState();
@@ -903,11 +897,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 }
             }
         }
-        // 衔尾段：红漆管道吊在天花板下方一格（不替换天花板）
-        if (region == Region.OUROBOROS && offset % h == h - 2
-                && !c.pillar() && isOuroborosPipeLine(wx, wz)) {
-            set(chunk, m, wx, y, wz, this.redPipeState);
-            return;
+        // 衔尾段：红漆管道吊在天花板下方一格（横纵成网，不替换天花板）
+        if (region == Region.OUROBOROS && offset % h == h - 2 && !c.pillar()) {
+            BlockState pipe = ouroborosPipeAt(wx, wz);
+            if (pipe != null) {
+                set(chunk, m, wx, y, wz, pipe);
+                return;
+            }
         }
         // 哥特段：拱顶外张「顶部最宽、向下收窄」=> 正确的起拱方向。
         // fromTop = 1 贴着天花板（半径 3），往下逐排收成 2、1。
@@ -1253,9 +1249,27 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.12;
     }
 
-    /** 衔尾段天花板管道：每 8 格一条横向走线（宽 1 格）。 */
-    public static boolean isOuroborosPipeLine(int x, int z) {
-        return Math.floorMod(z, 8) == 3;
+    /**
+     * 衔尾段天花板管道：横向与纵向各每 8 格一条，交叉处四向连通。
+     *
+     * @return 该列应放的管道状态；不是管线时返回 {@code null}
+     */
+    private BlockState ouroborosPipeAt(int x, int z) {
+        boolean eastWest = Math.floorMod(z, 8) == 3;
+        boolean northSouth = Math.floorMod(x, 8) == 3;
+        if (!eastWest && !northSouth) {
+            return null;
+        }
+        BlockState state = ModBlocks.RED_PIPE.get().defaultBlockState();
+        if (eastWest) {
+            state = state.setValue(net.minecraft.world.level.block.PipeBlock.EAST, Boolean.TRUE)
+                    .setValue(net.minecraft.world.level.block.PipeBlock.WEST, Boolean.TRUE);
+        }
+        if (northSouth) {
+            state = state.setValue(net.minecraft.world.level.block.PipeBlock.NORTH, Boolean.TRUE)
+                    .setValue(net.minecraft.world.level.block.PipeBlock.SOUTH, Boolean.TRUE);
+        }
+        return state;
     }
 
     /** 门位判定：沿边界每 24 格一个（用 x+z 取模，保证是单独一列而非整行）。 */
