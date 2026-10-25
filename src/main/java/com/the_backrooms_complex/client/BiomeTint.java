@@ -3,7 +3,7 @@ package com.the_backrooms_complex.client;
 import com.the_backrooms_complex.ModBlocks;
 import com.the_backrooms_complex.ModNetwork;
 import com.the_backrooms_complex.worldgen.level0.BackroomsChunkGenerator;
-import com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator;
+import com.the_backrooms_complex.worldgen.level1.Level1Sectors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -125,7 +125,7 @@ public final class BiomeTint {
                 total = cl.getHeight();
             }
         }
-        return total >= 288 ? Level1ChunkGenerator.LAYER_H : BackroomsChunkGenerator.LAYER_HEIGHT;
+        return total >= 288 ? Level1Sectors.LAYER_H : BackroomsChunkGenerator.LAYER_HEIGHT;
     }
 
     private static Holder<Biome> biomeAt(BlockAndTintGetter level, BlockPos pos) {

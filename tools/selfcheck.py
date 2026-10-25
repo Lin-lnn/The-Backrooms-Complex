@@ -70,7 +70,7 @@ def check_json_files():
 
 def check_layer_heights():
     global checks
-    l1 = os.path.join(JAVA, "worldgen", "level1", "Level1ChunkGenerator.java")
+    l1 = os.path.join(JAVA, "worldgen", "level1", "Level1Sectors.java")
     l0 = os.path.join(JAVA, "worldgen", "level0", "BackroomsChunkGenerator.java")
     biome_source = os.path.join(JAVA, "worldgen", "BackroomsBiomeSource.java")
     l1_json = os.path.join(DATA, "dimension", "level_1.json")

@@ -55,14 +55,14 @@ public final class Level1Flicker {
     public static final int MIN_INTERVAL = 15 * 20;
     public static final int MAX_INTERVAL = 45 * 20;
 
-    /** 每层高度（格）：直接跟随生成器，避免两处常量各写各的。 */
-    public static final int LAYER_H = Level1ChunkGenerator.LAYER_H;
+    /** 每层高度（格）：直接跟随区段常量，避免两处各写各的。 */
+    public static final int LAYER_H = Level1Sectors.LAYER_H;
     /** 总层数。 */
-    public static final int LAYERS = Level1ChunkGenerator.LAYERS;
+    public static final int LAYERS = Level1Sectors.LAYERS;
     /** 子层高度。 */
-    private static final int SUB_H = Level1ChunkGenerator.SUB_H;
+    private static final int SUB_H = Level1Sectors.SUB_H;
     /** 子层数量。 */
-    private static final int SUB_COUNT = Level1ChunkGenerator.SUB_COUNT;
+    private static final int SUB_COUNT = Level1Sectors.SUB_COUNT;
 
     private static final int PHASE_IDLE = 0;
     private static final int PHASE_DARKEN = 1;

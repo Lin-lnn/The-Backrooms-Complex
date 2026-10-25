@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.the_backrooms_complex.ModBiomes;
+import com.the_backrooms_complex.worldgen.level1.Level1Sectors;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -185,8 +186,7 @@ public class BackroomsBiomeSource extends BiomeSource {
                 && this.legendSector.isEmpty()) {
             return null;
         }
-        var region = com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator
-                .regionAt(x, z, layer);
+        var region = Level1Sectors.regionAt(x, z, layer);
         return switch (region) {
             case AQUILA -> this.concreteHalls;
             case YUEJIN -> this.yuejinSector.orElse(null);
