@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "backrooms_complex:block/yellowed_concrete_floor_tint"
+    "all": "backrooms_complex:block/yellowed_concrete_floor"
   }
 }
