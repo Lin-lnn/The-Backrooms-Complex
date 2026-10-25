@@ -552,7 +552,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
     @Override
     public void addDebugScreenInfo(List<String> info, RandomState random, BlockPos pos) {
-        // 读客户端当前世界的真实高度：Level 0 是 256 高，共 32 层
+        // 读客户端当前世界的真实高度（Level 0 世界高 256，实际只生成 LEVEL_LAYERS 层）
         int height = this.getGenDepth();
         try {
             var cl = net.minecraft.client.Minecraft.getInstance().level;

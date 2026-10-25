@@ -21,7 +21,7 @@ import java.util.Set;
  * <p>"宜居地带的所有自然光源随机切断，导致整个层级陷入完全黑暗"。</p>
  *
  * <h2>作用范围：<b>只看有玩家所在的层</b></h2>
- * <p>Level 1 每 {@value #LAYER_H} 格为一层，共 {@code 288 / 18 = 16} 层。
+ * <p>Level 1 每 {@value #LAYER_H} 格为一层，实际只生成 {@value #LAYERS} 层。
  * 只有<b>当前有玩家站着的那几层</b>才会被扫描、才会熄灯；</p>
  * <ul>
  *   <li>某层的已加载区域内<b>没有玩家</b> ⇒ <b>整层跳过，不扫描</b>（性能 + 逻辑都正确）；</li>
@@ -58,7 +58,7 @@ public final class Level1Flicker {
     /** 每层高度（格）。 */
     public static final int LAYER_H = 18;
     /** 总层数。 */
-    public static final int LAYERS = 288 / LAYER_H;
+    public static final int LAYERS = Level1ChunkGenerator.LAYERS;
     /** 子层高度。 */
     private static final int SUB_H = 6;
     /** 子层数量。 */
