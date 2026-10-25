@@ -97,6 +97,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.CANNED_ALMOND_WATER.get());
                         output.accept(ModItems.EMPTY_CAN.get());
                 output.accept(ModBlocks.BRASS_PIPE.get());
+                output.accept(ModBlocks.RED_PIPE.get());
                 output.accept(ModBlocks.CONCRETE_CEILING_FENCE.get());
                 output.accept(ModBlocks.CONCRETE_CEILING_SLAB.get());
                 output.accept(ModBlocks.CONCRETE_CEILING_STAIRS.get());
