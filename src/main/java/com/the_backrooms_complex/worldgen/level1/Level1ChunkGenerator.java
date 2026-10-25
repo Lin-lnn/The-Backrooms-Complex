@@ -535,6 +535,43 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return isGardenArea(x, z);
     }
 
+    // ==================== 传说段（Level 1 第七区段）====================
+
+    /** 传说段区域边长（格）。 */
+    public static final int LEGEND_CELL = 96;
+
+    /**
+     * 该列是否属于「传说段」。
+     *
+     * <p>参考图效果：老旧木质护墙板 + 上部成排磨砂玻璃格，深色木门，
+     * 深色天花板挂着长条日光灯，地上散着纸箱与灰尘 —— 像一间废弃办公室。</p>
+     */
+    public static boolean isLegendArea(int x, int z) {
+        int cx = Math.floorDiv(x, LEGEND_CELL);
+        int cz = Math.floorDiv(z, LEGEND_CELL);
+        long h = mix(cx, cz, 0x6C6567656EL);   // 'legen'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.20;
+    }
+
+    /** 传说段灯位：每 5 格一盏长条日光灯。 */
+    public static boolean isLegendLamp(int x, int z) {
+        return Math.floorMod(x, 5) == 2 && Math.floorMod(z, 5) == 2;
+    }
+
+    /** 传说段墙面上部的磨砂玻璃格：每 3 格一块，嵌在木护墙板上。 */
+    public static boolean isLegendFrostedPanel(int x, int z, int offset) {
+        if (offset < 8 || offset > 10) {
+            return false;
+        }
+        return Math.floorMod(x, 3) != 0 && Math.floorMod(z, 3) != 0;
+    }
+
+    /** 传说段地面的纸箱杂物：约 4%。 */
+    public static boolean isLegendClutter(int x, int z) {
+        long h = mix(x, z, 0x636C7574746572L);   // 'clutter'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.04;
+    }
+
     /**
      * 子层结构（小径与过道小房间共用）。
      *
