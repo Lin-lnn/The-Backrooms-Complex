@@ -146,7 +146,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
         this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
         this.stairState = ModBlocks.CONCRETE_FLOOR_STAIRS.get().defaultBlockState();
-        this.vineState = net.minecraft.world.level.block.Blocks.WEEPING_VINES.defaultBlockState();
+        // 用普通藤蔓并开启「向上附着」，它从天花板垂下且是绿色（垂泪藤是暗红色，观感不对）
+        this.vineState = net.minecraft.world.level.block.Blocks.VINE.defaultBlockState()
+                .setValue(net.minecraft.world.level.block.VineBlock.UP, Boolean.TRUE);
         this.woodDoorState = net.minecraft.world.level.block.Blocks.DARK_OAK_DOOR.defaultBlockState();
         this.steelPlateState = ModBlocks.STEEL_PLATE.get().defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
@@ -577,7 +579,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      */
     public static boolean isGardenVine(int x, int z) {
         long h = mix(x, z, 0x76696E6573L);   // 'vines'
-        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.08;
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.02;
     }
 
     /** 花园段的草地方块：地面整体换草。 */
@@ -688,7 +690,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         if (prof.stacked() && isRampColumn(wx, wz)) {
             int step = rampHeight(wz);
             int inSub = offset % h;
-            if (inSub >= 1 && inSub <= 1 + step) {
+            if (inSub >= 1 && inSub <= step) {
+                // 台阶下方的实心填充
+                set(chunk, m, wx, y, wz, prof.wall());
+                return;
+            }
+            if (inSub == step + 1) {
+                // 每列顶部一个台阶，逐列抬高 => 真正可走的楼梯
                 set(chunk, m, wx, y, wz, this.stairState);
                 return;
             }
@@ -725,7 +733,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         // 花园段：从天花板垂下的藤条（最多 6 格长）
         if (region == Region.GARDEN && !c.pillar() && isGardenVine(wx, wz)) {
             int depthFromTop = (h - 1) - (offset % h);
-            if (depthFromTop >= 1 && depthFromTop <= 6) {
+            if (depthFromTop >= 1 && depthFromTop <= 3) {
                 set(chunk, m, wx, y, wz, this.vineState);
                 return;
             }
