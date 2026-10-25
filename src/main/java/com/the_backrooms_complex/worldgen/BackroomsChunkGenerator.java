@@ -286,9 +286,46 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                             chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteCeilingBlock, false);
                             continue;
                         }
+                        // 边界格：开 2 格宽的门洞，并在 subOff 1~2 处放「金属门」
+                        boolean gate = isPassageGate(worldX, worldZ, sub);
+                        if (gate) {
+                            if (subOff == 1 || subOff == 2) {
+                                chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                                        ModBlocks.METAL_DOOR.get().defaultBlockState(), false);
+                            } else {
+                                chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
+                            }
+                            continue;
+                        }
                         boolean pWall = isPassageWall(worldX, worldZ);
                         chunk.setBlockState(mutable.set(worldX, y, worldZ),
                                 pWall ? whitePlasteredWallBlock : airState, false);
+                        continue;
+                    }
+
+                    // ===== 过道里的小房间（64 格网格，7x7，金属门朝南）=====
+                    int roomKind = l1ConcreteFloor ? aisleRoomAt(worldX, worldZ) : -1;
+                    if (roomKind >= 0) {
+                        int rSub = offset / 6;
+                        int rOff = offset - rSub * 6;
+                        if (rOff == 0) {
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteFloorBlock, false);
+                            continue;
+                        }
+                        if (rOff == 5) {
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteCeilingBlock, false);
+                            continue;
+                        }
+                        if (roomKind == 2) {
+                            // 门：1~2 格高处放金属门
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                                    (rOff == 1 || rOff == 2)
+                                            ? ModBlocks.METAL_DOOR.get().defaultBlockState()
+                                            : airState, false);
+                            continue;
+                        }
+                        chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                                roomKind == 1 ? whitePlasteredWallBlock : airState, false);
                         continue;
                     }
 
@@ -484,6 +521,73 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * </ul>
      * <p>两者取"且"，形成可通行的小径网络，且不会出现死路（缺口交错）。</p>
      */
+    /**
+     * 是否是「过道 ↔ 小径」的边界格（四个水平邻格中有不同区域的）。
+     */
+    // ==================== 过道里的「小房间」 ====================
+
+    /** 小房间网格边长（格）。 */
+    public static final int ROOM_CELL = 64;
+    /** 房间内部半径（7x7 => 半径 3）。 */
+    public static final int ROOM_RADIUS = 3;
+
+    /**
+     * 过道小房间的三种判定（-1 表示不在房间格子上）。
+     *
+     * <ul>
+     *   <li>返回 0 = 房间内部（清空）；</li>
+     *   <li>返回 1 = 房间墙壁（粉刷白墙）；</li>
+     *   <li>返回 2 = 房间门（金属门位置）；</li>
+     *   <li>返回 -1 = 不在房间范围。</li>
+     * </ul>
+     */
+    public static int aisleRoomAt(int x, int z) {
+        int cx = Math.floorDiv(x, ROOM_CELL);
+        int cz = Math.floorDiv(z, ROOM_CELL);
+        // 只有约 60% 的网格有房间
+        long h = (long) cx * 0x94D049BB133111EBL ^ (long) cz * 0x2545F4914F6CDD1DL ^ 0x726F6F6DL;
+        h ^= h >>> 33; h *= 0xC4CEB9FE1A85EC53L; h ^= h >>> 33;
+        if (((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) >= 0.60) {
+            return -1;
+        }
+        int ox = Math.floorMod(x, ROOM_CELL) - ROOM_CELL / 2;
+        int oz = Math.floorMod(z, ROOM_CELL) - ROOM_CELL / 2;
+        int ax = Math.abs(ox);
+        int az = Math.abs(oz);
+        int r = ROOM_RADIUS;
+        if (ax <= r && az <= r) {
+            // 门：南墙正中 1 格
+            if (oz == r && ox == 0) {
+                return 2;
+            }
+            if (ax == r || az == r) {
+                return 1;   // 墙
+            }
+            return 0;       // 内部
+        }
+        return -1;
+    }
+
+    public static boolean isPassageBoundary(int x, int z) {
+        boolean here = isPassageArea(x, z);
+        return here != isPassageArea(x + 1, z) || here != isPassageArea(x - 1, z)
+                || here != isPassageArea(x, z + 1) || here != isPassageArea(x, z - 1);
+    }
+
+    /**
+     * 是否在这一列上开一个「金属门」。
+     *
+     * <p>沿边界每 <b>24 格</b>开一个 2 格宽的门洞，保证过道与小径之间始终有路可走，
+     * 且不会开得太密（否则边界会变成筛子）。</p>
+     */
+    public static boolean isPassageGate(int x, int z, int sub) {
+        if (!isPassageBoundary(x, z)) {
+            return false;
+        }
+        // 沿边界方向每 24 格一个门，门宽 2 格
+        return Math.floorMod(x, 24) <= 1 || Math.floorMod(z, 24) <= 1;
+    }
+
     public static boolean isPassageWall(int x, int z) {
         int mx = Math.floorMod(x, 5);
         int mz = Math.floorMod(z, 5);
