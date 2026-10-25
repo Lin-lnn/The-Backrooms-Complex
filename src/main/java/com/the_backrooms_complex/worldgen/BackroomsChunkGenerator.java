@@ -70,6 +70,13 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     // ==================== 常量 ====================
     /** 每层周期高度（格）：地板 1 + 墙壁 5 + 天花板 1。 */
     public static final int LAYER_HEIGHT = 8;
+    /**
+     * 实际生成的层数。
+     *
+     * <p>世界高度是 256，但没必要都填满 —— 只生成 {@value #LEVEL_LAYERS} 层就够玩家活动，
+     * 剩下的空气层不参与逐方块放置，可显著降低区块生成开销。</p>
+     */
+    public static final int LEVEL_LAYERS = 5;
     /** 世界高度。 */
     private static final int WORLD_HEIGHT = 256;
     /** 世界最小 Y。 */
@@ -91,7 +98,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * 这里改为读取<b>区块自身</b>的高度，任何维度都能正确工作。</p>
      */
     private static int fullLayers(net.minecraft.world.level.LevelHeightAccessor heightAccessor) {
-        return Math.max(1, heightAccessor.getHeight() / LAYER_HEIGHT);
+        return Math.min(LEVEL_LAYERS, Math.max(1, heightAccessor.getHeight() / LAYER_HEIGHT));
     }
 
     /** 荧光灯间隔（格）。 */
@@ -181,7 +188,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         int chunkX = chunkPos.x;
         int chunkZ = chunkPos.z;
         int minY = chunk.getMinBuildHeight();
-        int maxY = chunk.getMaxBuildHeight();
+        // 只生成前 LEVEL_LAYERS 层，其余留空（降低算力）
+        int maxY = Math.min(chunk.getMaxBuildHeight(), LEVEL_LAYERS * LAYER_HEIGHT);
 
         // 1. 走廊布局：逐层独立种子（每层一套完全不同的布局），只依赖区块坐标 + 层索引
         boolean[][][] wall = BackroomsMaze.generateWallGrids(chunkX, chunkZ, fullLayers(chunk));
@@ -554,7 +562,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         } catch (Throwable ignored) {
             // 专用服务器上拿不到客户端世界，退回 getGenDepth()
         }
-        info.add("Backrooms Level 0  (" + height + " 高 / " + LAYER_HEIGHT + " 格每层 / "
-                + (height / LAYER_HEIGHT) + " 层)");
+        info.add("Backrooms Level 0  (" + LAYER_HEIGHT + " 格每层 / 生成 "
+                + LEVEL_LAYERS + " 层 / 世界高 " + height + ")");
     }
 }

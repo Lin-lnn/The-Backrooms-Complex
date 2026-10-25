@@ -51,6 +51,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 子层数量。 */
     public static final int SUB_COUNT = 3;
 
+    /**
+     * 实际生成的层数。
+     *
+     * <p>世界高度是 288（{@code 288 / 18 = 16} 层），但只生成 {@value #LAYERS} 层，其余留空 ——
+     * 逐方块循环的上界因此从 288 格降到 {@code 3 × 18 = 54} 格，区块生成快约 5 倍。</p>
+     */
+    public static final int LAYERS = 3;
+
     /** 小径区边长（格）。 */
     public static final int PASSAGE_CELL = 96;
     /** 过道小房间网格边长（格）。 */
@@ -306,7 +314,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         int chunkX = cp.x;
         int chunkZ = cp.z;
         int minY = chunk.getMinBuildHeight();
-        int maxY = chunk.getMaxBuildHeight();
+        // 只生成前 LAYERS 层，其余留空（降低算力）
+        int maxY = Math.min(chunk.getMaxBuildHeight(), LAYERS * LAYER_H);
         BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
 
         for (int lx = 0; lx < 16; lx++) {
@@ -488,6 +497,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
 
     @Override
     public void addDebugScreenInfo(List<String> info, RandomState random, BlockPos pos) {
-        info.add("Backrooms Level 1  (288 高 / " + LAYER_H + " 格每层 / " + (288 / LAYER_H) + " 层)");
+        info.add("Backrooms Level 1  (" + LAYER_H + " 格每层 / 生成 " + LAYERS + " 层)");
     }
 }
