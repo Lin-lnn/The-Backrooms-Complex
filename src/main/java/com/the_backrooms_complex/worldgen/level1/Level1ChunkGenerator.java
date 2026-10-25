@@ -104,6 +104,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState legendWallState;
     /** 板条箱（跃金段地物）。 */
     private final BlockState crateState;
+    /** 花园段地面的草簇。 */
+    private final BlockState grassTuftState;
+    /** 传说段墙面的磨砂玻璃格。 */
+    private final BlockState frostedGlassState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -123,6 +127,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.gardenWallState = net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState();
         this.legendWallState = net.minecraft.world.level.block.Blocks.DARK_OAK_PLANKS.defaultBlockState();
         this.crateState = ModBlocks.CRATE.get().defaultBlockState();
+        this.grassTuftState = net.minecraft.world.level.block.Blocks.SHORT_GRASS.defaultBlockState();
+        this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -637,6 +643,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         Region region = regionAt(wx, wz);
         // stacked 的区段按 6 格两层堆叠，其余通高（天鹰 / 跃金 / 哥特）
         int h = profileOf(region).stacked() ? SUB_H : LAYER_H;
+        // 花园段：地板上散布草簇（该格若不是墙才长）
+        if (region == Region.GARDEN && offset % h == 1 && c.room() < 0
+                && !c.pillar() && isGardenTuft(wx, wz)) {
+            set(chunk, m, wx, y, wz, this.grassTuftState);
+            return;
+        }
         // 跃金段：地面上偶有板条箱（文中该段堆满箱子）
         if (region == Region.YUEJIN && offset % h == 1 && c.room() < 0 && isCrateSpot(wx, wz)) {
             set(chunk, m, wx, y, wz, this.crateState);
@@ -673,7 +685,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 return;
             }
             boolean wall = c.pillar() || (c.aisleBoundary() && !(c.gateAdjacent() && doorHeight));
-            if (wall) {
+            if (wall && region == Region.LEGEND && isLegendFrostedPanel(wx, wz, offset)) {
+                // 传说段：木护墙板上部嵌一排磨砂玻璃格
+                set(chunk, m, wx, y, wz, this.frostedGlassState);
+            } else if (wall) {
                 // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
                 set(chunk, m, wx, y, wz,
                         (offset % h == 1) ? this.warningPillarState : wallOf(region));
@@ -698,6 +713,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static boolean isPassageLamp(int x, int z) {
         return Math.floorMod(x, PASSAGE_LAMP_STEP) == 1
                 && Math.floorMod(z, PASSAGE_LAMP_STEP) == 1;
+    }
+
+    /** 花园段草簇落点：约 30%。 */
+    public static boolean isGardenTuft(int x, int z) {
+        long h = mix(x, z, 0x74756666L);   // 'tuff'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.30;
     }
 
     /** 门位判定：沿边界每 24 格一个（用 x+z 取模，保证是单独一列而非整行）。 */
