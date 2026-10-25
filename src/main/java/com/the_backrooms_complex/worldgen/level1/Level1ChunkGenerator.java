@@ -807,7 +807,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         // 只在空旷列上生成：柱子 / 房间 / 小径边界 / 区段边界都不允许被替换。
         int step = rampStep(wx, wz, y / LAYER_H);
         boolean openColumn = !c.pillar() && c.room() < 0 && !c.boundary() && !isSectorEdge(wx, wz, y / LAYER_H);
-        if (prof.stacked() && step >= 0 && openColumn) {
+        if (prof.stacked() && allowsStairs(region) && step >= 0 && openColumn) {
             int inSub = offset % h;
             if (inSub >= 1 && inSub <= step) {
                 // 台阶下方的实心填充
@@ -993,6 +993,15 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             case LEGEND -> this.legendSkirtState;
             default -> this.whiteSkirtState;
         };
+    }
+
+    /**
+     * 该区段是否允许生成楼梯。
+     *
+     * <p>花园段是爬满植物的开放空间，不放楼梯；其余两层区段才会生成。</p>
+     */
+    public static boolean allowsStairs(Region region) {
+        return region != Region.GARDEN;
     }
 
     /** 该区段是否是「两层」结构（只有两层的区段才需要楼梯）。 */
