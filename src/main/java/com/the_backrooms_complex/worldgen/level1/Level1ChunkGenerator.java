@@ -443,7 +443,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
             // 区段边界：用本区段自己的墙方块包裹整段（每 16 格留通道，且只在两侧都有地板的高度开）
-            boolean gateOpen = isSectorGate(wx, wz) && isSafeGateHeight(offset, prof.stacked());
+            // 只有「该列确实会放门」才允许开口：小径边界门位或过道房间门位。
+            // 其它位置即便落在通道节奏上也不开洞，避免出现没有门的空壳开口。
+            boolean hasDoor = c.gate() || c.room() == 2;
+            boolean gateOpen = hasDoor && isSectorGate(wx, wz)
+                    && isSafeGateHeight(offset, prof.stacked());
             if (offset > 0 && offset < LAYER_H - 1
                     && isSectorEdge(wx, wz) && !gateOpen) {
                 // 边界墙：本区段的特色墙
