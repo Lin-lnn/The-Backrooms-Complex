@@ -206,5 +206,20 @@
   "block.backrooms_complex.white_plastered_wall_stairs": "White Plastered Concrete Wall Stairs",
   "block.backrooms_complex.white_plastered_wall_slab": "White Plastered Concrete Wall Slab",
   "block.backrooms_complex.white_plastered_wall_wall": "White Plastered Concrete Wall Wall",
-  "block.backrooms_complex.white_plastered_wall_fence": "White Plastered Concrete Wall Fence"
+  "block.backrooms_complex.white_plastered_wall_fence": "White Plastered Concrete Wall Fence",
+  "block.backrooms_complex.yellowed_concrete_floor": "Yellowed Concrete Floor",
+  "block.backrooms_complex.yellowed_concrete_floor_stairs": "Yellowed Concrete Floor Stairs",
+  "block.backrooms_complex.yellowed_concrete_floor_slab": "Yellowed Concrete Floor Slab",
+  "block.backrooms_complex.yellowed_concrete_floor_wall": "Yellowed Concrete Floor Wall",
+  "block.backrooms_complex.yellowed_concrete_floor_fence": "Yellowed Concrete Floor Fence",
+  "block.backrooms_complex.yellowed_concrete_wall": "Yellowed Concrete Wall",
+  "block.backrooms_complex.yellowed_concrete_wall_stairs": "Yellowed Concrete Wall Stairs",
+  "block.backrooms_complex.yellowed_concrete_wall_slab": "Yellowed Concrete Wall Slab",
+  "block.backrooms_complex.yellowed_concrete_wall_wall": "Yellowed Concrete Wall Wall",
+  "block.backrooms_complex.yellowed_concrete_wall_fence": "Yellowed Concrete Wall Fence",
+  "block.backrooms_complex.yellowed_corrugated_metal": "Yellowed Corrugated Metal",
+  "block.backrooms_complex.yellowed_corrugated_metal_stairs": "Yellowed Corrugated Metal Stairs",
+  "block.backrooms_complex.yellowed_corrugated_metal_slab": "Yellowed Corrugated Metal Slab",
+  "block.backrooms_complex.yellowed_corrugated_metal_wall": "Yellowed Corrugated Metal Wall",
+  "block.backrooms_complex.yellowed_corrugated_metal_fence": "Yellowed Corrugated Metal Fence"
 }

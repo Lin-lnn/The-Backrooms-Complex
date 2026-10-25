@@ -206,5 +206,20 @@
   "block.backrooms_complex.white_plastered_wall_stairs": "粉刷为白色的混凝土墙壁楼梯",
   "block.backrooms_complex.white_plastered_wall_slab": "粉刷为白色的混凝土墙壁台阶",
   "block.backrooms_complex.white_plastered_wall_wall": "粉刷为白色的混凝土墙壁墙",
-  "block.backrooms_complex.white_plastered_wall_fence": "粉刷为白色的混凝土墙壁栅栏"
+  "block.backrooms_complex.white_plastered_wall_fence": "粉刷为白色的混凝土墙壁栅栏",
+  "block.backrooms_complex.yellowed_concrete_floor": "泛黄的混凝土地板",
+  "block.backrooms_complex.yellowed_concrete_floor_stairs": "泛黄的混凝土地板楼梯",
+  "block.backrooms_complex.yellowed_concrete_floor_slab": "泛黄的混凝土地板台阶",
+  "block.backrooms_complex.yellowed_concrete_floor_wall": "泛黄的混凝土地板墙",
+  "block.backrooms_complex.yellowed_concrete_floor_fence": "泛黄的混凝土地板栅栏",
+  "block.backrooms_complex.yellowed_concrete_wall": "泛黄的混凝土墙",
+  "block.backrooms_complex.yellowed_concrete_wall_stairs": "泛黄的混凝土墙楼梯",
+  "block.backrooms_complex.yellowed_concrete_wall_slab": "泛黄的混凝土墙台阶",
+  "block.backrooms_complex.yellowed_concrete_wall_wall": "泛黄的混凝土墙墙",
+  "block.backrooms_complex.yellowed_concrete_wall_fence": "泛黄的混凝土墙栅栏",
+  "block.backrooms_complex.yellowed_corrugated_metal": "泛黄的金属瓦楞板",
+  "block.backrooms_complex.yellowed_corrugated_metal_stairs": "泛黄的金属瓦楞板楼梯",
+  "block.backrooms_complex.yellowed_corrugated_metal_slab": "泛黄的金属瓦楞板台阶",
+  "block.backrooms_complex.yellowed_corrugated_metal_wall": "泛黄的金属瓦楞板墙",
+  "block.backrooms_complex.yellowed_corrugated_metal_fence": "泛黄的金属瓦楞板栅栏"
 }

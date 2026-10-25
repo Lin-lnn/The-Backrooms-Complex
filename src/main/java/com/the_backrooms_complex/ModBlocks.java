@@ -329,6 +329,38 @@ public final class ModBlocks {
     public static final DeferredBlock<FenceBlock> WHITE_PLASTERED_WALL_FENCE =
             BLOCKS.register("white_plastered_wall_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
 
+    // ===== 跃金段（Level 1 第三区段）=====
+    public static final DeferredBlock<Block> YELLOWED_CONCRETE_FLOOR =
+            BLOCKS.register("yellowed_concrete_floor", () -> new Block(unbreakable()));
+    public static final DeferredBlock<Block> YELLOWED_CONCRETE_WALL =
+            BLOCKS.register("yellowed_concrete_wall", () -> new Block(unbreakable()));
+    public static final DeferredBlock<Block> YELLOWED_CORRUGATED_METAL =
+            BLOCKS.register("yellowed_corrugated_metal", () -> new Block(unbreakable()));
+    public static final DeferredBlock<StairBlock> YELLOWED_CONCRETE_FLOOR_STAIRS =
+            BLOCKS.register("yellowed_concrete_floor_stairs", () -> new StairBlock(YELLOWED_CONCRETE_FLOOR.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<SlabBlock> YELLOWED_CONCRETE_FLOOR_SLAB =
+            BLOCKS.register("yellowed_concrete_floor_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> YELLOWED_CONCRETE_FLOOR_WALL =
+            BLOCKS.register("yellowed_concrete_floor_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> YELLOWED_CONCRETE_FLOOR_FENCE =
+            BLOCKS.register("yellowed_concrete_floor_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+    public static final DeferredBlock<StairBlock> YELLOWED_CONCRETE_WALL_STAIRS =
+            BLOCKS.register("yellowed_concrete_wall_stairs", () -> new StairBlock(YELLOWED_CONCRETE_WALL.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<SlabBlock> YELLOWED_CONCRETE_WALL_SLAB =
+            BLOCKS.register("yellowed_concrete_wall_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> YELLOWED_CONCRETE_WALL_WALL =
+            BLOCKS.register("yellowed_concrete_wall_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> YELLOWED_CONCRETE_WALL_FENCE =
+            BLOCKS.register("yellowed_concrete_wall_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+    public static final DeferredBlock<StairBlock> YELLOWED_CORRUGATED_METAL_STAIRS =
+            BLOCKS.register("yellowed_corrugated_metal_stairs", () -> new StairBlock(YELLOWED_CORRUGATED_METAL.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<SlabBlock> YELLOWED_CORRUGATED_METAL_SLAB =
+            BLOCKS.register("yellowed_corrugated_metal_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> YELLOWED_CORRUGATED_METAL_WALL =
+            BLOCKS.register("yellowed_corrugated_metal_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> YELLOWED_CORRUGATED_METAL_FENCE =
+            BLOCKS.register("yellowed_corrugated_metal_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)

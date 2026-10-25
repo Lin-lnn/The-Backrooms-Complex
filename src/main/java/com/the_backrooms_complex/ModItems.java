@@ -397,6 +397,38 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> WHITE_PLASTERED_WALL_FENCE =
             ITEMS.register("white_plastered_wall_fence", () -> new BlockItem(ModBlocks.WHITE_PLASTERED_WALL_FENCE.get(), new Item.Properties()));
 
+    // ===== 跃金段 BlockItem =====
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_FLOOR =
+            ITEMS.register("yellowed_concrete_floor", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_FLOOR.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_WALL =
+            ITEMS.register("yellowed_concrete_wall", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CORRUGATED_METAL =
+            ITEMS.register("yellowed_corrugated_metal", () -> new BlockItem(ModBlocks.YELLOWED_CORRUGATED_METAL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_FLOOR_STAIRS =
+            ITEMS.register("yellowed_concrete_floor_stairs", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_FLOOR_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_FLOOR_SLAB =
+            ITEMS.register("yellowed_concrete_floor_slab", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_FLOOR_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_FLOOR_WALL =
+            ITEMS.register("yellowed_concrete_floor_wall", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_FLOOR_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_FLOOR_FENCE =
+            ITEMS.register("yellowed_concrete_floor_fence", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_FLOOR_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_WALL_STAIRS =
+            ITEMS.register("yellowed_concrete_wall_stairs", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_WALL_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_WALL_SLAB =
+            ITEMS.register("yellowed_concrete_wall_slab", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_WALL_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_WALL_WALL =
+            ITEMS.register("yellowed_concrete_wall_wall", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_WALL_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_WALL_FENCE =
+            ITEMS.register("yellowed_concrete_wall_fence", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_WALL_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CORRUGATED_METAL_STAIRS =
+            ITEMS.register("yellowed_corrugated_metal_stairs", () -> new BlockItem(ModBlocks.YELLOWED_CORRUGATED_METAL_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CORRUGATED_METAL_SLAB =
+            ITEMS.register("yellowed_corrugated_metal_slab", () -> new BlockItem(ModBlocks.YELLOWED_CORRUGATED_METAL_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CORRUGATED_METAL_WALL =
+            ITEMS.register("yellowed_corrugated_metal_wall", () -> new BlockItem(ModBlocks.YELLOWED_CORRUGATED_METAL_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CORRUGATED_METAL_FENCE =
+            ITEMS.register("yellowed_corrugated_metal_fence", () -> new BlockItem(ModBlocks.YELLOWED_CORRUGATED_METAL_FENCE.get(), new Item.Properties()));
+
     private ModItems() {
     }
 }

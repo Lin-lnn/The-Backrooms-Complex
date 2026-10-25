@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "backrooms_complex:block/yellowed_corrugated_metal",
+    "top": "backrooms_complex:block/yellowed_corrugated_metal_top",
+    "side": "backrooms_complex:block/yellowed_corrugated_metal"
+  }
+}

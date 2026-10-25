@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_inventory",
+  "textures": {
+    "texture": "backrooms_complex:block/yellowed_concrete_floor"
+  }
+}
