@@ -134,7 +134,8 @@ public final class BiomeTint {
         }
     }
 
-    private static Block[] tintedBlocks() {
+    /** 供 {@link BiomeTintEvents} 使用的着色方块数组。 */
+    public static Block[] tintedBlockArray() {
         DeferredBlock<?>[] holders = new DeferredBlock<?>[] {
                 ModBlocks.WALL_YELLOW, ModBlocks.WALL_CONCRETE, ModBlocks.WALL_DAMP,
                 ModBlocks.WALL_YELLOW_PLINTH, ModBlocks.WALL_CONCRETE_PLINTH, ModBlocks.WALL_DAMP_PLINTH,
@@ -182,24 +183,5 @@ public final class BiomeTint {
     private BiomeTint() {
     }
 
-    @EventBusSubscriber(modid = BackroomsComplex.MODID, value = Dist.CLIENT)
-    static final class Events {
 
-        @SubscribeEvent
-        public static void onRegisterBlockColors(RegisterColorHandlersEvent.Block event) {
-            event.register(BiomeTint::getBlockColor, tintedBlocks());
-        }
-
-        @SubscribeEvent
-        public static void onRegisterItemColors(RegisterColorHandlersEvent.Item event) {
-            for (Block b : tintedBlocks()) {
-                if (b.asItem() != null) {
-                    event.register(BiomeTint::getItemColor, b);
-                }
-            }
-        }
-
-        private Events() {
-        }
-    }
 }
