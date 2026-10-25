@@ -883,6 +883,17 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return false;
     }
 
+    /** 楼梯宽度（格）。 */
+    public static final int STAIR_WIDTH = 2;
+
+    /** 该区段是否是「两层」结构（只有两层的区段才需要楼梯）。 */
+    public static boolean isStackedRegion(Region r) {
+        return switch (r) {
+            case YUEJIN, GOTHIC, AQUILA -> false;
+            default -> true;
+        };
+    }
+
     /** 每个 64 格区内保证的楼梯数量下限 / 上限。 */
     public static final int STAIRS_MIN = 2;
     public static final int STAIRS_MAX = 4;
@@ -903,19 +914,35 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         if (cached != null) {
             return cached;
         }
-        int slots = ROOM_CELL / ROOM_SLOT;
         int[] rooms = roomRects(cx, cz);
         int[] picked = new int[STAIRS_MAX * 2];
         int pickedCount = 0;
         long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x7374616972L;
-        for (int i = 0; i < slots * slots && pickedCount < STAIRS_MAX; i++) {
-            h ^= h >>> 33;
-            h *= 0xC4CEB9FE1A85EC53L;
-            h ^= h >>> 33;
-            int ox = (i % slots) * ROOM_SLOT + 2;
-            int oz = (i / slots) * ROOM_SLOT + 2;
-            // 楼梯占 ox..ox 与 oz..oz+SUB_H-1 的窄带，必须完整落在区内
-            if (oz + SUB_H - 1 >= ROOM_CELL) {
+        // 候选位按 4 格步长密集扫描：过滤掉房间与跨区段后仍能凑够 2~4 个
+        for (int oz = 2; oz + SUB_H - 1 < ROOM_CELL && pickedCount < STAIRS_MAX; oz += 4) {
+            for (int ox = 2; ox + STAIR_WIDTH - 1 < ROOM_CELL && pickedCount < STAIRS_MAX; ox += 4) {
+                h ^= h >>> 33;
+                h *= 0xC4CEB9FE1A85EC53L;
+                h ^= h >>> 33;
+            // 楼梯是 2 格宽、SUB_H 格长的通道，必须完整落在本区内部
+            if (ox + STAIR_WIDTH - 1 >= ROOM_CELL || oz + SUB_H - 1 >= ROOM_CELL) {
+                continue;
+            }
+            // 整段必须属于同一个「两层区段」，否则会跨区段边界长出来
+            Region lane = null;
+            boolean sameSector = true;
+            for (int wx2 = 0; wx2 < STAIR_WIDTH && sameSector; wx2++) {
+                for (int wz2 = 0; wz2 < SUB_H; wz2++) {
+                    Region r2 = regionAt(cx * ROOM_CELL + ox + wx2, cz * ROOM_CELL + oz + wz2);
+                    if (lane == null) {
+                        lane = r2;
+                    } else if (lane != r2) {
+                        sameSector = false;
+                        break;
+                    }
+                }
+            }
+            if (!sameSector || lane == null || !isStackedRegion(lane)) {
                 continue;
             }
             boolean clash = false;
@@ -926,9 +953,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             if (clash) {
                 continue;
             }
-            picked[pickedCount * 2] = ox;
-            picked[pickedCount * 2 + 1] = oz;
-            pickedCount++;
+                picked[pickedCount * 2] = ox;
+                picked[pickedCount * 2 + 1] = oz;
+                pickedCount++;
+            }
         }
         int want = STAIRS_MIN + (int) Math.floorMod(h >>> 8, STAIRS_MAX - STAIRS_MIN + 1);
         int count = Math.min(Math.max(pickedCount, 0), Math.min(want, pickedCount));
@@ -956,7 +984,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         int lz = Math.floorMod(z, ROOM_CELL);
         int[] stairs = stairRects(cx, cz);
         for (int i = 0; i < stairs.length; i += 2) {
-            if (lx == stairs[i] && lz >= stairs[i + 1] && lz < stairs[i + 1] + SUB_H) {
+            if (lx >= stairs[i] && lx < stairs[i] + STAIR_WIDTH
+                    && lz >= stairs[i + 1] && lz < stairs[i + 1] + SUB_H) {
                 return lz - stairs[i + 1];
             }
         }
