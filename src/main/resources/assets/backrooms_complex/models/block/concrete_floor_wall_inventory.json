@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/wall_inventory",
+  "parent": "backrooms_complex:block/tinted_wall_inventory",
   "textures": {
     "wall": "minecraft:block/stone"
   }
