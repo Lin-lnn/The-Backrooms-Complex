@@ -427,7 +427,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
             if (subFloor) {
-                placeSubFloor(chunk, m, c, wx, y, wz, offset);
+                placeSubFloor(chunk, m, c, wx, y, wz, offset, prof);
             } else {
                 placeAisle(chunk, m, c, wx, y, wz, offset, region, prof);
             }
@@ -615,16 +615,17 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * 子层第 0 格 = 地板，最后一格 = 天花板，中间放门 / 墙 / 空气。</p>
      */
     private void placeSubFloor(ChunkAccess chunk, BlockPos.MutableBlockPos m,
-                               Column c, int wx, int y, int wz, int offset) {
+                               Column c, int wx, int y, int wz, int offset,
+                               SectorProfile prof) {
         int subOff = offset % SUB_H;
         if (subOff == 0) {
-            set(chunk, m, wx, y, wz, this.floorState);
+            set(chunk, m, wx, y, wz, prof.floor());
             return;
         }
         if (subOff == SUB_H - 1) {
             // 小径天花板每 3 格一盏灯；只在可走列上，避免嵌进墙里
             boolean lamp = c.passage() && !c.passageWall() && isPassageLamp(wx, wz);
-            set(chunk, m, wx, y, wz, lamp ? this.lampState : this.ceilingState);
+            set(chunk, m, wx, y, wz, lamp ? this.lampState : prof.ceiling());
             return;
         }
         if (c.passage() && c.boundary()) {
@@ -632,7 +633,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             boolean doorHalf = c.gate() && (subOff == 1 || subOff == 2);
             set(chunk, m, wx, y, wz, doorHalf
                     ? doorState(c.facing(), subOff == 1)
-                    : this.whiteWallState);
+                    : prof.wall());
             return;
         }
         // 小径内部 / 过道小房间：门位开洞，其余按墙壁判定
@@ -642,7 +643,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz,
                     (subOff == 1 || subOff == 2) ? this.metalDoorState : this.airState);
         } else {
-            set(chunk, m, wx, y, wz, wallCol ? this.whiteWallState : this.airState);
+            set(chunk, m, wx, y, wz, wallCol ? prof.wall() : this.airState);
         }
     }
 
