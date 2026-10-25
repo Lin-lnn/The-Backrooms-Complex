@@ -271,6 +271,27 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         continue;
                     }
 
+                    // ===== Level 1 小径：3 层 × 6 格高的堆叠窄迷宫 =====
+                    // 小径区总高 18 格（与层高一致），每 6 格一个子层：
+                    //   subOffset 0 -> 地板；5 -> 天花板；其余 -> 迷宫墙
+                    boolean passage = l1ConcreteFloor && isPassageArea(worldX, worldZ);
+                    if (passage) {
+                        int sub = offset / 6;            // 0,1,2
+                        int subOff = offset - sub * 6;   // 0..5
+                        if (subOff == 0) {
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteFloorBlock, false);
+                            continue;
+                        }
+                        if (subOff == 5) {
+                            chunk.setBlockState(mutable.set(worldX, y, worldZ), concreteCeilingBlock, false);
+                            continue;
+                        }
+                        boolean pWall = isPassageWall(worldX, worldZ);
+                        chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                                pWall ? whitePlasteredWallBlock : airState, false);
+                        continue;
+                    }
+
                     // 本层自己的布局（逐层种子不同）
                     boolean isWall = wall[layer][lx][lz];
 
@@ -434,6 +455,57 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * <p>柱体是 <b>4×4 格</b>的实心混凝土柱，按 <b>48 格</b>的间距排布，
      * 与文中"巨型混凝土柱子支撑着整个结构"的描述一致。</p>
      */
+    // ==================== Level 1「小径」区域 ====================
+
+    /** 小径每个"区"的边长（格）。一个区内全部是小径，区外是过道。 */
+    public static final int PASSAGE_CELL = 96;
+
+    /**
+     * 某个 XZ 坐标是否落在「小径」区域里。
+     *
+     * <p>小径按 <b>96×96 格</b>的方块区划分，每区约 <b>45%</b> 的概率是小径
+     * —— 与文中"打开门就来到小径"的设定对应：小径是<b>独立的、封闭的</b>迷宫区块。</p>
+     */
+    public static boolean isPassageArea(int x, int z) {
+        int cx = Math.floorDiv(x, PASSAGE_CELL);
+        int cz = Math.floorDiv(z, PASSAGE_CELL);
+        long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x70617373616765L;
+        h ^= h >>> 33; h *= 0xFF51AFD7ED558CCDL; h ^= h >>> 33;
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.45;
+    }
+
+    /**
+     * 小径内部的墙体判定：<b>狭窄、迷宫般曲折</b>的 4 格走廊 + 1~2 格墙。
+     *
+     * <p>用两个正交的"一维折线"叠加出迷宫感：</p>
+     * <ul>
+     *   <li>每 5 格一条竖墙，按 z 方向每 7 格开一个 2 格宽的缺口；</li>
+     *   <li>每 5 格一条横墙，按 x 方向每 7 格开一个 2 格宽的缺口。</li>
+     * </ul>
+     * <p>两者取"且"，形成可通行的小径网络，且不会出现死路（缺口交错）。</p>
+     */
+    public static boolean isPassageWall(int x, int z) {
+        int mx = Math.floorMod(x, 5);
+        int mz = Math.floorMod(z, 5);
+        boolean vWall = (mx == 0);
+        boolean hWall = (mz == 0);
+        if (!vWall && !hWall) {
+            return false;   // 走廊内部
+        }
+        // 沿 z 方向每 7 格开 2 格缺口（打穿竖墙）
+        boolean vGap = Math.floorMod(z, 7) <= 1;
+        // 沿 x 方向每 7 格开 2 格缺口（打穿横墙）
+        boolean hGap = Math.floorMod(x, 7) <= 1;
+        if (vWall && !hWall) {
+            return !vGap;
+        }
+        if (hWall && !vWall) {
+            return !hGap;
+        }
+        // 交叉点：都开缺口才通
+        return !(vGap && hGap);
+    }
+
     private static boolean onGiantPillar(int x, int z) {
         // 48 格网格，每格中心放一根 4x4 柱
         int cx = Math.floorDiv(x, 48);
