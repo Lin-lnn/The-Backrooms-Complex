@@ -520,18 +520,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 region = regionAt(wx, wz, layer);
                 prof = profileOf(region);
             }
-            // 包络墙：边界列完全由这里负责，地物（藤蔓/草簇/箱子/碎屑/楼梯）不得抢占。
-            // 只有「该列确实会放门」且高度安全时才开口，并当场把门放好。
+            // 包络墙：边界列完全由这里负责，地物不得抢占。
+            // 每隔 32 格打通一条 4 格宽的通道，高度取两侧「单层高度」中较小的一个。
             if (offset > 0 && offset < LAYER_H - 1 && isSectorEdge(wx, wz, layer)) {
-                boolean hasDoor = c.gate() || c.room() == 2;
-                boolean gateOpen = hasDoor && isSectorGate(wx, wz)
-                        && isSafeGateHeight(offset, prof.stacked());
-                if (gateOpen) {
-                    boolean lower = offset == 1;
-                    boolean upper = offset == 2;
-                    set(chunk, m, wx, y, wz, (lower || upper)
-                            ? doorState(net.minecraft.core.Direction.SOUTH, lower, region)
-                            : prof.wall());
+                Region other = otherRegionAcross(wx, wz, layer, region);
+                int openHeight = Math.min(storeyHeight(region), storeyHeight(other));
+                boolean tunnel = isTunnelOpening(wx, wz, layer);
+                if (tunnel && offset < openHeight) {
+                    set(chunk, m, wx, y, wz, this.airState);
                 } else {
                     set(chunk, m, wx, y, wz, prof.wall());
                 }
@@ -1147,6 +1143,37 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static boolean isSectorEdge(int x, int z, int layer) {
         Region here = regionAt(x, z, layer);
         return regionAt(x + 1, z, layer) != here || regionAt(x, z + 1, layer) != here;
+    }
+
+    /** 该区段的「单层高度」：两层区段取 SUB_H，通高区段取 LAYER_H。 */
+    public static int storeyHeight(Region region) {
+        return isStackedRegion(region) ? SUB_H : LAYER_H;
+    }
+
+    /** 边界另一侧的区段（找不到不同区段时返回自身）。 */
+    private static Region otherRegionAcross(int x, int z, int layer, Region here) {
+        for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+            int nx = x + direction.getStepX();
+            int nz = z + direction.getStepZ();
+            Region there = regionAt(nx, nz, layer);
+            if (there != here) {
+                return there;
+            }
+        }
+        return here;
+    }
+
+    /**
+     * 该列是否位于「通道开口」上。
+     *
+     * <p>沿边界的走向每 32 格开一条 4 格宽的通道：边界法线为 X 时沿 Z 取模，
+     * 反之沿 X 取模。</p>
+     */
+    public static boolean isTunnelOpening(int x, int z, int layer) {
+        Region here = regionAt(x, z, layer);
+        boolean seamAlongX = regionAt(x + 1, z, layer) != here || regionAt(x - 1, z, layer) != here;
+        int along = seamAlongX ? z : x;
+        return Math.floorMod(along, 32) < 4;
     }
 
     /**
