@@ -31,6 +31,11 @@ public final class ModBiomes {
     public static final ResourceKey<Biome> CONCRETE_HALLS = key("concrete_halls");
     /** 潮湿走廊：暗绿色发霉风格，物资偏食物类。 */
     public static final ResourceKey<Biome> DAMP_CORRIDORS = key("damp_corridors");
+    public static final ResourceKey<Biome> YUEJIN_SECTOR = key("yuejin_sector");
+    public static final ResourceKey<Biome> GOTHIC_SECTOR = key("gothic_sector");
+    public static final ResourceKey<Biome> OUROBOROS_SECTOR = key("ouroboros_sector");
+    public static final ResourceKey<Biome> GARDEN_SECTOR = key("garden_sector");
+    public static final ResourceKey<Biome> LEGEND_SECTOR = key("legend_sector");
 
     private static ResourceKey<Biome> key(String name) {
         return ResourceKey.create(Registries.BIOME,

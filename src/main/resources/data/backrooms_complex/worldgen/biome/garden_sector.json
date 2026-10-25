@@ -1,0 +1,35 @@
+{
+    "has_precipitation": false,
+    "temperature": 0.5,
+    "downfall": 0.0,
+    "effects": {
+        "sky_color": 9420650,
+        "fog_color": 10408058,
+        "water_color": 4159204,
+        "water_fog_color": 329011,
+        "particle": {
+            "options": {
+                "type": "minecraft:spore_blossom_air"
+            },
+            "probability": 0.01
+        }
+    },
+    "carvers": {
+        "air": []
+    },
+    "features": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    "spawners": {},
+    "spawn_costs": {}
+}
