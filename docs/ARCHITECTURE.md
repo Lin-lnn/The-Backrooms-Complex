@@ -33,7 +33,10 @@ com.the_backrooms_complex
     │   ├── RoomGraph                房间连通图
     │   └── Topology*                拓扑事件（开合门、封堵走廊、灯光闪烁）
     └── level1/                ★ Level 1 专用，不引用 level0
-        ├── Level1ChunkGenerator     生成器（层高 12，2 个子层 × 6 格，生成 LAYERS = 3 层）
+        ├── Level1Sectors            层高 / Region / 权重表 / 区段边界与通道（纯计算）
+        ├── Level1Geometry           小径迷宫 / 过道房间 / 柱网 / 楼梯（带各自缓存）
+        ├── Level1Decor              灯位 / 板条箱 / 草藤 / 碎屑 / 管道（判定与状态）
+        ├── Level1ChunkGenerator     写方块：BlockState 字段、fillColumn / placeAisle / placeSubFloor、codec
         └── Level1Flicker            「闪烁」现象（按层、逐组熄灭 / 亮起）
 ```
 
@@ -61,12 +64,12 @@ com.the_backrooms_complex
 |---|---|---|---|
 | `LEVEL_LAYERS` | `level0/BackroomsChunkGenerator` | 5 | L0 实际生成层数 |
 | `LAYER_HEIGHT` | `level0/BackroomsChunkGenerator` | 8 | L0 单层高度 |
-| `LAYERS` | `level1/Level1ChunkGenerator` | 3 | L1 实际生成层数 |
-| `LAYER_H` | `level1/Level1ChunkGenerator` | 12 | L1 单层高度 |
-| `SUB_H` / `SUB_COUNT` | `level1/Level1ChunkGenerator` | 6 / 2 | L1 子层（两层 6 格） |
-| `PASSAGE_CELL` | `level1/Level1ChunkGenerator` | 96 | 小径区边长 |
-| `MAZE_CELL` | `level1/Level1ChunkGenerator` | 10 | 小径房间网格 |
-| `PILLAR_STEP` | `level1/Level1ChunkGenerator` | 16 | 混凝土柱网间距（2×2 柱） |
+| `LAYERS` | `level1/Level1Sectors` | 3 | L1 实际生成层数 |
+| `LAYER_H` | `level1/Level1Sectors` | 12 | L1 单层高度 |
+| `SUB_H` / `SUB_COUNT` | `level1/Level1Sectors` | 6 / 2 | L1 子层（两层 6 格） |
+| `PASSAGE_CELL` | `level1/Level1Geometry` | 96 | 小径区边长 |
+| `MAZE_CELL` | `level1/Level1Geometry` | 10 | 小径房间网格 |
+| `PILLAR_STEP` | `level1/Level1Geometry` | 16 | 混凝土柱网间距（2×2 柱） |
 | `GROUP_INTERVAL` | `level1/Level1Flicker` | 10 | 闪烁每组间隔（0.5 秒）|
 
 ## 新增内容时的落点
@@ -74,7 +77,10 @@ com.the_backrooms_complex
 | 你要加的东西 | 放到哪 |
 |---|---|
 | Level 0 的生成规则 | `worldgen/level0/BackroomsChunkGenerator` |
-| Level 1 的生成规则 | `worldgen/level1/Level1ChunkGenerator` |
+| Level 1 的区段 / 层高 | `worldgen/level1/Level1Sectors` |
+| Level 1 的平面几何 | `worldgen/level1/Level1Geometry` |
+| Level 1 的地物判断 | `worldgen/level1/Level1Decor` |
+| Level 1 的写方块逻辑 | `worldgen/level1/Level1ChunkGenerator` |
 | 只在某个维度生效的事件 | 对应 `levelN` 包里，并在入口判断 `level.dimension()` |
 | 方块 / 物品 | `block/` / `item/`，然后到 `ModBlocks` / `ModItems` 注册 |
 | 调参数值 | **只放 `ModBalance`**，别写魔法数字 |
