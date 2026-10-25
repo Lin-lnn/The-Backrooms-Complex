@@ -840,7 +840,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 // 门列：1~2 格高放「下半 / 上半」门，其余高度实心 => 除门以外没有入口
                 set(chunk, m, wx, y, wz, (offset % h == 1 || offset % h == 2)
                         ? doorState(Direction.SOUTH, offset % h == 1, region)
-                        : this.whiteWallState);
+                        : prof.wall());
             } else if (c.room() == 1) {
                 set(chunk, m, wx, y, wz, prof.wall());
             } else {
