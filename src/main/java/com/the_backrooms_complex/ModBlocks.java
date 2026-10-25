@@ -363,7 +363,8 @@ public final class ModBlocks {
 
     /** 板条箱：跃金段的可搜刮木箱（战利品见后续实现）。 */
     public static final DeferredBlock<Block> CRATE =
-            BLOCKS.register("crate", () -> new Block(unbreakable().noOcclusion()));
+            BLOCKS.register("crate", () -> new com.the_backrooms_complex.block.CrateBlock(
+                    unbreakable().noOcclusion().randomTicks()));
 
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()

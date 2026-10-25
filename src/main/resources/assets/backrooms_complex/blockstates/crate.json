@@ -1,6 +1,9 @@
 {
   "variants": {
-    "": {
+    "natural=false": {
+      "model": "backrooms_complex:block/crate"
+    },
+    "natural=true": {
       "model": "backrooms_complex:block/crate"
     }
   }

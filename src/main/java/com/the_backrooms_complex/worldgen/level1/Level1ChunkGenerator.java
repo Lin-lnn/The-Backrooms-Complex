@@ -130,7 +130,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.gardenGrassState = net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState();
         this.gardenWallState = net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState();
         this.legendWallState = net.minecraft.world.level.block.Blocks.DARK_OAK_PLANKS.defaultBlockState();
-        this.crateState = ModBlocks.CRATE.get().defaultBlockState();
+        // 自然生成的箱子带 natural=true，无人时消失
+        this.crateState = ModBlocks.CRATE.get().defaultBlockState()
+                .setValue(com.the_backrooms_complex.block.CrateBlock.NATURAL, true);
         this.grassTuftState = net.minecraft.world.level.block.Blocks.SHORT_GRASS.defaultBlockState();
         this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
         this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
