@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/fence_inventory",
   "textures": {
-    "texture": "minecraft:block/light_gray_concrete"
+    "texture": "backrooms_complex:block/concrete_pillar"
   }
 }

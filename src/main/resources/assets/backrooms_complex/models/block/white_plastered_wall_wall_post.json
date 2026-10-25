@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/template_wall_post",
   "textures": {
-    "wall": "minecraft:block/stripped_birch_log"
+    "wall": "backrooms_complex:block/white_plastered_wall"
   }
 }

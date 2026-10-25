@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/fence_inventory",
   "textures": {
-    "texture": "minecraft:block/stripped_birch_log"
+    "texture": "backrooms_complex:block/white_plastered_wall"
   }
 }
