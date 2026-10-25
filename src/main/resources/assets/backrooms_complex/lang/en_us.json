@@ -184,5 +184,6 @@
     "block.backrooms_complex.concrete_pillar":  "Concrete Pillar",
     "block.backrooms_complex.concrete_warning_pillar":  "Concrete Warning Pillar",
     "block.backrooms_complex.concrete_floor":  "Concrete Floor",
-    "block.backrooms_complex.white_plastered_wall":  "White Plastered Concrete Wall"
+    "block.backrooms_complex.white_plastered_wall":  "White Plastered Concrete Wall",
+    "block.backrooms_complex.concrete_ceiling":  "Concrete Ceiling"
 }

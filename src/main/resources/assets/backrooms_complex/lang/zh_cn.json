@@ -184,5 +184,6 @@
     "block.backrooms_complex.concrete_pillar":  "混凝土柱",
     "block.backrooms_complex.concrete_warning_pillar":  "混凝土警示柱",
     "block.backrooms_complex.concrete_floor":  "混凝土地板",
-    "block.backrooms_complex.white_plastered_wall":  "粉刷为白色的混凝土墙壁"
+    "block.backrooms_complex.white_plastered_wall":  "粉刷为白色的混凝土墙壁",
+    "block.backrooms_complex.concrete_ceiling":  "混凝土天花板"
 }

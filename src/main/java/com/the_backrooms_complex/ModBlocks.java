@@ -272,6 +272,10 @@ public final class ModBlocks {
     /** 混凝土地板（贴图使用原版 stone）。 */
     public static final DeferredBlock<Block> CONCRETE_FLOOR =
             BLOCKS.register("concrete_floor", () -> new Block(unbreakable()));
+    /** 混凝土天花板（贴图使用原版 smooth_stone）。 */
+    public static final DeferredBlock<Block> CONCRETE_CEILING =
+            BLOCKS.register("concrete_ceiling", () -> new Block(unbreakable()));
+
     /** 粉刷为白色的混凝土墙壁（贴图使用原版 stripped_pale_oak_log）。 */
     public static final DeferredBlock<Block> WHITE_PLASTERED_WALL =
             BLOCKS.register("white_plastered_wall", () -> new Block(unbreakable()));

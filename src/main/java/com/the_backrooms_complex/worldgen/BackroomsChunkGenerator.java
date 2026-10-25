@@ -136,6 +136,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private final BlockState concreteFloorBlock;
     /** 粉刷为白色的混凝土墙壁（去皮苍白橡木原木）。 */
     private final BlockState whitePlasteredWallBlock;
+    /** 混凝土天花板（平滑石头）。 */
+    private final BlockState concreteCeilingBlock;
 
     public BackroomsChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
@@ -162,6 +164,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         this.concreteWarningPillarBlock = ModBlocks.CONCRETE_WARNING_PILLAR.get().defaultBlockState();
         this.concreteFloorBlock = ModBlocks.CONCRETE_FLOOR.get().defaultBlockState();
         this.whitePlasteredWallBlock = ModBlocks.WHITE_PLASTERED_WALL.get().defaultBlockState();
+        this.concreteCeilingBlock = ModBlocks.CONCRETE_CEILING.get().defaultBlockState();
     }
 
     // ==================== ChunkGenerator 核心：填充方块与群系 ====================
@@ -224,7 +227,10 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 BlockState columnFloor = l1ConcreteFloor
                         ? concreteFloorBlock
                         : (hall ? strippedCarpetFloor : (damp ? dampFloor : floorState));
-                BlockState columnCeiling = hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState);
+                // Level 1 的天鹰段 / 仓库过道 使用混凝土地板 + 混凝土天花板
+                BlockState columnCeiling = l1ConcreteFloor
+                        ? concreteCeilingBlock
+                        : (hall ? ruinedCeiling : (damp ? dampCeiling : ceilingState));
                 BlockState columnLamp = hall ? ruinedVent : lampState;
                 // 大厅房间（较大空地）与独立柱子（1x1，不贴墙）
                 boolean inHall = hall && colInHallRoom;
