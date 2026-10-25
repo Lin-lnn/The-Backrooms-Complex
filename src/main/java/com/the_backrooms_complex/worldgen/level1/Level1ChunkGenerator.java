@@ -985,6 +985,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 楼梯宽度（格）。 */
     public static final int STAIR_WIDTH = 2;
 
+    /** 楼梯之间的最小间距（格）。 */
+    public static final int STAIR_MIN_GAP = 5;
+
     /**
      * 墙底（层内第 1 格）用的方块。
      *
@@ -1066,6 +1069,18 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 }
             }
             if (!sameSector || lane == null || !isStackedRegion(lane)) {
+                continue;
+            }
+            // 与已选楼梯保持间距：横竖都太近就跳过（楼梯带 2 宽 x SUB_H 长，不能重叠）
+            boolean tooClose = false;
+            for (int p = 0; p < pickedCount && !tooClose; p++) {
+                int px = picked[p * 2];
+                int pz = picked[p * 2 + 1];
+                if (Math.abs(ox - px) < STAIR_MIN_GAP && Math.abs(oz - pz) < SUB_H + 1) {
+                    tooClose = true;
+                }
+            }
+            if (tooClose) {
                 continue;
             }
             boolean clash = false;
