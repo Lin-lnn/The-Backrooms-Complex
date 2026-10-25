@@ -458,6 +458,45 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return offset == LAYER_H - 2 || offset == LAYER_H - 3;
     }
 
+    // ==================== 衔尾段（Level 1 第五区段）====================
+
+    /** 衔尾段区域边长（格）。 */
+    public static final int OUROBOROS_CELL = 96;
+
+    /**
+     * 该列是否属于「衔尾段」。
+     *
+     * <p>参考图效果：未完工的毛坯空间 —— 裸混凝土、外露的红漆管道、
+     * 剥落的墙面与地面碎屑。名字取自「衔尾蛇」：走到底会绕回起点，
+     * 因此这里的结构在视觉上首尾相连。</p>
+     */
+    public static boolean isOuroborosArea(int x, int z) {
+        int cx = Math.floorDiv(x, OUROBOROS_CELL);
+        int cz = Math.floorDiv(z, OUROBOROS_CELL);
+        long h = mix(cx, cz, 0x6F75726F62L);   // 'ourob'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.20;
+    }
+
+    /** 衔尾段灯位：每 6 格一盏，且只挂在天花板下（模拟裸露的灯管）。 */
+    public static boolean isOuroborosLamp(int x, int z) {
+        return Math.floorMod(x, 6) == 2 && Math.floorMod(z, 6) == 2;
+    }
+
+    /** 衔尾段的地面碎屑：用于后续在毛坯地面上撒杂物。 */
+    public static boolean isOuroborosDebris(int x, int z) {
+        long h = mix(x, z, 0x646562726973L);   // 'debris'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.06;
+    }
+
+    /**
+     * 衔尾段是否需要把出口「绕回入口」。
+     *
+     * <p>衔尾段的几何是闭合的：从任意方向一直走，最终会回到曾走过的地方。</p>
+     */
+    public static boolean isOuroborosLoop(int x, int z) {
+        return isOuroborosArea(x, z);
+    }
+
     /**
      * 子层结构（小径与过道小房间共用）。
      *
