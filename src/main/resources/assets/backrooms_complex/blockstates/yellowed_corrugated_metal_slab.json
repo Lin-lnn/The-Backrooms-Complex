@@ -1,13 +1,13 @@
 {
   "variants": {
     "type=bottom": {
-      "model": "backrooms_complex:block/yellowed_corrugated_metal_slab_slab"
+      "model": "backrooms_complex:block/yellowed_corrugated_metal_slab"
     },
     "type=double": {
-      "model": "backrooms_complex:block/yellowed_corrugated_metal_slab_planks"
+      "model": "backrooms_complex:block/yellowed_corrugated_metal"
     },
     "type=top": {
-      "model": "backrooms_complex:block/yellowed_corrugated_metal_slab_slab_top"
+      "model": "backrooms_complex:block/yellowed_corrugated_metal_slab_top"
     }
   }
 }

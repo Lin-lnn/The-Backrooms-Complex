@@ -1,13 +1,13 @@
 {
   "variants": {
     "type=bottom": {
-      "model": "backrooms_complex:block/concrete_pillar_slab_slab"
+      "model": "backrooms_complex:block/concrete_pillar_slab"
     },
     "type=double": {
-      "model": "backrooms_complex:block/concrete_pillar_slab_planks"
+      "model": "backrooms_complex:block/concrete_pillar"
     },
     "type=top": {
-      "model": "backrooms_complex:block/concrete_pillar_slab_slab_top"
+      "model": "backrooms_complex:block/concrete_pillar_slab_top"
     }
   }
 }
