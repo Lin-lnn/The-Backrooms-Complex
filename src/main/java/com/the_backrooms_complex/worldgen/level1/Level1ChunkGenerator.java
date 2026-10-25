@@ -442,6 +442,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         boolean subFloor = !c.pillar() && c.passage();
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
+            // 区段边界：用本区段自己的墙方块包裹整段（每 16 格留 2 格通道）
+            if (offset > 0 && offset < LAYER_H - 1
+                    && isSectorEdge(wx, wz) && !isSectorGate(wx, wz)) {
+                // 边界墙：本区段的特色墙
+                set(chunk, m, wx, y, wz, prof.wall());
+                continue;
+            }
             if (subFloor) {
                 placeSubFloor(chunk, m, c, wx, y, wz, offset, region, prof);
             } else {
@@ -824,6 +831,25 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 爬升带上该列的高度（0 ~ SUB_H-1）。 */
     public static int rampHeight(int z) {
         return Math.floorMod(z, RAMP_PITCH);
+    }
+
+    /** 区段边界通道宽度（每 16 格留 2 格可通行）。 */
+    public static final int SECTOR_GATE_STEP = 16;
+
+    /**
+     * 该列是否位于区段边界上。
+     *
+     * <p>只检查 +X / +Z 两个方向，保证边界墙只有一格厚；<b>只有本列</b>负责画墙，
+     * 相邻列各画各的墙即可拼成完整一圈。</p>
+     */
+    public static boolean isSectorEdge(int x, int z) {
+        Region here = regionAt(x, z);
+        return regionAt(x + 1, z) != here || regionAt(x, z + 1) != here;
+    }
+
+    /** 边界上的通道位置（每 16 格 2 格宽）。 */
+    public static boolean isSectorGate(int x, int z) {
+        return Math.floorMod(x + z, SECTOR_GATE_STEP) < 2;
     }
 
     /** 斜靠钢板落点：约 1.5%。 */
