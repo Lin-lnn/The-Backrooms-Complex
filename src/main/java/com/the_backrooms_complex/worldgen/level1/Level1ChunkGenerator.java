@@ -1056,8 +1056,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      * <p>与房间用同一套 16 格候选位，但换成独立种子；只保留<b>不与任何房间矩形相交</b>
      * 的候选位，取前 K 个（K = 2~4）。</p>
      */
-    private static int[] stairRects(int cx, int cz) {
-        long key = ((long) cx << 32) ^ (cz & 0xFFFFFFFFL) ^ 0x535441495253L;
+    private static int[] stairRects(int cx, int cz, int layer) {
+        long key = (((long) cx << 32) ^ (cz & 0xFFFFFFFFL)) * 31L + layer
+                ^ 0x535441495253L;
         int[] cached = STAIR_CACHE.get(key);
         if (cached != null) {
             return cached;
@@ -1091,6 +1092,24 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 }
             }
             if (!sameSector || lane == null || !isStackedRegion(lane)) {
+                continue;
+            }
+            // 上层必须空旷：房间 / 柱子 / 包络墙都不允许，否则楼梯口会被堵住
+            boolean upperClear = true;
+            int up = layer + 1;
+            for (int wc = 0; wc < STAIR_WIDTH && upperClear; wc++) {
+                for (int wd = 0; wd < SUB_H; wd++) {
+                    int gx = cx * ROOM_CELL + ox + wc;
+                    int gz = cz * ROOM_CELL + oz + wd;
+                    if (roomKind(gx, gz, up) != -1
+                            || onPillar(gx, gz, up)
+                            || isSectorEdge(gx, gz, up)) {
+                        upperClear = false;
+                        break;
+                    }
+                }
+            }
+            if (!upperClear) {
                 continue;
             }
             // 与已选楼梯保持间距：横竖都太近就跳过（楼梯带 2 宽 x SUB_H 长，不能重叠）
@@ -1142,7 +1161,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         int cz = Math.floorDiv(z, ROOM_CELL);
         int lx = Math.floorMod(x, ROOM_CELL);
         int lz = Math.floorMod(z, ROOM_CELL);
-        int[] stairs = stairRects(cx, cz);
+        int[] stairs = stairRects(cx, cz, layer);
         for (int i = 0; i < stairs.length; i += 2) {
             if (lx >= stairs[i] && lx < stairs[i] + STAIR_WIDTH
                     && lz >= stairs[i + 1] && lz < stairs[i + 1] + SUB_H) {
