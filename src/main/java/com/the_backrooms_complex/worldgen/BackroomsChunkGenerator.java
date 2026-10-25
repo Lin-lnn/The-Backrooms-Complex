@@ -228,6 +228,11 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 final boolean colInHallRoom = inHallRoom(worldX, worldZ);
                 final boolean colOnGiantPillar = onGiantPillar(worldX, worldZ);
                 final boolean colIsLamp = isLamp(worldX, worldZ);
+                // Level 1 的三个纯 XZ 判定也提到 y 循环外（原本每方块算 6 次哈希）
+                final boolean colPassage = isPassageArea(worldX, worldZ);
+                final boolean colPassageGate = isPassageBoundary(worldX, worldZ)
+                        && (Math.floorMod(worldX, 24) <= 1 || Math.floorMod(worldZ, 24) <= 1);
+                final int colRoomKind = aisleRoomAt(worldX, worldZ);
 
 
                 for (int y = minY; y < maxY; y++) {
@@ -280,7 +285,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                     // ===== Level 1 小径：3 层 × 6 格高的堆叠窄迷宫 =====
                     // 小径区总高 18 格（与层高一致），每 6 格一个子层：
                     //   subOffset 0 -> 地板；5 -> 天花板；其余 -> 迷宫墙
-                    boolean passage = l1ConcreteFloor && isPassageArea(worldX, worldZ);
+                    boolean passage = l1ConcreteFloor && colPassage;
                     if (passage) {
                         int sub = offset / 6;            // 0,1,2
                         int subOff = offset - sub * 6;   // 0..5
@@ -293,7 +298,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                             continue;
                         }
                         // 边界格：开 2 格宽的门洞，并在 subOff 1~2 处放「金属门」
-                        boolean gate = isPassageGate(worldX, worldZ, sub);
+                        boolean gate = colPassageGate;
                         if (gate) {
                             if (subOff == 1 || subOff == 2) {
                                 chunk.setBlockState(mutable.set(worldX, y, worldZ),
@@ -310,7 +315,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                     }
 
                     // ===== 过道里的小房间（64 格网格，7x7，金属门朝南）=====
-                    int roomKind = l1ConcreteFloor ? aisleRoomAt(worldX, worldZ) : -1;
+                    int roomKind = l1ConcreteFloor ? colRoomKind : -1;
                     if (roomKind >= 0) {
                         int rSub = offset / 6;
                         int rOff = offset - rSub * 6;
