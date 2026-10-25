@@ -3,6 +3,7 @@ package com.the_backrooms_complex.worldgen.level1;
 import com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -312,8 +313,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                                                         StructureManager structureManager,
                                                         ChunkAccess chunk) {
         ChunkPos cp = chunk.getPos();
-        int chunkX = cp.x;
-        int chunkZ = cp.z;
         int minY = chunk.getMinBuildHeight();
         // 只生成前 LAYERS 层，其余留空（降低算力）
         int maxY = Math.min(chunk.getMaxBuildHeight(), LAYERS * LAYER_H);
@@ -321,100 +320,145 @@ public class Level1ChunkGenerator extends ChunkGenerator {
 
         for (int lx = 0; lx < 16; lx++) {
             for (int lz = 0; lz < 16; lz++) {
-                int wx = chunkX * 16 + lx;
-                int wz = chunkZ * 16 + lz;
-
-                // ---- 列级常量（只依赖 XZ）----
-                final boolean colPassage = isPassageArea(wx, wz);
-                // 小径墙壁只依赖 XZ，且 3 个子层共用 => 每列只算一次（原本逐方块重复计算）
-                final boolean colPassageWallBlock = colPassage && isPassageWall(wx, wz);
-                final boolean colBoundary = isPassageBoundary(wx, wz);
-                final boolean colGate = colBoundary && isGateColumn(wx, wz);
-                final boolean colPassageWall = !colPassage && colBoundary;
-                // 过道侧紧邻门洞的列：门高度处也要打通，否则两列实心会把门堵死
-                final boolean colGateAdjacent = colBoundary && (
-                        isGateColumn(wx + 1, wz) || isGateColumn(wx - 1, wz)
-                                || isGateColumn(wx, wz + 1) || isGateColumn(wx, wz - 1));
-                // 门的朝向：边界法线落在 X 还是 Z 轴；小径在正方向则朝东 / 朝南
-                final net.minecraft.core.Direction colFacing = colBoundary
-                        ? (isPassageArea(wx + 1, wz) != isPassageArea(wx - 1, wz)
-                                ? (isPassageArea(wx + 1, wz)
-                                        ? net.minecraft.core.Direction.EAST
-                                        : net.minecraft.core.Direction.WEST)
-                                : (isPassageArea(wx, wz + 1)
-                                        ? net.minecraft.core.Direction.SOUTH
-                                        : net.minecraft.core.Direction.NORTH))
-                        : net.minecraft.core.Direction.NORTH;
-                final int colRoom = roomKind(wx, wz);
-                // 柱子只出现在「纯过道的开阔区域」：
-                // 若该列同时落在小径区 / 小径房间里，就交给子层结构去画，
-                // 否则会出现「柱子被 6 格一层的木板、石板条带覆盖」的混合体（bug）。
-                final boolean colPillar = !colPassage && colRoom < 0 && onPillar(wx, wz);
-                final boolean colLamp = isLamp(wx, wz);
-
-                for (int y = minY; y < maxY; y++) {
-                    int layer = y / LAYER_H;
-                    int offset = y - layer * LAYER_H;
-
-                    // ===== 子层结构：小径与过道小房间共用同一套「3 × 6」分层 =====
-                    // 每层 18 格切成 3 个 6 格子层：0 = 地板，5 = 天花板，1~4 = 门/墙/空气。
-                    // 因为 SUB_COUNT * SUB_H == LAYER_H，offset 必然落在子层范围内。
-                    if (colPassage || colRoom >= 0) {
-                        int subOff = offset % SUB_H;
-                        if (subOff == 0) {
-                            chunk.setBlockState(m.set(wx, y, wz), floorState, false);
-                        } else if (subOff == SUB_H - 1) {
-                            // 小径天花板：每 3 格一盏荧光灯（只在可走列上，避免嵌进墙里）
-                            boolean lamp = colPassage && !colPassageWallBlock && isPassageLamp(wx, wz);
-                            chunk.setBlockState(m.set(wx, y, wz),
-                                    lamp ? lampState : ceilingState, false);
-                        } else if (colPassage && colBoundary) {
-                            // ===== 小径边界：整面实心，只在门位开 1 宽 × 2 高的洞 =====
-                            // 避免出现"贯穿全高的裂缝"，也不漏光。
-                            if (colGate && (subOff == 1 || subOff == 2)) {
-                                chunk.setBlockState(m.set(wx, y, wz),
-                                        doorState(colFacing, subOff == 1), false);
-                            } else {
-                                chunk.setBlockState(m.set(wx, y, wz), whiteWallState, false);
-                            }
-                        } else {
-                            // 小径内部 / 过道小房间：门位开洞，其余按墙壁判定
-                            boolean doorCol = !colPassage && colRoom == 2;
-                            boolean wallCol = colPassage ? colPassageWallBlock : colRoom == 1;
-                            BlockState st = doorCol
-                                    ? ((subOff == 1 || subOff == 2) ? metalDoorState : airState)
-                                    : (wallCol ? whiteWallState : airState);
-                            chunk.setBlockState(m.set(wx, y, wz), st, false);
-                        }
-                        continue;
-                    }
-
-                    // ===== 过道：开阔停车场 =====
-                    if (offset == 0) {
-                        chunk.setBlockState(m.set(wx, y, wz), floorState, false);
-                    } else if (offset < LAYER_H - 1) {
-                        // 边界实心；门洞所在列的过道一侧在「子层第 1~2 格」高度打通
-                        boolean doorHeight = (offset % SUB_H == 1) || (offset % SUB_H == 2);
-                        boolean wall = colPillar
-                                || (colPassageWall && !(colGateAdjacent && doorHeight));
-                        if (wall) {
-                            // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
-                            chunk.setBlockState(m.set(wx, y, wz),
-                                    (offset == 1) ? warningPillarState : pillarState, false);
-                        } else {
-                            chunk.setBlockState(m.set(wx, y, wz), airState, false);
-                        }
-                    } else {
-                        // 天花板层：每 5 格一个荧光灯
-                        chunk.setBlockState(m.set(wx, y, wz),
-                                colLamp ? lampState : ceilingState, false);
-                    }
-                }
+                fillColumn(chunk, m, cp.x * 16 + lx, cp.z * 16 + lz, minY, maxY);
             }
         }
         return CompletableFuture.completedFuture(chunk);
     }
 
+    // ==================== 逐列生成 ====================
+
+    /**
+     * 一列的生成参数。
+     *
+     * <p>全部只依赖 {@code (x, z)}，因此每列只算一次，所有 y 共用 ——
+     * 这是原生成器里散落一地的 {@code colXxx} 布尔量的集中版本。</p>
+     */
+    private record Column(
+            boolean passage,        // 位于小径区
+            boolean passageWall,    // 小径内部墙（迷宫判定）
+            boolean boundary,       // 小径 / 过道的边界
+            boolean gate,           // 门位（边界上每 24 格一列）
+            boolean aisleBoundary,  // 过道侧的边界列
+            boolean gateAdjacent,   // 紧邻门位（过道侧也要在门高度打通）
+            Direction facing,       // 门的朝向
+            int room,               // 过道小房间：-1 无 / 0 内部 / 1 墙 / 2 门
+            boolean pillar,         // 混凝土柱
+            boolean lamp) {         // 过道天花板灯位
+    }
+
+    /** 计算某一列的全部参数。 */
+    private static Column columnAt(int wx, int wz) {
+        boolean passage = isPassageArea(wx, wz);
+        boolean boundary = isPassageBoundary(wx, wz);
+        int room = roomKind(wx, wz);
+        return new Column(
+                passage,
+                passage && isPassageWall(wx, wz),
+                boundary,
+                boundary && isGateColumn(wx, wz),
+                !passage && boundary,
+                boundary && (isGateColumn(wx + 1, wz) || isGateColumn(wx - 1, wz)
+                        || isGateColumn(wx, wz + 1) || isGateColumn(wx, wz - 1)),
+                facingOf(wx, wz, boundary),
+                room,
+                // 柱子只出现在「纯过道的开阔区域」，否则会被子层结构覆盖成木板/石板条带
+                !passage && room < 0 && onPillar(wx, wz),
+                isLamp(wx, wz));
+    }
+
+    /** 门的朝向：边界法线落在 X 还是 Z 轴；小径在正方向则朝东 / 朝南。 */
+    private static Direction facingOf(int wx, int wz, boolean boundary) {
+        if (!boundary) {
+            return Direction.NORTH;
+        }
+        if (isPassageArea(wx + 1, wz) != isPassageArea(wx - 1, wz)) {
+            return isPassageArea(wx + 1, wz) ? Direction.EAST : Direction.WEST;
+        }
+        return isPassageArea(wx, wz + 1) ? Direction.SOUTH : Direction.NORTH;
+    }
+
+    /** 生成一整列（从 minY 到 maxY）。 */
+    private void fillColumn(ChunkAccess chunk, BlockPos.MutableBlockPos m,
+                            int wx, int wz, int minY, int maxY) {
+        Column c = columnAt(wx, wz);
+        boolean subFloor = c.passage() || c.room() >= 0;
+        for (int y = minY; y < maxY; y++) {
+            int offset = y - (y / LAYER_H) * LAYER_H;
+            if (subFloor) {
+                placeSubFloor(chunk, m, c, wx, y, wz, offset);
+            } else {
+                placeAisle(chunk, m, c, wx, y, wz, offset);
+            }
+        }
+    }
+
+    /**
+     * 子层结构（小径与过道小房间共用）。
+     *
+     * <p>每层 {@value #LAYER_H} 格切成 {@value #SUB_COUNT} 个 {@value #SUB_H} 格子层：
+     * 子层第 0 格 = 地板，最后一格 = 天花板，中间放门 / 墙 / 空气。</p>
+     */
+    private void placeSubFloor(ChunkAccess chunk, BlockPos.MutableBlockPos m,
+                               Column c, int wx, int y, int wz, int offset) {
+        int subOff = offset % SUB_H;
+        if (subOff == 0) {
+            set(chunk, m, wx, y, wz, this.floorState);
+            return;
+        }
+        if (subOff == SUB_H - 1) {
+            // 小径天花板每 3 格一盏灯；只在可走列上，避免嵌进墙里
+            boolean lamp = c.passage() && !c.passageWall() && isPassageLamp(wx, wz);
+            set(chunk, m, wx, y, wz, lamp ? this.lampState : this.ceilingState);
+            return;
+        }
+        if (c.passage() && c.boundary()) {
+            // 小径边界：整面实心，只在门位开 1 宽 × 2 高的洞（避免贯穿裂缝）
+            boolean doorHalf = c.gate() && (subOff == 1 || subOff == 2);
+            set(chunk, m, wx, y, wz, doorHalf
+                    ? doorState(c.facing(), subOff == 1)
+                    : this.whiteWallState);
+            return;
+        }
+        // 小径内部 / 过道小房间：门位开洞，其余按墙壁判定
+        boolean doorCol = !c.passage() && c.room() == 2;
+        boolean wallCol = c.passage() ? c.passageWall() : c.room() == 1;
+        if (doorCol) {
+            set(chunk, m, wx, y, wz,
+                    (subOff == 1 || subOff == 2) ? this.metalDoorState : this.airState);
+        } else {
+            set(chunk, m, wx, y, wz, wallCol ? this.whiteWallState : this.airState);
+        }
+    }
+
+    /** 过道（停车场）：地板 / 柱与边界墙 / 天花板。 */
+    private void placeAisle(ChunkAccess chunk, BlockPos.MutableBlockPos m,
+                            Column c, int wx, int y, int wz, int offset) {
+        if (offset == 0) {
+            set(chunk, m, wx, y, wz, this.floorState);
+            return;
+        }
+        if (offset < LAYER_H - 1) {
+            boolean doorHeight = (offset % SUB_H == 1) || (offset % SUB_H == 2);
+            boolean wall = c.pillar() || (c.aisleBoundary() && !(c.gateAdjacent() && doorHeight));
+            if (wall) {
+                // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
+                set(chunk, m, wx, y, wz,
+                        (offset == 1) ? this.warningPillarState : this.pillarState);
+            } else {
+                set(chunk, m, wx, y, wz, this.airState);
+            }
+            return;
+        }
+        // 天花板层：每 5 格一个荧光灯
+        set(chunk, m, wx, y, wz, c.lamp() ? this.lampState : this.ceilingState);
+    }
+
+    /** 统一的写方块入口。 */
+    private static void set(ChunkAccess chunk, BlockPos.MutableBlockPos m,
+                            int wx, int y, int wz, BlockState state) {
+        chunk.setBlockState(m.set(wx, y, wz), state, false);
+    }
     /** 小径荧光灯间距（格）。 */
     public static final int PASSAGE_LAMP_STEP = 3;
 
