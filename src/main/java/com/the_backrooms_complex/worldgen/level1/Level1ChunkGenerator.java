@@ -102,6 +102,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState gardenWallState;
     /** 传说段：深色木板护墙。 */
     private final BlockState legendWallState;
+    /** 板条箱（跃金段地物）。 */
+    private final BlockState crateState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -120,6 +122,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.gardenGrassState = net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState();
         this.gardenWallState = net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState();
         this.legendWallState = net.minecraft.world.level.block.Blocks.DARK_OAK_PLANKS.defaultBlockState();
+        this.crateState = ModBlocks.CRATE.get().defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -438,6 +441,16 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return Math.floorMod(x, 2) == 0 && Math.floorMod(z, 2) == 0;
     }
 
+    /**
+     * 跃金段的板条箱落点：约 6% 的地面格会放一个箱子。
+     *
+     * <p>文中设定：跃金段的板条箱数量远超本层任何已探索地点。</p>
+     */
+    public static boolean isCrateSpot(int x, int z) {
+        long h = mix(x, z, 0x637261746573L);   // 'crates'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.06;
+    }
+
     // ==================== 哥特段（Level 1 第四区段）====================
 
     /** 哥特段区域边长（格）。 */
@@ -622,6 +635,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private void placeAisle(ChunkAccess chunk, BlockPos.MutableBlockPos m,
                             Column c, int wx, int y, int wz, int offset) {
         Region region = regionAt(wx, wz);
+        // 跃金段：地面上偶有板条箱（文中该段堆满箱子）
+        if (region == Region.YUEJIN && offset == 1 && c.room() < 0 && isCrateSpot(wx, wz)) {
+            set(chunk, m, wx, y, wz, this.crateState);
+            return;
+        }
         if (offset == 0) {
             set(chunk, m, wx, y, wz, floorOf(region));
             return;

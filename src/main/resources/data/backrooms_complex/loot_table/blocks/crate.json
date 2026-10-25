@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": { "min": 2.0, "max": 4.0 },
+      "entries": [
+        { "type": "minecraft:item", "name": "backrooms_complex:canned_almond_water", "weight": 10 },
+        { "type": "minecraft:item", "name": "backrooms_complex:damp_canned_almond_water", "weight": 8 },
+        { "type": "minecraft:item", "name": "minecraft:bread", "weight": 6 },
+        { "type": "minecraft:item", "name": "minecraft:cooked_beef", "weight": 3 },
+        { "type": "minecraft:item", "name": "backrooms_complex:empty_can", "weight": 6 }
+      ]
+    }
+  ]
+}
