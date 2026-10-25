@@ -65,6 +65,13 @@ public final class BiomeTint {
         // 层高按维度决定：Level 0 = 8 格，Level 1 = 18 格。
         // 之前硬编码 L0 的 8，导致在 Level 1 里采样到错误的 Y，是跨层级的干涉项。
         int layerH = layerHeightOf(level);
+        // Level 1 的方块：按「区段」取色（维度判定 + 区段色）
+        if (isLevel1Block(state.getBlock()) && level != null && pos != null) {
+            int sectorHue = sectorHue(pos);
+            if (sectorHue != 0) {
+                return sectorHue;
+            }
+        }
         int layerBaseY = Math.floorDiv(pos.getY(), layerH) * layerH;
 
         // 结果缓存：同一方块位置在一次网格重建内会被询问多次（每个面一次），
@@ -150,6 +157,32 @@ public final class BiomeTint {
         }
     }
 
+    /** 是否是参与染色的 Level 1 方块。 */
+    private static boolean isLevel1Block(Block b) {
+        return b == ModBlocks.CONCRETE_PILLAR.get()
+                || b == ModBlocks.CONCRETE_WARNING_PILLAR.get()
+                || b == ModBlocks.CONCRETE_FLOOR.get()
+                || b == ModBlocks.CONCRETE_CEILING.get()
+                || b == ModBlocks.WHITE_PLASTERED_WALL.get()
+                || b == ModBlocks.YELLOWED_CONCRETE_FLOOR.get()
+                || b == ModBlocks.YELLOWED_CONCRETE_WALL.get()
+                || b == ModBlocks.YELLOWED_CORRUGATED_METAL.get();
+    }
+
+    /** 按 Level 1 的区段返回代表色；0 表示「不覆盖，交给群系着色」。 */
+    private static int sectorHue(BlockPos pos) {
+        var region = com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator
+                .regionAt(pos.getX(), pos.getZ());
+        return switch (region) {
+            case YUEJIN -> 0xC9B36A;
+            case GOTHIC -> 0x8A8A85;
+            case GARDEN -> 0x6E9A4E;
+            case LEGEND -> 0x7A5B3E;
+            case OUROBOROS -> 0x9A8F80;
+            default -> 0;
+        };
+    }
+
     /** 供 {@link BiomeTintEvents} 使用的着色方块数组。 */
     public static Block[] tintedBlockArray() {
         DeferredBlock<?>[] holders = new DeferredBlock<?>[] {
@@ -188,6 +221,12 @@ public final class BiomeTint {
                 ModBlocks.STRIPPED_CARPET_FLOOR_SLAB,
                 ModBlocks.STRIPPED_CARPET_FLOOR_STAIRS,
                 ModBlocks.STRIPPED_CARPET_FLOOR_FENCE,
+                // Level 1 的 8 个基础方块（灰度贴图 + 区段染色）
+                ModBlocks.CONCRETE_PILLAR, ModBlocks.CONCRETE_WARNING_PILLAR,
+                ModBlocks.CONCRETE_FLOOR, ModBlocks.CONCRETE_CEILING,
+                ModBlocks.WHITE_PLASTERED_WALL,
+                ModBlocks.YELLOWED_CONCRETE_FLOOR, ModBlocks.YELLOWED_CONCRETE_WALL,
+                ModBlocks.YELLOWED_CORRUGATED_METAL,
         };
         Block[] out = new Block[holders.length];
         for (int i = 0; i < holders.length; i++) {

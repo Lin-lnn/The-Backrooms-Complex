@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "end": "backrooms_complex:block/yellowed_corrugated_metal_top",
-    "side": "backrooms_complex:block/yellowed_corrugated_metal",
-    "particle": "backrooms_complex:block/yellowed_corrugated_metal"
+    "end": "backrooms_complex:block/yellowed_corrugated_metal_tint_top",
+    "side": "backrooms_complex:block/yellowed_corrugated_metal_tint",
+    "particle": "backrooms_complex:block/yellowed_corrugated_metal_tint"
   },
   "elements": [
     {
@@ -25,7 +25,8 @@
             16,
             16
           ],
-          "texture": "#side"
+          "texture": "#side",
+          "tintindex": 0
         },
         "east": {
           "uv": [
@@ -34,7 +35,8 @@
             16,
             16
           ],
-          "texture": "#side"
+          "texture": "#side",
+          "tintindex": 0
         },
         "south": {
           "uv": [
@@ -43,7 +45,8 @@
             16,
             16
           ],
-          "texture": "#side"
+          "texture": "#side",
+          "tintindex": 0
         },
         "west": {
           "uv": [
@@ -52,7 +55,8 @@
             16,
             16
           ],
-          "texture": "#side"
+          "texture": "#side",
+          "tintindex": 0
         },
         "up": {
           "uv": [
@@ -61,7 +65,8 @@
             16,
             16
           ],
-          "texture": "#end"
+          "texture": "#end",
+          "tintindex": 0
         },
         "down": {
           "uv": [
@@ -70,7 +75,8 @@
             16,
             16
           ],
-          "texture": "#end"
+          "texture": "#end",
+          "tintindex": 0
         }
       }
     }

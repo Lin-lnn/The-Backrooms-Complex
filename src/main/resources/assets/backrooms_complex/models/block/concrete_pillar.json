@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "minecraft:block/light_gray_concrete"
+    "all": "backrooms_complex:block/concrete_pillar_tint"
   }
 }

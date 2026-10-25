@@ -1,21 +1,83 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "end": "minecraft:block/reinforced_deepslate_top",
-    "side": "minecraft:block/reinforced_deepslate_side",
-    "particle": "minecraft:block/reinforced_deepslate_side"
+    "end": "backrooms_complex:block/concrete_warning_pillar_tint_top",
+    "side": "backrooms_complex:block/concrete_warning_pillar_tint",
+    "particle": "backrooms_complex:block/concrete_warning_pillar_tint"
   },
   "elements": [
     {
-      "from": [0, 0, 0],
-      "to": [16, 16, 16],
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
       "faces": {
-        "north": { "uv": [0, 0, 16, 16], "texture": "#side" },
-        "east":  { "uv": [0, 0, 16, 16], "texture": "#side" },
-        "south": { "uv": [0, 0, 16, 16], "texture": "#side" },
-        "west":  { "uv": [0, 0, 16, 16], "texture": "#side" },
-        "up":    { "uv": [0, 0, 16, 16], "texture": "#end" },
-        "down":  { "uv": [0, 0, 16, 16], "texture": "#end" }
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#side",
+          "tintindex": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#side",
+          "tintindex": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#side",
+          "tintindex": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#side",
+          "tintindex": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#end",
+          "tintindex": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#end",
+          "tintindex": 0
+        }
       }
     }
   ]
