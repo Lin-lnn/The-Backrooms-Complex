@@ -859,7 +859,17 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         // 本方法没有维度参数，但「层级」与世界上限一一对应：
         //   Level 0 = 256 高（32 层）  /  Level 1 = 288 高（36 层）
         // 因此直接按世界高度推断当前层级，F3 里就能显示正确的层级名。
+        // addDebugScreenInfo 只在客户端调用，因此可以直接读客户端当前世界的高度，
+        // 而不是 getGenDepth()（那个值是本类硬编码的 256，与 Level 1 的 288 不符）。
         int height = this.getGenDepth();
+        try {
+            var cl = net.minecraft.client.Minecraft.getInstance().level;
+            if (cl != null) {
+                height = cl.getHeight();
+            }
+        } catch (Throwable ignored) {
+            // 服务端/专用服务器调用时没有客户端世界，退回 getGenDepth()
+        }
         String level = switch (height) {
             case 288 -> "Level 1";
             case 320 -> "Level 2";
