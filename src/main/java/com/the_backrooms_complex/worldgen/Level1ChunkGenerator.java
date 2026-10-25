@@ -321,9 +321,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 final boolean colBoundary = isPassageBoundary(wx, wz);
                 final boolean colGate = colBoundary && Math.floorMod(wx + wz, 24) == 0;
                 final boolean colPassageWall = !colPassage && colBoundary;
-                final boolean colPillar = onPillar(wx, wz);
-                final boolean colLamp = isLamp(wx, wz);
                 final int colRoom = roomKind(wx, wz);
+                // 柱子只出现在「纯过道的开阔区域」：
+                // 若该列同时落在小径区 / 小径房间里，就交给子层结构去画，
+                // 否则会出现「柱子被 6 格一层的木板、石板条带覆盖」的混合体（bug）。
+                final boolean colPillar = !colPassage && colRoom < 0 && onPillar(wx, wz);
+                final boolean colLamp = isLamp(wx, wz);
 
                 for (int y = minY; y < maxY; y++) {
                     int layer = y / LAYER_H;
