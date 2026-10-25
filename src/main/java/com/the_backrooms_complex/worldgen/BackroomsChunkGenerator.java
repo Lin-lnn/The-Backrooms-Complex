@@ -551,6 +551,15 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
     @Override
     public void addDebugScreenInfo(List<String> info, RandomState random, BlockPos pos) {
-        info.add("Backrooms Level 0");
+        // 本方法没有维度参数，但「层级」与世界上限一一对应：
+        //   Level 0 = 256 高（32 层）  /  Level 1 = 288 高（36 层）
+        // 因此直接按世界高度推断当前层级，F3 里就能显示正确的层级名。
+        int height = this.getGenDepth();
+        String level = switch (height) {
+            case 288 -> "Level 1";
+            case 320 -> "Level 2";
+            default -> "Level 0";
+        };
+        info.add("Backrooms " + level + "  (" + height + " 高 / " + (height / LAYER_HEIGHT) + " 层)");
     }
 }
