@@ -1,7 +1,5 @@
 package com.the_backrooms_complex.worldgen.level1;
 
-import com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator;
-import com.the_backrooms_complex.worldgen.level1.Level1Flicker;
 import com.the_backrooms_complex.ModBlocks;
 import com.the_backrooms_complex.ModDimensions;
 import net.minecraft.core.BlockPos;
@@ -57,14 +55,14 @@ public final class Level1Flicker {
     public static final int MIN_INTERVAL = 15 * 20;
     public static final int MAX_INTERVAL = 45 * 20;
 
-    /** 每层高度（格）。 */
-    public static final int LAYER_H = 18;
+    /** 每层高度（格）：直接跟随生成器，避免两处常量各写各的。 */
+    public static final int LAYER_H = Level1ChunkGenerator.LAYER_H;
     /** 总层数。 */
     public static final int LAYERS = Level1ChunkGenerator.LAYERS;
     /** 子层高度。 */
-    private static final int SUB_H = 6;
+    private static final int SUB_H = Level1ChunkGenerator.SUB_H;
     /** 子层数量。 */
-    private static final int SUB_COUNT = 3;
+    private static final int SUB_COUNT = Level1ChunkGenerator.SUB_COUNT;
     /** 灯间距（与生成器的 PASSAGE_LAMP_STEP 一致）。 */
     private static final int LAMP_STEP = 3;
 
@@ -205,7 +203,7 @@ public final class Level1Flicker {
     /**
      * 只扫描<b>有玩家的层</b>里、每个该层玩家视距范围内的灯位。
      *
-     * <p>灯位与生成器一致：层内 3 个子层，子层天花板在 {@code subOff == 5}，
+     * <p>灯位与生成器一致：层内 2 个子层，子层天花板在 {@code subOff == 5}，
      * 横向每 {@link #LAMP_STEP} 格一个（{@code x % 3 == 1 && z % 3 == 1}）。</p>
      */
     private static void collect(ServerLevel level, Set<Integer> activeLayers) {

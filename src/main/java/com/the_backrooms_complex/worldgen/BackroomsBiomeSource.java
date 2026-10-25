@@ -24,7 +24,9 @@ import java.util.stream.Stream;
  *       导致 Level 0 与 Level 1 共用同一份缓存，同一 (x,z,layer) 会返回
  *       先算出来的那个维度的群系（串维度 bug）；</li>
  *   <li>层高由 {@link #layerHeight} 字段决定，不再硬编码 Level 0 的 8 格，
- *       因此 Level 1 可以在自己的维度 JSON 里写 {@code "layer_height": 18}。</li>
+ *       因此 Level 1 可以在自己的维度 JSON 里写 {@code "layer_height": 12}。
+ *       该值必须与 {@code Level1ChunkGenerator.LAYER_H} 一致，否则雾色切换的
+ *       Y 坐标会与真正的楼层错开。</li>
  * </ul>
  */
 public class BackroomsBiomeSource extends BiomeSource {
@@ -146,8 +148,9 @@ public class BackroomsBiomeSource extends BiomeSource {
 
     /** 真正的群系计算（无缓存）。 */
     private Holder<Biome> computeBiomeAt(int x, int z, int layer) {
-        // Level 1：若维度提供了区段群系，则群系跟随区段（L0 不提供 => 走下面的老逻辑）
-        Holder<Biome> sector = sectorBiomeAt(x, z);
+        // Level 1：若维度提供了区段群系，则群系跟随「该层的」区段
+        // （L0 不提供 => 走下面的老逻辑）
+        Holder<Biome> sector = sectorBiomeAt(x, z, layer);
         if (sector != null) {
             return sector;
         }
@@ -170,17 +173,22 @@ public class BackroomsBiomeSource extends BiomeSource {
     /**
      * 按 Level 1 的区段取群系；未提供区段群系时返回 {@code null}。
      *
+     * <p>区段按 {@code layer} 判定，因此三层各自的雾色 / 天空光跟随本层的区段计划，
+     * 而不是永远停在第 0 层。主区段「天鹰」复用 {@code concrete_halls} 槽位
+     * （维度 JSON 里指向 {@code aquila_sector}）。</p>
+     *
      * <p>只读判定，不引入对 Level 0 的任何依赖。</p>
      */
-    private Holder<Biome> sectorBiomeAt(int x, int z) {
+    private Holder<Biome> sectorBiomeAt(int x, int z, int layer) {
         if (this.yuejinSector.isEmpty() && this.gothicSector.isEmpty()
                 && this.ouroborosSector.isEmpty() && this.gardenSector.isEmpty()
                 && this.legendSector.isEmpty()) {
             return null;
         }
         var region = com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator
-                .regionAt(x, z);
+                .regionAt(x, z, layer);
         return switch (region) {
+            case AQUILA -> this.concreteHalls;
             case YUEJIN -> this.yuejinSector.orElse(null);
             case GOTHIC -> this.gothicSector.orElse(null);
             case OUROBOROS -> this.ouroborosSector.orElse(null);
