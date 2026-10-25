@@ -90,7 +90,25 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      * 这里改为读取<b>区块自身</b>的高度，任何维度都能正确工作。</p>
      */
     private static int fullLayers(net.minecraft.world.level.LevelHeightAccessor heightAccessor) {
-        return Math.max(1, heightAccessor.getHeight() / LAYER_HEIGHT);
+        return Math.max(1, heightAccessor.getHeight() / layerHeight(heightAccessor));
+    }
+
+    /**
+     * 当前层级的<b>单层高度</b>（格）。
+     *
+     * <ul>
+     *   <li><b>Level 0</b>：256 高 ⇒ 8 格/层，共 32 层；</li>
+     *   <li><b>Level 1</b>：288 高 ⇒ <b>18 格/层</b>，共 16 层
+     *       （天鹰段的复式大空间：地板 1 + 空气 16 + 天花板 1）。</li>
+     * </ul>
+     */
+    private static int layerHeight(net.minecraft.world.level.LevelHeightAccessor heightAccessor) {
+        return layerHeight(heightAccessor.getHeight());
+    }
+
+    /** 按世界总高度推断单层高度。 */
+    private static int layerHeight(int totalHeight) {
+        return totalHeight >= 288 ? 18 : LAYER_HEIGHT;
     }
     /** 荧光灯间隔（格）。 */
     private static final int LAMP_SPACING = 5;
@@ -213,8 +231,9 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
 
                 for (int y = minY; y < maxY; y++) {
-                    int layer = y / LAYER_HEIGHT;
-                    int offset = y - layer * LAYER_HEIGHT; // 0..6
+                    int lh = layerHeight(chunk);
+                    int layer = y / lh;
+                    int offset = y - layer * lh;   // 层内偏移
                 // 三维群系：本层的群系决定本层的墙壁花纹 / 地板 / 天花板 / 通风口
                 // biome = 未抖动的原始群系；踢脚线用它，避免墙脚出现黄/黑斑块
                 Holder<Biome> biome = backroomsBiomeSource.biomeAt(worldX, worldZ, layer);
@@ -290,7 +309,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                     if (offset == 0) {
                         // 地板：整层满铺（层间不再有竖井连接）
                         chunk.setBlockState(mutable.set(worldX, y, worldZ), columnFloor, false);
-                    } else if (offset <= 6) {
+                    } else if (offset <= lh - 2) {
                         // 墙壁区（+1..+5）：墙壁列放踢脚线/墙，通道列留空气
                         if (isWall) {
                             // offset == 1 使用踢脚线方块（四边凸出裙边），其余为普通墙壁
@@ -377,7 +396,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
             // 加入 y 之后变种以"单个方块"散布，而不是整条 5 格高的竖柱。
             int k = Math.floorMod(x + 2 * z + 3 * y, 10000);
             // 警示墙只出现在"每层地板与天花板之间的 Y 轴中点"（offset == 3）；仍在混凝土大厅、概率仍为 0.01%
-            int offsetInLayer = y - Math.floorDiv(y, LAYER_HEIGHT) * LAYER_HEIGHT;
+            int lh2 = this.getGenDepth() >= 288 ? 18 : LAYER_HEIGHT;
+            int offsetInLayer = y - Math.floorDiv(y, lh2) * lh2;
             if (k == 5 && offsetInLayer == 3) {
                 return warningWall;
             }
@@ -609,6 +629,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
             case 320 -> "Level 2";
             default -> "Level 0";
         };
-        info.add("Backrooms " + level + "  (" + height + " 高 / " + (height / LAYER_HEIGHT) + " 层)");
+        info.add("Backrooms " + level + "  (" + height + " 高 / " + layerHeight(height) + " 格每层 / " + (height / layerHeight(height)) + " 层)");
     }
 }
