@@ -383,7 +383,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                             int wx, int wz, int minY, int maxY) {
         Column c = columnAt(wx, wz);
         // 柱子列优先：柱子上绝不叠加小径/房间的子层结构（否则会长出木板+石板的混合柱）
-        boolean subFloor = !c.pillar() && (c.passage() || c.room() >= 0);
+        // 子层结构只属于小径；过道房间在过道自己的 18 格空间里做成封闭盒子
+        boolean subFloor = !c.pillar() && c.passage();
         for (int y = minY; y < maxY; y++) {
             int offset = y - (y / LAYER_H) * LAYER_H;
             if (subFloor) {
@@ -439,6 +440,25 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz, this.floorState);
             return;
         }
+
+        // ===== 过道房间：四面实心，只在南墙留一扇 2 格高的门 =====
+        if (c.room() >= 0) {
+            if (offset == LAYER_H - 1) {
+                // 房间顶部与过道天花板齐平
+                set(chunk, m, wx, y, wz, c.lamp() ? this.lampState : this.ceilingState);
+            } else if (c.room() == 2) {
+                // 门列：1~2 格高放「下半 / 上半」门，其余高度实心 => 除门以外没有入口
+                set(chunk, m, wx, y, wz, (offset == 1 || offset == 2)
+                        ? doorState(Direction.SOUTH, offset == 1)
+                        : this.whiteWallState);
+            } else if (c.room() == 1) {
+                set(chunk, m, wx, y, wz, this.whiteWallState);
+            } else {
+                set(chunk, m, wx, y, wz, this.airState);
+            }
+            return;
+        }
+
         if (offset < LAYER_H - 1) {
             boolean doorHeight = (offset % SUB_H == 1) || (offset % SUB_H == 2);
             boolean wall = c.pillar() || (c.aisleBoundary() && !(c.gateAdjacent() && doorHeight));
