@@ -47,11 +47,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     // ==================== 常量 ====================
 
     /** 单层高度（格）。 */
-    public static final int LAYER_H = 18;
+    public static final int LAYER_H = 12;
     /** 子层高度（小径用）。 */
     public static final int SUB_H = 6;
     /** 子层数量。 */
-    public static final int SUB_COUNT = 3;
+    public static final int SUB_COUNT = 2;
 
     /**
      * 实际生成的层数。
