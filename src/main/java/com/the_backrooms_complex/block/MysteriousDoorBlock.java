@@ -23,8 +23,20 @@ import net.minecraft.world.phys.BlockHitResult;
  */
 public class MysteriousDoorBlock extends DoorBlock {
 
-    /** Level 1 的固定传送落点（与 Level 1 生成器第 0 层地板对齐）。 */
-    private static final BlockPos LANDING = new BlockPos(0, 1, 0);
+    /**
+     * Level 1 的<b>固定安全出生点</b>。
+     *
+     * <p>选 {@code (2, 1, 2)} 的原因：</p>
+     * <ul>
+     *   <li>小径的墙体按 {@code x % 5 == 0} / {@code z % 5 == 0} 生成，
+     *       {@code 2 % 5 = 2} ⇒ <b>一定不是小径墙</b>；</li>
+     *   <li>过道的巨柱在 48 格网格的 {@code (22..25, 22..25)} 处，
+     *       {@code (2, 2)} <b>不在柱子上</b>；</li>
+     *   <li>第 0 层地板在 {@code Y = 0}，所以站在 {@code Y = 1}。</li>
+     * </ul>
+     * <p>⇒ 无论该处是过道还是小径，这个点<b>必然是空旷的</b>。</p>
+     */
+    public static final BlockPos LANDING = new BlockPos(2, 1, 2);
 
     public MysteriousDoorBlock(Properties properties) {
         super(BlockSetType.DARK_OAK, properties);
@@ -46,12 +58,9 @@ public class MysteriousDoorBlock extends DoorBlock {
         // 传送到 Level 1 的固定出生点。
         // 用 target.getSharedSpawnPos() 作为落点：让服务器自己加载该区块，
         // 避免在未加载区块上逐格探测（那会同步生成大量区块并卡死服务器）。
-        BlockPos spawn = target.getSharedSpawnPos();
-        double sx = spawn.getX() + 0.5D;
-        double sz = spawn.getZ() + 0.5D;
-        // 让 y 落在世界允许范围内（出生点默认是世界底部）
-        double sy = Math.max(spawn.getY(), target.getMinBuildHeight() + 1);
-        serverPlayer.teleportTo(target, sx, sy, sz,
+        // 用固定安全点，而不是 getSharedSpawnPos()（那个点可能卡在柱子里）
+        serverPlayer.teleportTo(target,
+                LANDING.getX() + 0.5D, LANDING.getY(), LANDING.getZ() + 0.5D,
                 serverPlayer.getYRot(), serverPlayer.getXRot());
         return InteractionResult.CONSUME;
     }
