@@ -2,33 +2,37 @@ package com.the_backrooms_complex.block;
 
 import com.mojang.serialization.MapCodec;
 import com.the_backrooms_complex.ModBlocks;
+import com.the_backrooms_complex.ModConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import com.the_backrooms_complex.ModConfig;
 
 /**
  * 「被刮去墙纸」的 Level 0 墙壁方块。
  *
- * <p>由 {@link com.the_backrooms_complex.item.ScraperItem 刮纸刀} 右键墙壁主体方块时产生，
- * 贴图为"墙纸被刮掉后露出的底层墙面"。经过
- * {@link ModConfig#wallpaperRestoreSeconds 配置的秒数}后，
- * 由 {@link #tick} 自动恢复成原本有墙纸的墙壁。</p>
+ * <p>由刮纸刀右键墙壁主体时产生。贴图为"墙纸被刮掉后露出的底层墙面"，
+ * 经过 {@link ModConfig#wallpaperRestoreSeconds} 秒后自动恢复。</p>
  *
- * <p>用 {@code variant} 属性记录"它原来是哪一面墙"，从而知道该恢复成
- * {@code wall_yellow} / {@code wall_concrete} / {@code wall_damp} 中的哪一个。</p>
- *
- * <p>若期间该方块被替换或破坏，{@link #tick} 会因为方块已经不是它而什么都不做，
- * 因此不会误恢复。</p>
+ * <h2>过渡贴图（本方块自己改变，而不是改变相邻的墙）</h2>
+ * <p>根据<b>上下相邻是否也是「被刮去墙纸的墙壁」</b>切换贴图：</p>
+ * <ul>
+ *   <li>{@link Shape#FULL} —— 上下都不是刮纸墙（孤立一格）⇒ 整面都露出底层；</li>
+ *   <li>{@link Shape#UPPER} —— 下方也是刮纸墙 ⇒ 只剩<b>上半部分</b>是刮过的；</li>
+ *   <li>{@link Shape#LOWER} —— 上方也是刮纸墙 ⇒ 只剩<b>下半部分</b>是刮过的；</li>
+ *   <li>{@link Shape#MID} —— 上下都是刮纸墙 ⇒ 只有<b>中间一条</b>是刮过的。</li>
+ * </ul>
+ * <p>所有贴图都是<b>灰度图</b>，由 {@code BiomeTint} 按群系着色（与其它 Level 0 方块一致）。</p>
  */
 public class OakedWallBlock extends Block {
 
-    /** 对应三种墙壁主体的变体。 */
+    /** 原墙壁变体。 */
     public enum Variant implements StringRepresentable {
         YELLOW("yellow"),
         CONCRETE("concrete"),
@@ -46,14 +50,39 @@ public class OakedWallBlock extends Block {
         }
     }
 
-    public static final EnumProperty<Variant> VARIANT =
-            EnumProperty.create("variant", Variant.class);
+    /** 刮纸形状（决定用哪张过渡贴图）。 */
+    public enum Shape implements StringRepresentable {
+        /** 上下都不是刮纸墙 —— 整面露出底层。 */
+        FULL("full"),
+        /** 下方是刮纸墙 —— 只剩上半部分是刮过的。 */
+        UPPER("upper"),
+        /** 上方是刮纸墙 —— 只剩下半部分是刮过的。 */
+        LOWER("lower"),
+        /** 上下都是刮纸墙 —— 只有中间一条是刮过的。 */
+        MID("mid");
+
+        private final String name;
+
+        Shape(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
+        }
+    }
+
+    public static final EnumProperty<Variant> VARIANT = EnumProperty.create("variant", Variant.class);
+    public static final EnumProperty<Shape> SHAPE = EnumProperty.create("shape", Shape.class);
 
     public static final MapCodec<OakedWallBlock> CODEC = simpleCodec(OakedWallBlock::new);
 
     public OakedWallBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(VARIANT, Variant.YELLOW));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(VARIANT, Variant.YELLOW)
+                .setValue(SHAPE, Shape.FULL));
     }
 
     @Override
@@ -63,33 +92,59 @@ public class OakedWallBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(VARIANT);
+        builder.add(VARIANT, SHAPE);
     }
 
-    /**
-     * 由 {@code ServerLevel.scheduleTick} 排定的恢复逻辑。
-     *
-     * <p>只有当前方块仍然是"去墙纸"状态时才会执行，因此方块若已被替换/破坏便不会恢复。</p>
-     */
-    /** 刷新一个相邻的过渡墙。 */
-    private static void refresh(net.minecraft.world.level.Level level, BlockPos p) {
-        BlockState st = level.getBlockState(p);
-        if (st.getBlock() instanceof TransitionWallBlock) {
-            BlockState updated = TransitionWallBlock.updateBoth(st, level, p);
-            if (updated != st) {
-                level.setBlock(p, updated, Block.UPDATE_ALL);
-            }
+    /** 判断某方块是不是同类（刮纸墙）。 */
+    private static boolean isOaked(BlockState s) {
+        return s.getBlock() instanceof OakedWallBlock;
+    }
+
+    /** 按上下邻居决定形状。 */
+    public static Shape shapeFor(LevelAccessor level, BlockPos pos) {
+        boolean up = isOaked(level.getBlockState(pos.above()));
+        boolean down = isOaked(level.getBlockState(pos.below()));
+        if (up && down) {
+            return Shape.MID;
         }
+        if (up) {
+            return Shape.LOWER;
+        }
+        if (down) {
+            return Shape.UPPER;
+        }
+        return Shape.FULL;
     }
 
+    /** 邻居变化时刷新形状。 */
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+                                     LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        if (direction == Direction.UP || direction == Direction.DOWN) {
+            return state.setValue(SHAPE, shapeFor(level, pos));
+        }
+        return state;
+    }
+
+    /** 自动恢复成原本的墙壁。 */
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         Block original = ModBlocks.originalWallOf(state.getValue(VARIANT));
         if (original != null) {
             level.setBlock(pos, original.defaultBlockState(), Block.UPDATE_ALL);
-            // 恢复后，上下相邻的过渡墙也要刷新回普通贴图
             refresh(level, pos.above());
             refresh(level, pos.below());
+        }
+    }
+
+    /** 刷新一个相邻的刮纸墙形状。 */
+    private static void refresh(ServerLevel level, BlockPos p) {
+        BlockState st = level.getBlockState(p);
+        if (st.getBlock() instanceof OakedWallBlock) {
+            BlockState updated = st.setValue(SHAPE, shapeFor(level, p));
+            if (updated != st) {
+                level.setBlock(p, updated, Block.UPDATE_ALL);
+            }
         }
     }
 }

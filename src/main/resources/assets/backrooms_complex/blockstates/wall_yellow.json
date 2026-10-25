@@ -1,8 +1,5 @@
 {
   "variants": {
-    "scraped_above=false,scraped_below=false": { "model": "backrooms_complex:block/wall_yellow" },
-    "scraped_above=true,scraped_below=false":  { "model": "backrooms_complex:block/wall_yellow_above" },
-    "scraped_above=false,scraped_below=true":  { "model": "backrooms_complex:block/wall_yellow_below" },
-    "scraped_above=true,scraped_below=true":   { "model": "backrooms_complex:block/wall_yellow_both" }
+    "": { "model": "backrooms_complex:block/wall_yellow" }
   }
 }

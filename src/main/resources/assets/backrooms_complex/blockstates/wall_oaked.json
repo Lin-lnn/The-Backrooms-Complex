@@ -1,13 +1,16 @@
 {
   "variants": {
-    "variant=yellow": {
-      "model": "backrooms_complex:block/wall_oaked"
-    },
-    "variant=concrete": {
-      "model": "backrooms_complex:block/wall_oaked"
-    },
-    "variant=damp": {
-      "model": "backrooms_complex:block/wall_oaked"
-    }
+    "variant=yellow,shape=full": { "model": "backrooms_complex:block/wall_oaked_full" },
+    "variant=yellow,shape=upper": { "model": "backrooms_complex:block/wall_oaked_upper" },
+    "variant=yellow,shape=mid": { "model": "backrooms_complex:block/wall_oaked_mid" },
+    "variant=yellow,shape=lower": { "model": "backrooms_complex:block/wall_oaked_lower" },
+    "variant=concrete,shape=full": { "model": "backrooms_complex:block/wall_oaked_full" },
+    "variant=concrete,shape=upper": { "model": "backrooms_complex:block/wall_oaked_upper" },
+    "variant=concrete,shape=mid": { "model": "backrooms_complex:block/wall_oaked_mid" },
+    "variant=concrete,shape=lower": { "model": "backrooms_complex:block/wall_oaked_lower" },
+    "variant=damp,shape=full": { "model": "backrooms_complex:block/wall_oaked_full" },
+    "variant=damp,shape=upper": { "model": "backrooms_complex:block/wall_oaked_upper" },
+    "variant=damp,shape=mid": { "model": "backrooms_complex:block/wall_oaked_mid" },
+    "variant=damp,shape=lower": { "model": "backrooms_complex:block/wall_oaked_lower" }
   }
 }

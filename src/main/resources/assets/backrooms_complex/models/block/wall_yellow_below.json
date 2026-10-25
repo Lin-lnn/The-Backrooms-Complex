@@ -1,4 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": { "all": "backrooms_complex:block/wall_yellow_scraped_lower" }
-}
