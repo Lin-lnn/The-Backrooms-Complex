@@ -909,5 +909,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     @Override
     public void addDebugScreenInfo(List<String> info, RandomState random, BlockPos pos) {
         info.add("Backrooms Level 1  (" + LAYER_H + " 格每层 / 生成 " + LAYERS + " 层)");
+        // 当前所处区段与分层方式（便于核对各段是否正确出现）
+        Region region = regionAt(pos.getX(), pos.getZ());
+        SectorProfile prof = profileOf(region);
+        info.add("区段: " + region + "  /  " + (prof.stacked() ? "两层 6 格" : "12 格通高"));
+        if (isPassageArea(pos.getX(), pos.getZ())) {
+            info.add("小径区（" + SUB_COUNT + " 层 × " + SUB_H + " 格）");
+        }
     }
 }
