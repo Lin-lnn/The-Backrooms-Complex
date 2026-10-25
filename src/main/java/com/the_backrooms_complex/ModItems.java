@@ -355,6 +355,48 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> WHITE_PLASTERED_WALL =
             ITEMS.register("white_plastered_wall", () -> new BlockItem(ModBlocks.WHITE_PLASTERED_WALL.get(), new Item.Properties()));
 
+    // ===== Level 1 变体的 BlockItem =====
+    public static final DeferredItem<BlockItem> CONCRETE_PILLAR_STAIRS =
+            ITEMS.register("concrete_pillar_stairs", () -> new BlockItem(ModBlocks.CONCRETE_PILLAR_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_PILLAR_SLAB =
+            ITEMS.register("concrete_pillar_slab", () -> new BlockItem(ModBlocks.CONCRETE_PILLAR_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_PILLAR_WALL =
+            ITEMS.register("concrete_pillar_wall", () -> new BlockItem(ModBlocks.CONCRETE_PILLAR_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_PILLAR_FENCE =
+            ITEMS.register("concrete_pillar_fence", () -> new BlockItem(ModBlocks.CONCRETE_PILLAR_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_WARNING_PILLAR_STAIRS =
+            ITEMS.register("concrete_warning_pillar_stairs", () -> new BlockItem(ModBlocks.CONCRETE_WARNING_PILLAR_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_WARNING_PILLAR_SLAB =
+            ITEMS.register("concrete_warning_pillar_slab", () -> new BlockItem(ModBlocks.CONCRETE_WARNING_PILLAR_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_WARNING_PILLAR_WALL =
+            ITEMS.register("concrete_warning_pillar_wall", () -> new BlockItem(ModBlocks.CONCRETE_WARNING_PILLAR_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_WARNING_PILLAR_FENCE =
+            ITEMS.register("concrete_warning_pillar_fence", () -> new BlockItem(ModBlocks.CONCRETE_WARNING_PILLAR_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_FLOOR_STAIRS =
+            ITEMS.register("concrete_floor_stairs", () -> new BlockItem(ModBlocks.CONCRETE_FLOOR_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_FLOOR_SLAB =
+            ITEMS.register("concrete_floor_slab", () -> new BlockItem(ModBlocks.CONCRETE_FLOOR_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_FLOOR_WALL =
+            ITEMS.register("concrete_floor_wall", () -> new BlockItem(ModBlocks.CONCRETE_FLOOR_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_FLOOR_FENCE =
+            ITEMS.register("concrete_floor_fence", () -> new BlockItem(ModBlocks.CONCRETE_FLOOR_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_CEILING_STAIRS =
+            ITEMS.register("concrete_ceiling_stairs", () -> new BlockItem(ModBlocks.CONCRETE_CEILING_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_CEILING_SLAB =
+            ITEMS.register("concrete_ceiling_slab", () -> new BlockItem(ModBlocks.CONCRETE_CEILING_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_CEILING_WALL =
+            ITEMS.register("concrete_ceiling_wall", () -> new BlockItem(ModBlocks.CONCRETE_CEILING_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> CONCRETE_CEILING_FENCE =
+            ITEMS.register("concrete_ceiling_fence", () -> new BlockItem(ModBlocks.CONCRETE_CEILING_FENCE.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WHITE_PLASTERED_WALL_STAIRS =
+            ITEMS.register("white_plastered_wall_stairs", () -> new BlockItem(ModBlocks.WHITE_PLASTERED_WALL_STAIRS.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WHITE_PLASTERED_WALL_SLAB =
+            ITEMS.register("white_plastered_wall_slab", () -> new BlockItem(ModBlocks.WHITE_PLASTERED_WALL_SLAB.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WHITE_PLASTERED_WALL_WALL =
+            ITEMS.register("white_plastered_wall_wall", () -> new BlockItem(ModBlocks.WHITE_PLASTERED_WALL_WALL.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> WHITE_PLASTERED_WALL_FENCE =
+            ITEMS.register("white_plastered_wall_fence", () -> new BlockItem(ModBlocks.WHITE_PLASTERED_WALL_FENCE.get(), new Item.Properties()));
+
     private ModItems() {
     }
 }

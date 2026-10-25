@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "backrooms_complex:block/white_plastered_wall_slab_slab"
+    },
+    "type=double": {
+      "model": "backrooms_complex:block/white_plastered_wall_slab_planks"
+    },
+    "type=top": {
+      "model": "backrooms_complex:block/white_plastered_wall_slab_slab_top"
+    }
+  }
+}

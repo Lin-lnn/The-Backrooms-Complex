@@ -282,6 +282,53 @@ public final class ModBlocks {
     public static final DeferredBlock<Block> WHITE_PLASTERED_WALL =
             BLOCKS.register("white_plastered_wall", () -> new Block(unbreakable()));
 
+    // ===== Level 1 方块的 楼梯 / 台阶 / 墙 / 栅栏 变体 =====
+    public static final DeferredBlock<StairBlock> CONCRETE_PILLAR_STAIRS =
+            BLOCKS.register("concrete_pillar_stairs", () -> new StairBlock(
+                    CONCRETE_PILLAR.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<SlabBlock> CONCRETE_PILLAR_SLAB =
+            BLOCKS.register("concrete_pillar_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> CONCRETE_PILLAR_WALL =
+            BLOCKS.register("concrete_pillar_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> CONCRETE_PILLAR_FENCE =
+            BLOCKS.register("concrete_pillar_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+    public static final DeferredBlock<StairBlock> CONCRETE_WARNING_PILLAR_STAIRS =
+            BLOCKS.register("concrete_warning_pillar_stairs", () -> new StairBlock(
+                    CONCRETE_WARNING_PILLAR.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<SlabBlock> CONCRETE_WARNING_PILLAR_SLAB =
+            BLOCKS.register("concrete_warning_pillar_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> CONCRETE_WARNING_PILLAR_WALL =
+            BLOCKS.register("concrete_warning_pillar_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> CONCRETE_WARNING_PILLAR_FENCE =
+            BLOCKS.register("concrete_warning_pillar_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+    public static final DeferredBlock<StairBlock> CONCRETE_FLOOR_STAIRS =
+            BLOCKS.register("concrete_floor_stairs", () -> new StairBlock(
+                    CONCRETE_FLOOR.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<SlabBlock> CONCRETE_FLOOR_SLAB =
+            BLOCKS.register("concrete_floor_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> CONCRETE_FLOOR_WALL =
+            BLOCKS.register("concrete_floor_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> CONCRETE_FLOOR_FENCE =
+            BLOCKS.register("concrete_floor_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+    public static final DeferredBlock<StairBlock> CONCRETE_CEILING_STAIRS =
+            BLOCKS.register("concrete_ceiling_stairs", () -> new StairBlock(
+                    CONCRETE_CEILING.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<SlabBlock> CONCRETE_CEILING_SLAB =
+            BLOCKS.register("concrete_ceiling_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> CONCRETE_CEILING_WALL =
+            BLOCKS.register("concrete_ceiling_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> CONCRETE_CEILING_FENCE =
+            BLOCKS.register("concrete_ceiling_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+    public static final DeferredBlock<StairBlock> WHITE_PLASTERED_WALL_STAIRS =
+            BLOCKS.register("white_plastered_wall_stairs", () -> new StairBlock(
+                    WHITE_PLASTERED_WALL.get().defaultBlockState(), unbreakable()));
+    public static final DeferredBlock<SlabBlock> WHITE_PLASTERED_WALL_SLAB =
+            BLOCKS.register("white_plastered_wall_slab", () -> new SlabBlock(unbreakable()));
+    public static final DeferredBlock<WallBlock> WHITE_PLASTERED_WALL_WALL =
+            BLOCKS.register("white_plastered_wall_wall", () -> new com.the_backrooms_complex.block.ConnectingWallBlock(unbreakable()));
+    public static final DeferredBlock<FenceBlock> WHITE_PLASTERED_WALL_FENCE =
+            BLOCKS.register("white_plastered_wall_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
+
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)
