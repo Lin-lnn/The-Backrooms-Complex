@@ -2,8 +2,8 @@ package com.the_backrooms_complex;
 
 import com.the_backrooms_complex.menu.CrateMenu;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
-import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -16,12 +16,11 @@ public class ModMenus {
     /**
      * 板条箱界面。
      *
-     * <p>客户端工厂只收到 windowId 与玩家背包，所以方块坐标必须通过
-     * {@code FriendlyByteBuf} 传过去 —— 这就是必须用 {@link IMenuTypeExtension} 的原因。</p>
+     * <p>照原版木桶的做法：菜单只依赖 {@code (windowId, inventory)}。客户端一开始拿到的
+     * 是空容器，但物品栈由容器的内容数据包同步过来，所以不需要传方块坐标。</p>
      */
     public static final DeferredHolder<MenuType<?>, MenuType<CrateMenu>> CRATE =
-            MENUS.register("crate", () -> IMenuTypeExtension.create(
-                    (windowId, inv, data) -> new CrateMenu(windowId, inv, data.readBlockPos())));
+            MENUS.register("crate", () -> new MenuType<>(CrateMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
     private ModMenus() {
     }

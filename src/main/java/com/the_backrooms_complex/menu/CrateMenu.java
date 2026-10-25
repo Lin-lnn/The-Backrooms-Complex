@@ -2,7 +2,6 @@ package com.the_backrooms_complex.menu;
 
 import com.the_backrooms_complex.ModMenus;
 import com.the_backrooms_complex.block.entity.CrateBlockEntity;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,9 +18,9 @@ public class CrateMenu extends AbstractContainerMenu {
 
     private final Container container;
 
-    /** 客户端构造：通过坐标找回方块实体。 */
-    public CrateMenu(int windowId, Inventory inventory, BlockPos pos) {
-        this(windowId, inventory, findContainer(inventory, pos));
+    /** 客户端构造：先用空容器占位，物品由容器的内容数据包同步过来。 */
+    public CrateMenu(int windowId, Inventory inventory) {
+        this(windowId, inventory, new SimpleContainer(CRATE_SLOTS));
     }
 
     /** 服务端构造：直接用方块实体本身。 */
@@ -46,13 +45,6 @@ public class CrateMenu extends AbstractContainerMenu {
         for (int col = 0; col < 9; col++) {
             addSlot(new Slot(inventory, col, 8 + col * 18, 142));
         }
-    }
-
-    private static Container findContainer(Inventory inventory, BlockPos pos) {
-        if (inventory.player.level().getBlockEntity(pos) instanceof CrateBlockEntity crate) {
-            return crate;
-        }
-        return new SimpleContainer(CRATE_SLOTS);
     }
 
     @Override

@@ -73,6 +73,7 @@ public class CrateBlock extends BaseEntityBlock {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
+        // 照原版木桶：MenuProvider 由方块实体提供，客户端无需知道坐标
         if (level.getBlockEntity(pos) instanceof CrateBlockEntity crate) {
             crate.ensureFilled();
             player.openMenu(crate);
