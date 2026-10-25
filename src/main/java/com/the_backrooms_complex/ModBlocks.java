@@ -376,6 +376,16 @@ public final class ModBlocks {
             BLOCKS.register("brass_pipe",
                     () -> new com.the_backrooms_complex.block.BrassPipeBlock(unbreakable()));
 
+    // ===== L1 墙体踢脚线（立体裙边）=====
+    public static final DeferredBlock<Block> WHITE_PLASTERED_WALL_SKIRTING =
+            BLOCKS.register("white_plastered_wall_skirting", () -> new Block(unbreakable().noOcclusion()));
+    public static final DeferredBlock<Block> YELLOWED_CONCRETE_WALL_SKIRTING =
+            BLOCKS.register("yellowed_concrete_wall_skirting", () -> new Block(unbreakable().noOcclusion()));
+    public static final DeferredBlock<Block> GARDEN_WALL_SKIRTING =
+            BLOCKS.register("garden_wall_skirting", () -> new Block(unbreakable().noOcclusion()));
+    public static final DeferredBlock<Block> LEGEND_WALL_SKIRTING =
+            BLOCKS.register("legend_wall_skirting", () -> new Block(unbreakable().noOcclusion()));
+
     private static BlockBehaviour.Properties unbreakable() {
         return BlockBehaviour.Properties.of()
                 .strength(-1.0F, 3600000.0F)

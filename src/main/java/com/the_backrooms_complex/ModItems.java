@@ -440,6 +440,16 @@ public final class ModItems {
             ITEMS.register("brass_pipe", () -> new BlockItem(ModBlocks.BRASS_PIPE.get(),
                     new Item.Properties()));
 
+    // ===== L1 踢脚线 BlockItem =====
+    public static final DeferredItem<BlockItem> WHITE_PLASTERED_WALL_SKIRTING =
+            ITEMS.register("white_plastered_wall_skirting", () -> new BlockItem(ModBlocks.WHITE_PLASTERED_WALL_SKIRTING.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> YELLOWED_CONCRETE_WALL_SKIRTING =
+            ITEMS.register("yellowed_concrete_wall_skirting", () -> new BlockItem(ModBlocks.YELLOWED_CONCRETE_WALL_SKIRTING.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> GARDEN_WALL_SKIRTING =
+            ITEMS.register("garden_wall_skirting", () -> new BlockItem(ModBlocks.GARDEN_WALL_SKIRTING.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> LEGEND_WALL_SKIRTING =
+            ITEMS.register("legend_wall_skirting", () -> new BlockItem(ModBlocks.LEGEND_WALL_SKIRTING.get(), new Item.Properties()));
+
     private ModItems() {
     }
 }

@@ -104,6 +104,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 传说段：深色木板护墙。 */
     private final BlockState legendWallState;
     /** 板条箱方块状态（惰性取，避免注册顺序问题）。 */
+    /** 各墙体的踢脚线（立体裙边）。 */
+    private final BlockState whiteSkirtState;
+    private final BlockState yuejinSkirtState;
+    private final BlockState gardenSkirtState;
+    private final BlockState legendSkirtState;
     private BlockState crateState;
     /** 花园段地面的草簇。 */
     private final BlockState grassTuftState;
@@ -139,6 +144,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.gardenGrassState = net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState();
         this.gardenWallState = net.minecraft.world.level.block.Blocks.MOSS_BLOCK.defaultBlockState();
         this.legendWallState = net.minecraft.world.level.block.Blocks.DARK_OAK_PLANKS.defaultBlockState();
+        this.whiteSkirtState = ModBlocks.WHITE_PLASTERED_WALL_SKIRTING.get().defaultBlockState();
+        this.yuejinSkirtState = ModBlocks.YELLOWED_CONCRETE_WALL_SKIRTING.get().defaultBlockState();
+        this.gardenSkirtState = ModBlocks.GARDEN_WALL_SKIRTING.get().defaultBlockState();
+        this.legendSkirtState = ModBlocks.LEGEND_WALL_SKIRTING.get().defaultBlockState();
         // 注意：不能在这里取 CRATE 的方块状态。
         // CrateBlock 现在是 BaseEntityBlock，其 BlockEntityType 需要 ModBlocks.CRATE.get()，
         // 在注册完成前取值会触发空指针；改为生成时按需取值（见 crateState()）。
@@ -879,7 +888,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             } else if (wall) {
                 // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
                 set(chunk, m, wx, y, wz,
-                        (offset % h == 1) ? this.warningPillarState : prof.wall());
+                        (offset % h == 1) ? wallBaseOf(region) : prof.wall());
             } else {
                 set(chunk, m, wx, y, wz, this.airState);
             }
@@ -932,6 +941,21 @@ public class Level1ChunkGenerator extends ChunkGenerator {
 
     /** 楼梯宽度（格）。 */
     public static final int STAIR_WIDTH = 2;
+
+    /**
+     * 墙底（层内第 1 格）用的方块。
+     *
+     * <p>「混凝土警示柱」只在天鹰段使用；其余区段用各自墙体的踢脚线。</p>
+     */
+    private BlockState wallBaseOf(Region region) {
+        return switch (region) {
+            case AQUILA, CORRIDOR -> this.warningPillarState;
+            case YUEJIN -> this.yuejinSkirtState;
+            case GARDEN -> this.gardenSkirtState;
+            case LEGEND -> this.legendSkirtState;
+            default -> this.whiteSkirtState;
+        };
+    }
 
     /** 该区段是否是「两层」结构（只有两层的区段才需要楼梯）。 */
     public static boolean isStackedRegion(Region r) {
@@ -1195,7 +1219,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 惰性获取板条箱状态：首次使用时才查注册表。 */
     private BlockState crateState() {
         if (this.crateState == null) {
-            this.crateState = ModBlocks.CRATE.get().defaultBlockState()
+        this.crateState = ModBlocks.CRATE.get().defaultBlockState()
                     .setValue(com.the_backrooms_complex.block.CrateBlock.NATURAL, true);
         }
         return this.crateState;

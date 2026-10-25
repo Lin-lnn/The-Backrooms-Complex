@@ -224,5 +224,9 @@
   "block.backrooms_complex.yellowed_corrugated_metal_fence": "Yellowed Corrugated Metal Fence",
   "block.backrooms_complex.crate": "Crate",
   "block.backrooms_complex.steel_plate": "Leaning Steel Plate",
-  "block.backrooms_complex.brass_pipe": "Brass Pipe"
+  "block.backrooms_complex.brass_pipe": "Brass Pipe",
+  "block.backrooms_complex.white_plastered_wall_skirting": "White Plastered Wall Skirting",
+  "block.backrooms_complex.yellowed_concrete_wall_skirting": "Yellowed Concrete Wall Skirting",
+  "block.backrooms_complex.garden_wall_skirting": "Moss Wall Skirting",
+  "block.backrooms_complex.legend_wall_skirting": "Dark Oak Wall Skirting"
 }
