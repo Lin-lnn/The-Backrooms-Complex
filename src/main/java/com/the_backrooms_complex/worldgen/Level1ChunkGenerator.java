@@ -55,8 +55,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static final int PASSAGE_CELL = 96;
     /** 小径墙间距（格）。 */
     public static final int PASSAGE_WALL_STEP = 5;
-    /** 小径墙缺口周期（格）。 */
-    public static final int PASSAGE_GAP_PERIOD = 7;
 
     /** 过道小房间网格边长（格）。 */
     public static final int ROOM_CELL = 64;
@@ -133,19 +131,25 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /**
      * 小径内部的墙体判定。
      *
-     * <p>交叉点<b>一律打通</b>，保证每个 5×5 格子四周至少有一个开口，
-     * 不会出现玩家进不去的密闭空腔。</p>
+     * <p>墙体按 {@value #PASSAGE_WALL_STEP} 格的网格排布，<b>每一格的四面墙各开 2 格宽的门</b>
+     * （开口位于 {@code % 5 ∈ {2, 3}}），交叉点则保留为柱子。</p>
+     *
+     * <p>开口周期与格子周期相同，因此<b>每个格子必然与四邻连通</b> ——
+     * 这一点由洪水填充验证过（旧版按 7 格周期开口会留下 16 格大小的密闭空腔）。</p>
      */
     public static boolean isPassageWall(int x, int z) {
         boolean vWall = Math.floorMod(x, PASSAGE_WALL_STEP) == 0;
         boolean hWall = Math.floorMod(z, PASSAGE_WALL_STEP) == 0;
-        if (vWall == hWall) {
-            return false;   // 走廊内部（都不是墙）或交叉点（一律打通）
+        if (vWall && hWall) {
+            return true;    // 交叉点：保留为柱子
         }
-        if (vWall) {
-            return Math.floorMod(z, PASSAGE_GAP_PERIOD) > 1;
+        if (!vWall && !hWall) {
+            return false;   // 格子内部：走廊
         }
-        return Math.floorMod(x, PASSAGE_GAP_PERIOD) > 1;
+        int m = vWall
+                ? Math.floorMod(z, PASSAGE_WALL_STEP)
+                : Math.floorMod(x, PASSAGE_WALL_STEP);
+        return m != 2 && m != 3;
     }
 
     /** 巨柱判定：48 格网格，4×4 柱体（占 22..25）。 */
