@@ -806,8 +806,14 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 return;
             }
             if (inSub == step + 1) {
-                // 每列顶部一个台阶，逐列抬高 => 真正可走的楼梯
+                // 每列顶部一个台阶，逐列抬高 => 真正可走的楼梯。
+                // step 为最后一列时这里正好是上一层的地板高度，台阶会替换掉那块楼板。
                 set(chunk, m, wx, y, wz, this.stairState);
+                return;
+            }
+            if (inSub == step + 2 || inSub == step + 3) {
+                // 打通：清出楼梯上方的两格，避免上层楼板或墙体把楼梯口堵死
+                set(chunk, m, wx, y, wz, this.airState);
                 return;
             }
         }
