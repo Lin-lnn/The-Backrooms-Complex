@@ -121,14 +121,14 @@ public final class ModPlayerData {
         // 不用 hurt() —— 它会附带受击动画、无敌帧和<b>击退</b>，把玩家推开。
         // 直接改血量可以精确控制节奏，且完全没有击退；
         // 归零时手动调用 die()，仍然使用脱水伤害类型，因此死亡提示不变。
-        if (getThirst(player) <= 0 && t % 60L == 0L) {
-            float next = player.getHealth() - 1.0F;
+        if (getThirst(player) <= 0 && t % ModBalance.DEHYDRATION_INTERVAL_TICKS == 0L) {
+            float next = player.getHealth() - ModBalance.DEHYDRATION_DAMAGE;
             if (next <= 0.0F) {
                 player.setHealth(0.0F);
                 net.minecraft.world.damagesource.DamageSource ds =
                         player.damageSources().source(ModDamageTypes.DEHYDRATION);
                 // 同上：先记录到 CombatTracker，死亡提示才会用脱水的那条
-                player.getCombatTracker().recordDamage(ds, 1.0F);
+                player.getCombatTracker().recordDamage(ds, ModBalance.DEHYDRATION_DAMAGE);
                 player.die(ds);
             } else {
                 player.setHealth(next);

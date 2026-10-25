@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 public class StrippedCarpetFloorBlock extends Block {
 
     /** 复原延迟：60 秒 = 1200 tick。 */
-    public static final int RESTORE_DELAY = 1200;
+    public static final int RESTORE_DELAY = com.the_backrooms_complex.ModBalance.CARPET_RESTORE_TICKS;
 
     /** 这个剥离态原本来自哪种地板。 */
     public enum Origin implements net.minecraft.util.StringRepresentable {

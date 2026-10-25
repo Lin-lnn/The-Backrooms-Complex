@@ -95,17 +95,13 @@ public final class ModBalance {
 
     // ==================== 地板刮取 ====================
 
-    /** 刮开地板时地毯纤维的最小掉落数。 */
-    public static final int FIBER_DROP_MIN = 1;
-    /** 刮开地板时地毯纤维的最大掉落数。 */
-    public static final int FIBER_DROP_MAX = 2;
     /** 剥离地板的复原延迟（60 秒）。 */
     public static final int CARPET_RESTORE_TICKS = 1200;
 
     // ==================== 地物概率 ====================
 
     /** 混凝土大厅：蜘蛛网生成概率。 */
-    public static final double DECOR_COBWEB_CHANCE = 0.0001D;
+    public static final double DECOR_COBWEB_CHANCE = 0.002D;   // 0.2%（与生成器原值一致）
     /** 混凝土大厅：贴墙砂砾堆（燧石）生成概率。 */
     public static final double DECOR_GRAVEL_CHANCE = 0.00003D;
     /** 混凝土大厅：熄灭的篝火生成概率（含砂砾区间之后的增量）。 */

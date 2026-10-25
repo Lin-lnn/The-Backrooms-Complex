@@ -58,19 +58,17 @@ public class ScraperItem extends Item {
 
         ServerLevel serverLevel = (ServerLevel) level;
 
-        // 1) 变成去墙纸状态（贴图切换）
+        // 1) 一次性写入去墙纸状态：变种 + 形状（形状由上下邻居决定）
+        //    原先分两次 setBlock，会多做一次方块更新与光照刷新。
         serverLevel.setBlock(pos,
-                ModBlocks.WALL_OAKED.get().defaultBlockState().setValue(OakedWallBlock.VARIANT, variant),
+                ModBlocks.WALL_OAKED.get().defaultBlockState()
+                        .setValue(OakedWallBlock.VARIANT, variant)
+                        .setValue(OakedWallBlock.SHAPE, OakedWallBlock.shapeFor(serverLevel, pos)),
                 Block.UPDATE_ALL);
 
         // 2) 排定自动恢复（方块 tick 会持久化到区块存档里，重登服务器依然有效）
         int delay = Math.max(1, ModConfig.wallpaperRestoreSeconds) * 20;
-        // 新的刮纸块自己根据上下邻居决定形状（FULL / UPPER / LOWER / MID），
-        // 放置后立即同步一次，并把上下相邻的刮纸墙也刷新。
-        serverLevel.setBlock(pos, serverLevel.getBlockState(pos)
-                .setValue(com.the_backrooms_complex.block.OakedWallBlock.SHAPE,
-                        com.the_backrooms_complex.block.OakedWallBlock.shapeFor(serverLevel, pos)),
-                Block.UPDATE_ALL);
+        // 上下相邻的刮纸墙形状也要跟着变
         refreshTransition(serverLevel, pos.above());
         refreshTransition(serverLevel, pos.below());
 
@@ -90,15 +88,11 @@ public class ScraperItem extends Item {
 
         return InteractionResult.SUCCESS;
     }
-    /** 若该位置是黄色墙壁（过渡墙），刷新它的上下过渡状态。 */
-    /** 刷新一个相邻的刮纸墙形状（若非刮纸墙则什么都不做）。 */
-    private static void refreshTransition(net.minecraft.server.level.ServerLevel level,
-                                          net.minecraft.core.BlockPos p) {
-        net.minecraft.world.level.block.state.BlockState st = level.getBlockState(p);
-        if (st.getBlock() instanceof com.the_backrooms_complex.block.OakedWallBlock) {
-            net.minecraft.world.level.block.state.BlockState updated = st.setValue(
-                    com.the_backrooms_complex.block.OakedWallBlock.SHAPE,
-                    com.the_backrooms_complex.block.OakedWallBlock.shapeFor(level, p));
+    /** 刷新一个相邻的刮纸墙形状（若不是刮纸墙则什么都不做）。 */
+    private static void refreshTransition(ServerLevel level, BlockPos p) {
+        BlockState st = level.getBlockState(p);
+        if (st.getBlock() instanceof OakedWallBlock) {
+            BlockState updated = st.setValue(OakedWallBlock.SHAPE, OakedWallBlock.shapeFor(level, p));
             if (updated != st) {
                 level.setBlock(p, updated, Block.UPDATE_ALL);
             }

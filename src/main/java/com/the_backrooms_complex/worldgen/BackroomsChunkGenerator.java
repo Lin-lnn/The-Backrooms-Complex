@@ -3,6 +3,7 @@ package com.the_backrooms_complex.worldgen;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.the_backrooms_complex.ModBiomes;
+import com.the_backrooms_complex.ModBalance;
 import com.the_backrooms_complex.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -280,11 +281,11 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                                 + (long) worldZ * 132897987541L
                                 + (long) layer * 9187L;
                         double r = net.minecraft.util.RandomSource.create(decorSeed).nextDouble();
-                        if (r < 0.002D) {   // 0.2%：每列约 6% 概率出现一个蛛网
+                        if (r < ModBalance.DECOR_COBWEB_CHANCE) {   // 蜘蛛网
                             // 0.01% 蜘蛛网
                             chunk.setBlockState(mutable.set(worldX, y, worldZ),
                                     net.minecraft.world.level.block.Blocks.COBWEB.defaultBlockState(), false);
-                        } else if (r < 0.00003D) {
+                        } else if (r < ModBalance.DECOR_GRAVEL_CHANCE) {
                             // 0.003% 贴墙的燧石堆：原版没有燧石方块，用"砂砾"表现（燧石即从砂砾中获得）
                             net.minecraft.world.level.block.state.BlockState wallProbe =
                                     chunk.getBlockState(mutable.set(worldX + 1, y, worldZ));
@@ -301,7 +302,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                                     chunk.setBlockState(mutable.set(worldX, y + 1, worldZ), pile, false);
                                 }
                             }
-                        } else if (r < 0.00015D) {
+                        } else if (r < ModBalance.DECOR_CAMPFIRE_CHANCE) {
                             // 0.005% 熄灭的篝火
                             chunk.setBlockState(mutable.set(worldX, y, worldZ),
                                     net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState()

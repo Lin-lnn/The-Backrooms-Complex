@@ -256,11 +256,11 @@ public final class ModBlocks {
             BLOCKS.register("damp_floor_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
     public static final DeferredBlock<FenceBlock> STRIPPED_CARPET_FLOOR_FENCE =
             BLOCKS.register("stripped_carpet_floor_fence", () -> new com.the_backrooms_complex.block.ConnectingFenceBlock(unbreakable()));
-    /** 色泽灰暗的神秘的门：右键传送到 Level 1，不能打开。 */
     /** 金属门：深灰黑色的白桦木门，可开关，用于小径入口。 */
     public static final DeferredBlock<com.the_backrooms_complex.block.MetalDoorBlock> METAL_DOOR =
             BLOCKS.register("metal_door", () -> new com.the_backrooms_complex.block.MetalDoorBlock(unbreakable().noOcclusion()));
 
+    /** 色泽灰暗的神秘的门：右键传送到 Level 1 的固定安全出生点，不能打开。 */
     public static final DeferredBlock<com.the_backrooms_complex.block.MysteriousDoorBlock> MYSTERIOUS_DOOR =
             BLOCKS.register("mysterious_door", () -> new com.the_backrooms_complex.block.MysteriousDoorBlock(unbreakable().noOcclusion()));
 
