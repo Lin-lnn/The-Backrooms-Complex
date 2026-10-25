@@ -230,6 +230,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 || segContains(x, z, x0, z1, x1, z1, w);
     }
 
+    /** 该列是否紧邻某个「房间门」列（四个水平邻格中任一是门位）。 */
+    public static boolean roomDoorNeighbor(int x, int z) {
+        return roomKind(x + 1, z) == 2 || roomKind(x - 1, z) == 2
+                || roomKind(x, z + 1) == 2 || roomKind(x, z - 1) == 2;
+    }
+
     /**
      * 小径内部的墙体判定（{@code true} = 墙）。
      *
@@ -461,6 +467,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
 
         if (offset < LAYER_H - 1) {
             boolean doorHeight = (offset % SUB_H == 1) || (offset % SUB_H == 2);
+            // 门前必须通畅：紧邻房间门位的列，在门高度处强制空气（否则柱子/边界墙会把门堵死）
+            if (doorHeight && roomDoorNeighbor(wx, wz)) {
+                set(chunk, m, wx, y, wz, this.airState);
+                return;
+            }
             boolean wall = c.pillar() || (c.aisleBoundary() && !(c.gateAdjacent() && doorHeight));
             if (wall) {
                 // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
