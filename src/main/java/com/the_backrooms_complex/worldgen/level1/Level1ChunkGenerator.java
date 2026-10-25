@@ -419,6 +419,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                             int wx, int wz, int minY, int maxY) {
         Column c = columnAt(wx, wz);
         // 柱子列优先：柱子上绝不叠加小径/房间的子层结构（否则会长出木板+石板的混合柱）
+        // 区段与配色每列只算一次（原先在 placeAisle 里逐方块计算）
+        Region region = regionAt(wx, wz);
+        SectorProfile prof = profileOf(region);
         // 子层结构只属于小径；过道房间在过道自己的 18 格空间里做成封闭盒子
         boolean subFloor = !c.pillar() && c.passage();
         for (int y = minY; y < maxY; y++) {
@@ -426,7 +429,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             if (subFloor) {
                 placeSubFloor(chunk, m, c, wx, y, wz, offset);
             } else {
-                placeAisle(chunk, m, c, wx, y, wz, offset);
+                placeAisle(chunk, m, c, wx, y, wz, offset, region, prof);
             }
         }
     }
@@ -645,10 +648,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
 
     /** 过道（停车场）：地板 / 柱与边界墙 / 天花板。 */
     private void placeAisle(ChunkAccess chunk, BlockPos.MutableBlockPos m,
-                            Column c, int wx, int y, int wz, int offset) {
-        Region region = regionAt(wx, wz);
+                            Column c, int wx, int y, int wz, int offset,
+                            Region region, SectorProfile prof) {
         // stacked 的区段按 6 格两层堆叠，其余通高（天鹰 / 跃金 / 哥特）
-        int h = profileOf(region).stacked() ? SUB_H : LAYER_H;
+        int h = prof.stacked() ? SUB_H : LAYER_H;
         // 花园段：地板上散布草簇（该格若不是墙才长）
         if (region == Region.GARDEN && offset % h == 1 && c.room() < 0
                 && !c.pillar() && isGardenTuft(wx, wz)) {
@@ -667,7 +670,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             return;
         }
         if (offset % h == 0) {
-            set(chunk, m, wx, y, wz, floorOf(region));
+            set(chunk, m, wx, y, wz, prof.floor());
             return;
         }
 
@@ -682,7 +685,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                         ? doorState(Direction.SOUTH, offset == 1)
                         : this.whiteWallState);
             } else if (c.room() == 1) {
-                set(chunk, m, wx, y, wz, wallOf(region));
+                set(chunk, m, wx, y, wz, prof.wall());
             } else {
                 set(chunk, m, wx, y, wz, this.airState);
             }
@@ -693,7 +696,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         int fromTop = (h - 1) - (offset % h);
         if (region == Region.GOTHIC && fromTop >= 1 && fromTop <= 3
                 && isGothicArchSpread(wx, wz, fromTop)) {
-            set(chunk, m, wx, y, wz, wallOf(region));
+            set(chunk, m, wx, y, wz, prof.wall());
             return;
         }
         if (offset % h < h - 1) {
@@ -713,7 +716,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             } else if (wall) {
                 // 柱脚（层内第 1 格）用警示柱，其余用混凝土柱
                 set(chunk, m, wx, y, wz,
-                        (offset % h == 1) ? this.warningPillarState : wallOf(region));
+                        (offset % h == 1) ? this.warningPillarState : prof.wall());
             } else {
                 set(chunk, m, wx, y, wz, this.airState);
             }
@@ -725,7 +728,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz, this.redPipeState);
             return;
         }
-        set(chunk, m, wx, y, wz, lampAt(region, wx, wz) ? this.lampState : ceilingOf(region));
+        set(chunk, m, wx, y, wz, prof.lamp().test(wx, wz) ? this.lampState : prof.ceiling());
     }
 
     /** 统一的写方块入口。 */
