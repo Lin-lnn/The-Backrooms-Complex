@@ -63,8 +63,6 @@ public final class Level1Flicker {
     private static final int SUB_H = Level1ChunkGenerator.SUB_H;
     /** 子层数量。 */
     private static final int SUB_COUNT = Level1ChunkGenerator.SUB_COUNT;
-    /** 灯间距（与生成器的 PASSAGE_LAMP_STEP 一致）。 */
-    private static final int LAMP_STEP = 3;
 
     private static final int PHASE_IDLE = 0;
     private static final int PHASE_DARKEN = 1;
@@ -203,8 +201,9 @@ public final class Level1Flicker {
     /**
      * 只扫描<b>有玩家的层</b>里、每个该层玩家视距范围内的灯位。
      *
-     * <p>灯位与生成器一致：层内 2 个子层，子层天花板在 {@code subOff == 5}，
-     * 横向每 {@link #LAMP_STEP} 格一个（{@code x % 3 == 1 && z % 3 == 1}）。</p>
+     * <p>灯位与生成器一致：层内 2 个子层，子层天花板在 {@code subOff == 5}。
+     * 各区的灯距不同（2 / 5 / 6 / 7 / 8），没有统一的横向步长，因此逐格扫描
+     * 这两个天花板层 —— 用固定步长会漏掉大部分灯，衔尾段甚至会一盏都扫不到。</p>
      */
     private static void collect(ServerLevel level, Set<Integer> activeLayers) {
         STATE.groups.clear();
@@ -236,13 +235,13 @@ public final class Level1Flicker {
                         if (y >= maxY) {
                             continue;
                         }
-                        int x0 = baseX + Math.floorMod(1 - baseX, LAMP_STEP);
-                        for (int x = x0; x < baseX + 16; x += LAMP_STEP) {
-                            int z0 = baseZ + Math.floorMod(1 - baseZ, LAMP_STEP);
-                            for (int z = z0; z < baseZ + 16; z += LAMP_STEP) {
-                                BlockPos pos = new BlockPos(x, y, z);
-                                if (level.getBlockState(pos).is(ModBlocks.FLUORESCENT_LAMP.get())) {
-                                    lamps.add(pos);
+                        // 逐格扫描两个天花板层；只在这两层调用 getBlockState，避免整层扫描。
+                        BlockPos.MutableBlockPos probe = new BlockPos.MutableBlockPos();
+                        for (int x = baseX; x < baseX + 16; x++) {
+                            for (int z = baseZ; z < baseZ + 16; z++) {
+                                probe.set(x, y, z);
+                                if (level.getBlockState(probe).is(ModBlocks.FLUORESCENT_LAMP.get())) {
+                                    lamps.add(probe.immutable());
                                 }
                             }
                         }
