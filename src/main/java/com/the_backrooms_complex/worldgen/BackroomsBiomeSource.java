@@ -40,7 +40,13 @@ public class BackroomsBiomeSource extends BiomeSource {
                     Biome.CODEC.fieldOf("damp_corridors").forGetter(s -> s.dampCorridors),
                     // 可选：单层高度。省略时默认 Level 0 的 8 格。
                     Codec.INT.optionalFieldOf("layer_height", DEFAULT_LAYER_HEIGHT)
-                            .forGetter(s -> s.layerHeight)
+                            .forGetter(s -> s.layerHeight),
+                    // 可选：区段群系。仅 Level 1 提供；不提供时退回原本的三群系哈希。
+                    Biome.CODEC.optionalFieldOf("yuejin_sector").forGetter(s -> s.yuejinSector),
+                    Biome.CODEC.optionalFieldOf("gothic_sector").forGetter(s -> s.gothicSector),
+                    Biome.CODEC.optionalFieldOf("ouroboros_sector").forGetter(s -> s.ouroborosSector),
+                    Biome.CODEC.optionalFieldOf("garden_sector").forGetter(s -> s.gardenSector),
+                    Biome.CODEC.optionalFieldOf("legend_sector").forGetter(s -> s.legendSector)
             ).apply(instance, BackroomsBiomeSource::new));
 
     private final Holder<Biome> yellowRooms;
@@ -48,19 +54,47 @@ public class BackroomsBiomeSource extends BiomeSource {
     private final Holder<Biome> dampCorridors;
     /** 本维度的单层高度（格）。 */
     private final int layerHeight;
+    /** 区段群系（仅 Level 1 提供，缺省为空）。 */
+    private final java.util.Optional<Holder<Biome>> yuejinSector;
+    private final java.util.Optional<Holder<Biome>> gothicSector;
+    private final java.util.Optional<Holder<Biome>> ouroborosSector;
+    private final java.util.Optional<Holder<Biome>> gardenSector;
+    private final java.util.Optional<Holder<Biome>> legendSector;
 
     public BackroomsBiomeSource(Holder<Biome> yellowRooms, Holder<Biome> concreteHalls,
                                 Holder<Biome> dampCorridors, int layerHeight) {
+        this(yellowRooms, concreteHalls, dampCorridors, layerHeight,
+                java.util.Optional.empty(), java.util.Optional.empty(),
+                java.util.Optional.empty(), java.util.Optional.empty(),
+                java.util.Optional.empty());
+    }
+
+    /** 完整构造：带区段群系（Level 1 使用）。 */
+    public BackroomsBiomeSource(Holder<Biome> yellowRooms, Holder<Biome> concreteHalls,
+                                Holder<Biome> dampCorridors, int layerHeight,
+                                java.util.Optional<Holder<Biome>> yuejinSector,
+                                java.util.Optional<Holder<Biome>> gothicSector,
+                                java.util.Optional<Holder<Biome>> ouroborosSector,
+                                java.util.Optional<Holder<Biome>> gardenSector,
+                                java.util.Optional<Holder<Biome>> legendSector) {
         this.yellowRooms = yellowRooms;
         this.concreteHalls = concreteHalls;
         this.dampCorridors = dampCorridors;
         this.layerHeight = layerHeight <= 0 ? DEFAULT_LAYER_HEIGHT : layerHeight;
+        this.yuejinSector = yuejinSector;
+        this.gothicSector = gothicSector;
+        this.ouroborosSector = ouroborosSector;
+        this.gardenSector = gardenSector;
+        this.legendSector = legendSector;
     }
 
     /** 兼容旧的 3 参数构造（层高取 Level 0 的默认值）。 */
     public BackroomsBiomeSource(Holder<Biome> yellowRooms, Holder<Biome> concreteHalls,
                                 Holder<Biome> dampCorridors) {
-        this(yellowRooms, concreteHalls, dampCorridors, DEFAULT_LAYER_HEIGHT);
+        this(yellowRooms, concreteHalls, dampCorridors, DEFAULT_LAYER_HEIGHT,
+                java.util.Optional.empty(), java.util.Optional.empty(),
+                java.util.Optional.empty(), java.util.Optional.empty(),
+                java.util.Optional.empty());
     }
 
     /** 本维度的单层高度。 */
@@ -112,6 +146,11 @@ public class BackroomsBiomeSource extends BiomeSource {
 
     /** 真正的群系计算（无缓存）。 */
     private Holder<Biome> computeBiomeAt(int x, int z, int layer) {
+        // Level 1：若维度提供了区段群系，则群系跟随区段（L0 不提供 => 走下面的老逻辑）
+        Holder<Biome> sector = sectorBiomeAt(x, z);
+        if (sector != null) {
+            return sector;
+        }
         // 三个群系都以 256x256 格为单元整体分配，每个区块必然完整属于同一个群系，
         // 不会出现"区块内一半黄一半混凝土"的错位。
         int cx = Math.floorDiv(Math.floorDiv(x, 16), HALL_CELL_BLOCKS / 16);
@@ -127,6 +166,29 @@ public class BackroomsBiomeSource extends BiomeSource {
         return yellowRooms;
     }
 
+
+    /**
+     * 按 Level 1 的区段取群系；未提供区段群系时返回 {@code null}。
+     *
+     * <p>只读判定，不引入对 Level 0 的任何依赖。</p>
+     */
+    private Holder<Biome> sectorBiomeAt(int x, int z) {
+        if (this.yuejinSector.isEmpty() && this.gothicSector.isEmpty()
+                && this.ouroborosSector.isEmpty() && this.gardenSector.isEmpty()
+                && this.legendSector.isEmpty()) {
+            return null;
+        }
+        var region = com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator
+                .regionAt(x, z);
+        return switch (region) {
+            case YUEJIN -> this.yuejinSector.orElse(null);
+            case GOTHIC -> this.gothicSector.orElse(null);
+            case OUROBOROS -> this.ouroborosSector.orElse(null);
+            case GARDEN -> this.gardenSector.orElse(null);
+            case LEGEND -> this.legendSector.orElse(null);
+            default -> null;
+        };
+    }
 
     /** 是否是本维度的「第三个」群系（Level 0 为潮湿走廊，Level 1 为积水区）。 */
     public boolean isDampCorridors(Holder<Biome> biome) {
@@ -145,7 +207,12 @@ public class BackroomsBiomeSource extends BiomeSource {
 
     @Override
     protected Stream<Holder<Biome>> collectPossibleBiomes() {
-        return Stream.of(this.yellowRooms, this.concreteHalls, this.dampCorridors);
+        return Stream.concat(
+                Stream.of(this.yellowRooms, this.concreteHalls, this.dampCorridors),
+                Stream.of(this.yuejinSector, this.gothicSector, this.ouroborosSector,
+                                this.gardenSector, this.legendSector)
+                        .filter(java.util.Optional::isPresent)
+                        .map(java.util.Optional::get));
     }
 
     // ==================== 噪声 / 哈希 ====================

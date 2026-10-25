@@ -7,7 +7,12 @@
       "yellow_rooms": "backrooms_complex:warehouse_aisles",
       "concrete_halls": "backrooms_complex:aquila_sector",
       "damp_corridors": "backrooms_complex:puddle_zone",
-      "layer_height": 18
+      "layer_height": 18,
+      "yuejin_sector": "backrooms_complex:yuejin_sector",
+      "gothic_sector": "backrooms_complex:gothic_sector",
+      "ouroboros_sector": "backrooms_complex:ouroboros_sector",
+      "garden_sector": "backrooms_complex:garden_sector",
+      "legend_sector": "backrooms_complex:legend_sector"
     }
   }
 }
