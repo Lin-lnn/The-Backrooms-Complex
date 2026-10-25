@@ -430,6 +430,34 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return Math.floorMod(x, 2) == 0 && Math.floorMod(z, 2) == 0;
     }
 
+    // ==================== 哥特段（Level 1 第四区段）====================
+
+    /** 哥特段区域边长（格）。 */
+    public static final int GOTHIC_CELL = 96;
+
+    /**
+     * 该列是否属于「哥特段」。
+     *
+     * <p>参考图效果：粗壮的柱子向上张开成尖拱（拱顶），照明偏暗、偏黄。
+     * 目前只判定区域，配色与拱形结构后续接入。</p>
+     */
+    public static boolean isGothicArea(int x, int z) {
+        int cx = Math.floorDiv(x, GOTHIC_CELL);
+        int cz = Math.floorDiv(z, GOTHIC_CELL);
+        long h = mix(cx, cz, 0x676F74686963L);   // 'gothic'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.20;
+    }
+
+    /** 哥特段灯位：每 7 格一盏（比其他区段更暗，仅拱顶下有光）。 */
+    public static boolean isGothicLamp(int x, int z) {
+        return Math.floorMod(x, 7) == 3 && Math.floorMod(z, 7) == 3;
+    }
+
+    /** 哥特段拱顶：在某列高度 offset 处是否需要拱形收拢（用于后续拱顶结构）。 */
+    public static boolean isGothicArchRing(int offset) {
+        return offset == LAYER_H - 2 || offset == LAYER_H - 3;
+    }
+
     /**
      * 子层结构（小径与过道小房间共用）。
      *
