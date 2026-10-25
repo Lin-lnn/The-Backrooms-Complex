@@ -755,9 +755,9 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz, this.crateState);
             return;
         }
-        // 堆叠区段：两层之间用台阶做爬升带（否则上层无法到达）
-        if (prof.stacked() && isRampColumn(wx, wz)) {
-            int step = rampHeight(wz);
+        // 堆叠区段：两层之间的楼梯（每层 2~4 处，顶层没有）
+        int step = rampStep(wx, wz, y / LAYER_H);
+        if (prof.stacked() && step >= 0) {
             int inSub = offset % h;
             if (inSub >= 1 && inSub <= step) {
                 // 台阶下方的实心填充
@@ -883,17 +883,84 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return false;
     }
 
-    /** 爬升带宽度：每 32 格出现一条，占 6 格（正好等于 SUB_H）。 */
-    public static final int RAMP_PITCH = 32;
+    /** 每个 64 格区内保证的楼梯数量下限 / 上限。 */
+    public static final int STAIRS_MIN = 2;
+    public static final int STAIRS_MAX = 4;
 
-    /** 该列是否属于爬升带（只在需要爬升的区段生效）。 */
-    public static boolean isRampColumn(int x, int z) {
-        return Math.floorMod(x, RAMP_PITCH) == 0 && Math.floorMod(z, RAMP_PITCH) < SUB_H;
+    /** 楼梯布局缓存（key = 区坐标打包）。 */
+    private static final java.util.concurrent.ConcurrentHashMap<Long, int[]> STAIR_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * 某个区内的楼梯起点列表（扁平 {@code ox, oz} 序列）。
+     *
+     * <p>与房间用同一套 16 格候选位，但换成独立种子；只保留<b>不与任何房间矩形相交</b>
+     * 的候选位，取前 K 个（K = 2~4）。</p>
+     */
+    private static int[] stairRects(int cx, int cz) {
+        long key = ((long) cx << 32) ^ (cz & 0xFFFFFFFFL) ^ 0x535441495253L;
+        int[] cached = STAIR_CACHE.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        int slots = ROOM_CELL / ROOM_SLOT;
+        int[] rooms = roomRects(cx, cz);
+        int[] picked = new int[STAIRS_MAX * 2];
+        int pickedCount = 0;
+        long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x7374616972L;
+        for (int i = 0; i < slots * slots && pickedCount < STAIRS_MAX; i++) {
+            h ^= h >>> 33;
+            h *= 0xC4CEB9FE1A85EC53L;
+            h ^= h >>> 33;
+            int ox = (i % slots) * ROOM_SLOT + 2;
+            int oz = (i / slots) * ROOM_SLOT + 2;
+            // 楼梯占 ox..ox 与 oz..oz+SUB_H-1 的窄带，必须完整落在区内
+            if (oz + SUB_H - 1 >= ROOM_CELL) {
+                continue;
+            }
+            boolean clash = false;
+            for (int r = 0; r < rooms.length && !clash; r += 2) {
+                clash = ox + ROOM_SIZE > rooms[r] && ox < rooms[r] + ROOM_SIZE
+                        && oz + SUB_H > rooms[r + 1] && oz < rooms[r + 1] + ROOM_SIZE;
+            }
+            if (clash) {
+                continue;
+            }
+            picked[pickedCount * 2] = ox;
+            picked[pickedCount * 2 + 1] = oz;
+            pickedCount++;
+        }
+        int want = STAIRS_MIN + (int) Math.floorMod(h >>> 8, STAIRS_MAX - STAIRS_MIN + 1);
+        int count = Math.min(Math.max(pickedCount, 0), Math.min(want, pickedCount));
+        if (count < STAIRS_MIN) {
+            count = pickedCount;                    // 冲突过多时退化为所有可用位
+        }
+        int[] out = new int[count * 2];
+        System.arraycopy(picked, 0, out, 0, count * 2);
+        STAIR_CACHE.put(key, out);
+        return out;
     }
 
-    /** 爬升带上该列的高度（0 ~ SUB_H-1）。 */
-    public static int rampHeight(int z) {
-        return Math.floorMod(z, RAMP_PITCH);
+    /**
+     * 该列在某层上的楼梯编号（0 ~ SUB_H-1）；不属于楼梯时返回 {@code -1}。
+     *
+     * <p>顶层（{@code layer == LAYERS - 1}）没有楼梯。</p>
+     */
+    public static int rampStep(int x, int z, int layer) {
+        if (layer >= LAYERS - 1) {
+            return -1;
+        }
+        int cx = Math.floorDiv(x, ROOM_CELL);
+        int cz = Math.floorDiv(z, ROOM_CELL);
+        int lx = Math.floorMod(x, ROOM_CELL);
+        int lz = Math.floorMod(z, ROOM_CELL);
+        int[] stairs = stairRects(cx, cz);
+        for (int i = 0; i < stairs.length; i += 2) {
+            if (lx == stairs[i] && lz >= stairs[i + 1] && lz < stairs[i + 1] + SUB_H) {
+                return lz - stairs[i + 1];
+            }
+        }
+        return -1;
     }
 
     /** 区段边界通道宽度（每 16 格留 2 格可通行）。 */
