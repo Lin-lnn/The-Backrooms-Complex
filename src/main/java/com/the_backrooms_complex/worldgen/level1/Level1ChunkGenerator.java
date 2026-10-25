@@ -108,6 +108,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     private final BlockState grassTuftState;
     /** 传说段墙面的磨砂玻璃格。 */
     private final BlockState frostedGlassState;
+    /** 衔尾段天花板上的红漆管道。 */
+    private final BlockState redPipeState;
+    /** 衔尾段的破损补丁（砂砾）。 */
+    private final BlockState rubbleState;
     private final BlockState lampState;
     private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
@@ -129,6 +133,8 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         this.crateState = ModBlocks.CRATE.get().defaultBlockState();
         this.grassTuftState = net.minecraft.world.level.block.Blocks.SHORT_GRASS.defaultBlockState();
         this.frostedGlassState = net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState();
+        this.redPipeState = net.minecraft.world.level.block.Blocks.RED_CONCRETE.defaultBlockState();
+        this.rubbleState = net.minecraft.world.level.block.Blocks.GRAVEL.defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
         this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
@@ -649,6 +655,12 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             set(chunk, m, wx, y, wz, this.grassTuftState);
             return;
         }
+        // 衔尾段：毛坯地面上的碎屑
+        if (region == Region.OUROBOROS && offset % h == 1 && c.room() < 0
+                && !c.pillar() && isOuroborosDebris(wx, wz)) {
+            set(chunk, m, wx, y, wz, this.rubbleState);
+            return;
+        }
         // 跃金段：地面上偶有板条箱（文中该段堆满箱子）
         if (region == Region.YUEJIN && offset % h == 1 && c.room() < 0 && isCrateSpot(wx, wz)) {
             set(chunk, m, wx, y, wz, this.crateState);
@@ -685,7 +697,10 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 return;
             }
             boolean wall = c.pillar() || (c.aisleBoundary() && !(c.gateAdjacent() && doorHeight));
-            if (wall && region == Region.LEGEND && isLegendFrostedPanel(wx, wz, offset)) {
+            if (wall && region == Region.OUROBOROS && isOuroborosPeeling(wx, wz, offset)) {
+                // 衔尾段：墙面剥落，露出砂砾底
+                set(chunk, m, wx, y, wz, this.rubbleState);
+            } else if (wall && region == Region.LEGEND && isLegendFrostedPanel(wx, wz, offset)) {
                 // 传说段：木护墙板上部嵌一排磨砂玻璃格
                 set(chunk, m, wx, y, wz, this.frostedGlassState);
             } else if (wall) {
@@ -698,6 +713,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             return;
         }
         // 天花板层：灯位按区段密度
+        if (region == Region.OUROBOROS && isOuroborosPipeLine(wx, wz)) {
+            // 衔尾段：天花板上横着红漆管道
+            set(chunk, m, wx, y, wz, this.redPipeState);
+            return;
+        }
         set(chunk, m, wx, y, wz, lampAt(region, wx, wz) ? this.lampState : ceilingOf(region));
     }
 
@@ -719,6 +739,17 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     public static boolean isGardenTuft(int x, int z) {
         long h = mix(x, z, 0x74756666L);   // 'tuff'
         return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.30;
+    }
+
+    /** 衔尾段墙面剥落：约 12%。 */
+    public static boolean isOuroborosPeeling(int x, int z, int offset) {
+        long h = mix(x * 31 + z, offset, 0x7065656CL);   // 'peel'
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.12;
+    }
+
+    /** 衔尾段天花板管道：每 8 格一条横向走线（宽 1 格）。 */
+    public static boolean isOuroborosPipeLine(int x, int z) {
+        return Math.floorMod(z, 8) == 3;
     }
 
     /** 门位判定：沿边界每 24 格一个（用 x+z 取模，保证是单独一列而非整行）。 */
