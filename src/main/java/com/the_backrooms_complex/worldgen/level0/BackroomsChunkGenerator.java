@@ -240,39 +240,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
             }
 
             // 本层自己的布局（逐层种子不同）
-            boolean isWall = wall[layer][lx][lz];
-
-            // 大厅房间：整块清空（大厅状空地）
-            // 独立柱子：在没有墙的通道列上立起 1x1 柱
-            if (inHall) {
-                isWall = false;
-            } else if (pillar && !isWall) {
-                isWall = true;
-            }
-
-            // ===== 房间（长宽 11~49 的矩形空间，由走廊相连）=====
-            // 宽阔走廊地带（主干道 >16 格宽、>50 格长；两侧每 8 格一条 3 格宽支廊）
-            if (!inHall && BackroomsAvenue.isWideArea(worldX, worldZ, layer)) {
-                isWall = false;
-            }
-
-            BackroomsRooms.Room room = BackroomsRooms.roomAt(worldX, worldZ, layer, hall);
-            if (room != null) {
-                if (BackroomsRooms.isInterior(room, worldX, worldZ)) {
-                    // 房间内部整块清空
-                    isWall = false;
-                    // 大房间内的 1x1 柱子：用同样的踢脚线 + 墙壁格式
-                    if (BackroomsRooms.isPillar(room, worldX, worldZ)) {
-                        isWall = true;
-                    }
-                } else if (BackroomsRooms.isDoorway(room, worldX, worldZ)) {
-                    // 四边中点各开一个 3 格宽门洞
-                    isWall = false;
-            } else if (BackroomsRooms.isPerimeter(room, worldX, worldZ)) {
-                // 房间边界强制为墙（门洞除外）=> 房间内部成为规整矩形
-                isWall = true;
-            }
-            }
+            boolean isWall = resolveWall(wall, lx, lz, worldX, worldZ, layer, hall, inHall, pillar);
 
             if (offset == 0) {
                 // 地板：整层满铺（层间不再有竖井连接）
@@ -298,6 +266,51 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 }
             }
         }
+    }
+
+    /**
+     * 判定某一格是否放墙。
+     *
+     * <p>依次套用：迷宫网格 → 大厅空地 → 1×1 独立柱 → 宽阔街道 → 矩形房间
+     * （内部清空 / 门洞 / 边界强制为墙，房间内还会立 1×1 柱）。</p>
+     */
+    private static boolean resolveWall(boolean[][][] wall, int lx, int lz,
+                                       int worldX, int worldZ, int layer,
+                                       boolean hall, boolean inHall, boolean pillar) {
+    boolean isWall = wall[layer][lx][lz];
+
+    // 大厅房间：整块清空（大厅状空地）
+    // 独立柱子：在没有墙的通道列上立起 1x1 柱
+    if (inHall) {
+        isWall = false;
+    } else if (pillar && !isWall) {
+        isWall = true;
+    }
+
+    // ===== 房间（长宽 11~49 的矩形空间，由走廊相连）=====
+    // 宽阔走廊地带（主干道 >16 格宽、>50 格长；两侧每 8 格一条 3 格宽支廊）
+    if (!inHall && BackroomsAvenue.isWideArea(worldX, worldZ, layer)) {
+        isWall = false;
+    }
+
+    BackroomsRooms.Room room = BackroomsRooms.roomAt(worldX, worldZ, layer, hall);
+    if (room != null) {
+        if (BackroomsRooms.isInterior(room, worldX, worldZ)) {
+            // 房间内部整块清空
+            isWall = false;
+            // 大房间内的 1x1 柱子：用同样的踢脚线 + 墙壁格式
+            if (BackroomsRooms.isPillar(room, worldX, worldZ)) {
+                isWall = true;
+            }
+        } else if (BackroomsRooms.isDoorway(room, worldX, worldZ)) {
+            // 四边中点各开一个 3 格宽门洞
+            isWall = false;
+    } else if (BackroomsRooms.isPerimeter(room, worldX, worldZ)) {
+        // 房间边界强制为墙（门洞除外）=> 房间内部成为规整矩形
+        isWall = true;
+    }
+    }
+        return isWall;
     }
 
     /**
