@@ -1,5 +1,8 @@
-package com.the_backrooms_complex.worldgen.topology;
+package com.the_backrooms_complex.worldgen.level0;
 
+
+import com.the_backrooms_complex.worldgen.level0.RoomGraph;
+import com.the_backrooms_complex.worldgen.level0.TopologyWalls;
 /**
  * 「无限室内迷宫拓扑」的核心逻辑层（BaseGraph）。
  *

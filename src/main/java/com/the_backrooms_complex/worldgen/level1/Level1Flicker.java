@@ -1,5 +1,7 @@
-package com.the_backrooms_complex.worldgen;
+package com.the_backrooms_complex.worldgen.level1;
 
+import com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator;
+import com.the_backrooms_complex.worldgen.level1.Level1Flicker;
 import com.the_backrooms_complex.ModBlocks;
 import com.the_backrooms_complex.ModDimensions;
 import net.minecraft.core.BlockPos;

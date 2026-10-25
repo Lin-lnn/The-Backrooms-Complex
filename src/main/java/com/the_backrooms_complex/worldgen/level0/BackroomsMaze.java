@@ -1,7 +1,10 @@
-package com.the_backrooms_complex.worldgen;
+package com.the_backrooms_complex.worldgen.level0;
 
-import com.the_backrooms_complex.worldgen.topology.RoomGraph;
-import com.the_backrooms_complex.worldgen.topology.TopologyWalls;
+import com.the_backrooms_complex.worldgen.level0.BackroomsMaze;
+import com.the_backrooms_complex.worldgen.level0.RoomGraph;
+import com.the_backrooms_complex.worldgen.level0.TopologyWalls;
+import com.the_backrooms_complex.worldgen.level0.RoomGraph;
+import com.the_backrooms_complex.worldgen.level0.TopologyWalls;
 
 /**
  * 后室 Level 0 的走廊布局入口，以及若干供其他系统复用的确定性哈希工具。

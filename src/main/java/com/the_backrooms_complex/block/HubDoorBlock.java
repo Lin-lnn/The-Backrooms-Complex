@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.the_backrooms_complex.ModConfig;
 import com.the_backrooms_complex.ModItems;
-import com.the_backrooms_complex.worldgen.Level0Teleporter;
+import com.the_backrooms_complex.worldgen.level0.Level0Teleporter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;

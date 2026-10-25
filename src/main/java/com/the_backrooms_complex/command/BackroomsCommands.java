@@ -1,5 +1,7 @@
 package com.the_backrooms_complex.command;
 
+import com.the_backrooms_complex.worldgen.level0.RoomGraph;
+import com.the_backrooms_complex.worldgen.level0.TopologyWalls;
 import com.mojang.brigadier.CommandDispatcher;
 import com.the_backrooms_complex.ModNetwork;
 import com.the_backrooms_complex.ModPlayerData;
@@ -84,14 +86,14 @@ public final class BackroomsCommands {
         }
         var pos = player.blockPosition();
         int layer = Math.floorDiv(pos.getY(), com.the_backrooms_complex.worldgen.BackroomsChunkGenerator.LAYER_HEIGHT);
-        var graph = new com.the_backrooms_complex.worldgen.topology.RoomGraph(0x5EEDBACC0001L);
+        var graph = new com.the_backrooms_complex.worldgen.level0.RoomGraph(0x5EEDBACC0001L);
 
         boolean onSpine = graph.isOnSpine(pos.getX(), pos.getZ(), layer);
         int parent = graph.parentDir(pos.getX(), pos.getZ(), layer);
         // 用墙网格判断当前方块是否可走
         boolean tmpOpen;
         try {
-            boolean[][] grid = com.the_backrooms_complex.worldgen.topology.TopologyWalls
+            boolean[][] grid = com.the_backrooms_complex.worldgen.level0.TopologyWalls
                     .wallGrid(graph, Math.floorDiv(pos.getX(), 16), Math.floorDiv(pos.getZ(), 16), layer);
             tmpOpen = !grid[Math.floorMod(pos.getX(), 16)][Math.floorMod(pos.getZ(), 16)];
         } catch (RuntimeException e) {

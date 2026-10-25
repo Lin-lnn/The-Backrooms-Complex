@@ -1,5 +1,7 @@
 package com.the_backrooms_complex;
 
+import com.the_backrooms_complex.worldgen.level0.TopologyRuntime;
+import com.the_backrooms_complex.worldgen.level1.Level1Flicker;
 import com.the_backrooms_complex.entity.BacteriaEntity;
 
 import net.minecraft.nbt.CompoundTag;
@@ -130,7 +132,7 @@ public final class ModEvents {
     /**
      * Level 1「闪烁」现象的 tick 钩子。
      *
-     * <p>每 tick 检查所有在 Level 1 的玩家，由 {@link com.the_backrooms_complex.worldgen.Level1Flicker}
+     * <p>每 tick 检查所有在 Level 1 的玩家，由 {@link com.the_backrooms_complex.worldgen.level1.Level1Flicker}
      * 负责计时、收集灯光、闪烁与恢复。</p>
      */
     @SubscribeEvent
@@ -142,7 +144,7 @@ public final class ModEvents {
             return;
         }
         // 闪烁现在按维度统一处理一次：内部只看「有玩家所在的层」
-        com.the_backrooms_complex.worldgen.Level1Flicker.tick(level);
+        com.the_backrooms_complex.worldgen.level1.Level1Flicker.tick(level);
     }
 
     /** 菌毯刷怪计时（每 100 tick = 5 秒尝试一次）。 */
@@ -185,8 +187,8 @@ public final class ModEvents {
                     continue;
                 }
                 float dread = 1.0F - com.the_backrooms_complex.ModPlayerData.getSanity(sp) / 100.0F;
-                com.the_backrooms_complex.worldgen.topology.TopologyRuntime.tick(level, sp, dread);
-                com.the_backrooms_complex.worldgen.topology.TopologyRuntime.tickLampRestore(level);
+                com.the_backrooms_complex.worldgen.level0.TopologyRuntime.tick(level, sp, dread);
+                com.the_backrooms_complex.worldgen.level0.TopologyRuntime.tickLampRestore(level);
             }
         }
     }

@@ -1,5 +1,7 @@
-package com.the_backrooms_complex.worldgen.topology;
+package com.the_backrooms_complex.worldgen.level0;
 
+import com.the_backrooms_complex.worldgen.level0.RoomGraph;
+import com.the_backrooms_complex.worldgen.level0.TopologyRuntime;
 import com.the_backrooms_complex.ModBlocks;
 import com.the_backrooms_complex.worldgen.BackroomsChunkGenerator;
 import net.minecraft.core.BlockPos;

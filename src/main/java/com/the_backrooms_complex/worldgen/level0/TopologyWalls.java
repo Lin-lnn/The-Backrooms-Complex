@@ -1,5 +1,8 @@
-package com.the_backrooms_complex.worldgen.topology;
+package com.the_backrooms_complex.worldgen.level0;
 
+
+import com.the_backrooms_complex.worldgen.level0.RoomGraph;
+import com.the_backrooms_complex.worldgen.level0.TopologyWalls;
 /**
  * 把 {@link RoomGraph} 的拓扑翻译成「逐方块的可走/墙壁」网格。
  *

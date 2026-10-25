@@ -1,5 +1,7 @@
-package com.the_backrooms_complex.worldgen;
+package com.the_backrooms_complex.worldgen.level0;
 
+
+import com.the_backrooms_complex.worldgen.level0.BackroomsRooms;
 /**
  * Level 0 的「房间」布局（纯数学，无 Minecraft 依赖）。
  *

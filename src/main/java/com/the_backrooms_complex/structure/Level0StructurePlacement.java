@@ -8,7 +8,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
 import com.the_backrooms_complex.ModStructures;
-import com.the_backrooms_complex.worldgen.BackroomsMaze;
+import com.the_backrooms_complex.worldgen.level0.BackroomsMaze;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;

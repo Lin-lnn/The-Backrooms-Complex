@@ -1,5 +1,7 @@
-package com.the_backrooms_complex.worldgen;
+package com.the_backrooms_complex.worldgen.level0;
 
+
+import com.the_backrooms_complex.worldgen.level0.BackroomsAvenue;
 /**
  * Level 0 的「宽阔走廊地带」（主干道 + 侧向支廊）。纯数学，无 Minecraft 依赖。
  *

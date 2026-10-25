@@ -1,5 +1,6 @@
-package com.the_backrooms_complex.worldgen;
+package com.the_backrooms_complex.worldgen.level1;
 
+import com.the_backrooms_complex.worldgen.level1.Level1ChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.WorldGenRegion;

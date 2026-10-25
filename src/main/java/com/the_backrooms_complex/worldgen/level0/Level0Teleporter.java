@@ -1,5 +1,7 @@
-package com.the_backrooms_complex.worldgen;
+package com.the_backrooms_complex.worldgen.level0;
 
+import com.the_backrooms_complex.worldgen.BackroomsChunkGenerator;
+import com.the_backrooms_complex.worldgen.level0.Level0Teleporter;
 import com.the_backrooms_complex.BackroomsComplex;
 import com.the_backrooms_complex.ModBlocks;
 import com.the_backrooms_complex.ModDimensions;
