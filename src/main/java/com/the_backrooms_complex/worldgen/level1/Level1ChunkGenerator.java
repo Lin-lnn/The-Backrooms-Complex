@@ -528,10 +528,15 @@ public class Level1ChunkGenerator extends ChunkGenerator {
             // 每隔 32 格打通一条 4 格宽的通道，高度取两侧「单层高度」中较小的一个。
             if (offset > 0 && offset < LAYER_H - 1 && isSectorEdge(wx, wz, layer)) {
                 Region other = otherRegionAcross(wx, wz, layer, region);
-                int openHeight = Math.min(storeyHeight(region), storeyHeight(other));
+                // 通道高度取两侧单层高度的较小值，且永远不凿穿本层天花板
+                int openHeight = Math.min(Math.min(storeyHeight(region), storeyHeight(other)),
+                        LAYER_H - 1);
                 boolean tunnel = isTunnelOpening(wx, wz, layer);
                 if (tunnel && offset < openHeight) {
                     set(chunk, m, wx, y, wz, this.airState);
+                } else if (offset == 1) {
+                    // 包络墙底部同样使用踢脚线
+                    set(chunk, m, wx, y, wz, wallBaseOf(region));
                 } else {
                     set(chunk, m, wx, y, wz, prof.wall());
                 }
@@ -710,7 +715,7 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      */
     public static boolean isGardenVine(int x, int z) {
         long h = mix(x, z, 0x76696E6573L);   // 'vines'
-        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.02;
+        return ((h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL) < 0.06;
     }
 
     /** 花园段的草地方块：地面整体换草。 */
@@ -997,11 +1002,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      */
     private BlockState wallBaseOf(Region region) {
         return switch (region) {
-            case AQUILA, CORRIDOR -> this.warningPillarState;
+            case AQUILA -> this.warningPillarState;          // 仅天鹰段用警示柱
             case YUEJIN -> this.yuejinSkirtState;
             case GARDEN -> this.gardenSkirtState;
             case LEGEND -> this.legendSkirtState;
-            default -> this.whiteSkirtState;
+            default -> this.whiteSkirtState;                 // 走廊 / 哥特 / 衔尾
         };
     }
 
@@ -1145,10 +1150,11 @@ public class Level1ChunkGenerator extends ChunkGenerator {
         return isSectorEdge(x, z, 0);
     }
 
-    /** 指定层上的区段边界判定。 */
+    /** 指定层上的区段边界判定（四个水平方向都检查，避免只补一侧）。 */
     public static boolean isSectorEdge(int x, int z, int layer) {
         Region here = regionAt(x, z, layer);
-        return regionAt(x + 1, z, layer) != here || regionAt(x, z + 1, layer) != here;
+        return regionAt(x + 1, z, layer) != here || regionAt(x - 1, z, layer) != here
+                || regionAt(x, z + 1, layer) != here || regionAt(x, z - 1, layer) != here;
     }
 
     /** 该区段的「单层高度」：两层区段取 SUB_H，通高区段取 LAYER_H。 */
@@ -1177,8 +1183,13 @@ public class Level1ChunkGenerator extends ChunkGenerator {
      */
     public static boolean isTunnelOpening(int x, int z, int layer) {
         Region here = regionAt(x, z, layer);
-        boolean seamAlongX = regionAt(x + 1, z, layer) != here || regionAt(x - 1, z, layer) != here;
-        int along = seamAlongX ? z : x;
+        // 先看 X 方向是否跨界（此时通道沿 Z 展开），再退回 Z 方向
+        boolean crossX = regionAt(x + 1, z, layer) != here || regionAt(x - 1, z, layer) != here;
+        boolean crossZ = regionAt(x, z + 1, layer) != here || regionAt(x, z - 1, layer) != here;
+        if (!crossX && !crossZ) {
+            return false;
+        }
+        int along = crossX ? z : x;
         return Math.floorMod(along, 32) < 4;
     }
 
