@@ -61,11 +61,6 @@ public final class BackroomsRooms {
     }
 
     /**
-     * 若 (x,z) 落在某个房间内则返回它，否则返回 {@code null}。
-     *
-     * <p>房间始终完整地落在自己的单元内（居中 + 留白），所以只需查询当前单元。</p>
-     */
-    /**
      * 按单元格缓存最近查询到的房间。
      *
      * <p>房间以 {@value #CELL} 格为单元，同一单元内任意坐标结果相同；
@@ -77,6 +72,11 @@ public final class BackroomsRooms {
     private static final Room[] CACHE_VAL = new Room[CACHE_SLOTS];
     private static final boolean[] CACHE_HAS = new boolean[CACHE_SLOTS];
 
+    /**
+     * 若 (x,z) 落在某个房间内则返回它，否则返回 {@code null}。
+     *
+     * <p>房间始终完整地落在自己的单元内（居中 + 留白），所以只需查询当前单元。</p>
+     */
     public static Room roomAt(int x, int z, int layer) {
         int cx = Math.floorDiv(x, CELL);
         int cz = Math.floorDiv(z, CELL);

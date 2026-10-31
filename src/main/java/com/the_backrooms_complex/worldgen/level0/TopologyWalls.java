@@ -34,17 +34,17 @@ public final class TopologyWalls {
     private TopologyWalls() {
     }
 
-    /**
-     * 计算某个区块某一层的墙体网格。
-     *
-     * @return {@code walls[16][16]}，{@code true} = 墙
-     */
     /** 缓存的网格（键为区块+层）。相邻区块会重复请求同一层，命中即可省掉整套拓扑计算。 */
     private static final int GRID_CACHE = 32;
     private static final long[] GRID_KEY = new long[GRID_CACHE];
     private static final boolean[][][] GRID_VAL = new boolean[GRID_CACHE][][];
     private static final boolean[] GRID_HAS = new boolean[GRID_CACHE];
 
+    /**
+     * 计算某个区块某一层的墙体网格。
+     *
+     * @return {@code walls[16][16]}，{@code true} = 墙
+     */
     public static boolean[][] wallGrid(RoomGraph graph, int chunkX, int chunkZ, int layer) {
         int slot = Math.floorMod((chunkX * 0x9E3779B1) ^ (chunkZ * 0x85EBCA6B) ^ layer, GRID_CACHE);
         long key = ((long) chunkX << 40) ^ ((long) chunkZ << 8) ^ layer;
