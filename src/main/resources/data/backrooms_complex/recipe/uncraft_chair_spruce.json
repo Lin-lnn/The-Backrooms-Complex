@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "backrooms_complex:chair_spruce"
+    }
+  ],
+  "result": {
+    "id": "minecraft:spruce_planks",
+    "count": 2
+  }
+}
