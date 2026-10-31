@@ -60,10 +60,10 @@ public class Level0Structure extends Structure {
     /**
      * 特殊结构生成总开关。
      *
-     * <p>暂时置为 {@code false}：整套结构系统（放置规则、模板、权重）都保留，
-     * 只是不再在世界里生成。改回 {@code true} 即恢复，无需其他改动。</p>
+     * <p>{@code true} = 生成；{@code false} = 全部停止（代码与模板保留）。
+     * 关闭时放置规则直接报告"没有区块"，因此不会有任何结构出现。</p>
      */
-    public static final boolean STRUCTURES_ENABLED = false;
+    public static final boolean STRUCTURES_ENABLED = true;
 
     /**
      * 允许的最高层索引。
