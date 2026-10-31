@@ -99,7 +99,12 @@ public class Level0StructurePlacement extends StructurePlacement {
      */
     public static final int GRID_SNAP = 16;   // 与 spacing 一致，否则锚点会被吸到 32 的倍数上
 
-    /** 网格单元 (gx,gz) 的锚点方块 X 坐标（确定性、已吸附到 8 格网格，与世界种子无关）。 */
+    /**
+     * 网格单元 (gx,gz) 的锚点方块 X 坐标。
+     *
+     * <p>确定性且已吸附到 {@value #GRID_SNAP} 格网格；因为哈希里混入了世界种子
+     * （见 {@code BackroomsSeed}），不同种子的锚点位置也不同。</p>
+     */
     public static int anchorX(int gx, int gz) {
         int steps = DEFAULT_OFFSET_RANGE / GRID_SNAP + 1;
         return gx * DEFAULT_SPACING_BLOCKS
@@ -107,7 +112,11 @@ public class Level0StructurePlacement extends StructurePlacement {
                         * GRID_SNAP);
     }
 
-    /** 网格单元 (gx,gz) 的锚点方块 Z 坐标（确定性、已吸附到 8 格网格，与世界种子无关）。 */
+    /**
+     * 网格单元 (gx,gz) 的锚点方块 Z 坐标。
+     *
+     * <p>与 {@link #anchorX(int, int)} 同理：确定性、已吸附，且随世界种子变化。</p>
+     */
     public static int anchorZ(int gx, int gz) {
         int steps = DEFAULT_OFFSET_RANGE / GRID_SNAP + 1;
         return gz * DEFAULT_SPACING_BLOCKS
