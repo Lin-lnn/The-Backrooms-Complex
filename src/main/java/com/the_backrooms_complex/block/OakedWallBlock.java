@@ -79,20 +79,48 @@ public class OakedWallBlock extends Block {
         return s.getBlock() instanceof OakedWallBlock;
     }
 
-    /** 按上下邻居决定形状。 */
+    /**
+     * 按上下邻居决定形状。
+     *
+     * <ul>
+     *   <li>上下都是刮纸墙 ⇒ {@link Shape#FULL}（整段连续，整面露出底层）；</li>
+     *   <li>只有上方是刮纸墙 ⇒ {@link Shape#UPPER}（刮痕延伸向上，本格上半仍刮）；</li>
+     *   <li>只有下方是刮纸墙 ⇒ {@link Shape#LOWER}（刮痕延伸向下，本格下半仍刮）；</li>
+     *   <li>上下都不是 ⇒ {@link Shape#MID}（孤立一格，只有中间一条是刮过的）。</li>
+     * </ul>
+     */
     public static Shape shapeFor(LevelAccessor level, BlockPos pos) {
         boolean up = isOaked(level.getBlockState(pos.above()));
         boolean down = isOaked(level.getBlockState(pos.below()));
         if (up && down) {
-            return Shape.MID;
+            return Shape.FULL;
         }
         if (up) {
-            return Shape.LOWER;
-        }
-        if (down) {
             return Shape.UPPER;
         }
-        return Shape.FULL;
+        if (down) {
+            return Shape.LOWER;
+        }
+        return Shape.MID;
+    }
+
+    /** 放下时立即按邻居算出正确形状，不等到邻居更新。 */
+    @Override
+    public BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+        return defaultBlockState()
+                .setValue(SHAPE, shapeFor(context.getLevel(), context.getClickedPos()));
+    }
+
+    @Override
+    public void onPlace(BlockState state, net.minecraft.world.level.Level level,
+                        BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide()) {
+            BlockState fixed = state.setValue(SHAPE, shapeFor(level, pos));
+            if (fixed != state) {
+                level.setBlock(pos, fixed, Block.UPDATE_ALL);
+            }
+        }
     }
 
     /** 邻居变化时刷新形状。 */
