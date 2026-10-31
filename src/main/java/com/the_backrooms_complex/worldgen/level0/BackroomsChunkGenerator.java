@@ -121,18 +121,25 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                             boolean[][][] wall, int worldX, int worldZ,
                             int lx, int lz, int minY, int maxY) {
         boolean colIsLamp = isLamp(worldX, worldZ);
+        int layers = fullLayers(chunk);
+
+        // 墙体判定与层无关的循环变量，每列每层只算一次（原来每个方块算一次，且每次都分配 Room）
+        boolean[] colWall = new boolean[layers];
+        for (int l = 0; l < layers; l++) {
+            colWall[l] = resolveWall(wall, lx, lz, worldX, worldZ, l);
+        }
 
         for (int y = minY; y < maxY; y++) {
             int layer = y / LAYER_HEIGHT;
             int offset = y - layer * LAYER_HEIGHT;
 
-            if (layer >= fullLayers(chunk)) {
+            if (layer >= layers) {
                 // 顶部残层（Y >= 252）：用天花板封顶，闭合维度
                 chunk.setBlockState(mutable.set(worldX, y, worldZ), ceilingState, false);
                 continue;
             }
 
-            boolean isWall = resolveWall(wall, lx, lz, worldX, worldZ, layer);
+            boolean isWall = colWall[layer];
 
             if (offset == 0) {
                 chunk.setBlockState(mutable.set(worldX, y, worldZ), floorState, false);
@@ -140,9 +147,9 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 if (isWall) {
                     BlockState state = (offset == 1) ? yellowPlinth : yellowWall;
                     chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
-                } else {
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ), airState, false);
                 }
+                // 非墙 = 空气：区块从全空气开始，这里<b>不写入</b>。
+                // 每层有 6 格墙体空间，其中大部分是空气，跳过可省掉约 2/3 的方块写入。
             } else {
                 chunk.setBlockState(mutable.set(worldX, y, worldZ),
                         colIsLamp ? lampState : ceilingState, false);

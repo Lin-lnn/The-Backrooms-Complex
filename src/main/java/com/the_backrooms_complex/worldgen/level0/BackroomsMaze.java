@@ -60,6 +60,15 @@ public final class BackroomsMaze {
     // ==================== 布局入口 ====================
 
     /**
+     * 全局唯一的拓扑实例。
+     *
+     * <p>拓扑是纯函数（同种子同坐标恒定），因此可以安全共享；共享后
+     * {@link RoomGraph} 内部的 LRU 查询缓存能<b>跨区块复用</b>，
+     * 而原来每区块 new 一个会让缓存每块都被丢弃。</p>
+     */
+    private static final RoomGraph GRAPH = new RoomGraph(TOPOLOGY_SEED);
+
+    /**
      * 生成某个区块各层楼的墙体网格。
      *
      * @param chunkX     区块 X
@@ -67,11 +76,11 @@ public final class BackroomsMaze {
      * @param layerCount 层数
      * @return {@code walls[层][局部X][局部Z]}，{@code true} = 墙
      */
+
     public static boolean[][][] generateWallGrids(int chunkX, int chunkZ, int layerCount) {
         boolean[][][] walls = new boolean[layerCount][16][16];
-        RoomGraph graph = new RoomGraph(TOPOLOGY_SEED);
         for (int layer = 0; layer < layerCount; layer++) {
-            walls[layer] = TopologyWalls.wallGrid(graph, chunkX, chunkZ, layer);
+            walls[layer] = TopologyWalls.wallGrid(GRAPH, chunkX, chunkZ, layer);
         }
         return walls;
     }
