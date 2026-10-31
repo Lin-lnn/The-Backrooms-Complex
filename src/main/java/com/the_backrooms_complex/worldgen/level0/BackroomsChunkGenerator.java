@@ -259,16 +259,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     }
 
     /**
-     * 该格天花板是否放灯。
-     *
-     * <p>先量出该格所在开路段在 X / Z 两个方向的宽度：</p>
-     * <ul>
-     *   <li><b>走廊</b>（窄的那一边 ≤ {@value #CORRIDOR_MAX_WIDTH}，且另一边够长）：
-     *       在<b>窄轴的中线</b>上放灯，长轴每 3 格一盏，保证灯正好落在走道正中；</li>
-     *   <li><b>房间 / 开阔区</b>：按全局 3 格网格整齐排布。</li>
-     * </ul>
-     */
-    /**
      * 最后一遍：在地板上刷木质家具。
      *
      * <p>只考虑<b>上方有空间</b>的位置（该格不是墙，故其上方整段都是空气），
@@ -304,6 +294,16 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         }
     }
 
+    /**
+     * 该格天花板是否放灯。
+     *
+     * <p>先量出该格所在开路段在 X / Z 两个方向的宽度：</p>
+     * <ul>
+     *   <li><b>走廊</b>（窄的那一边 ≤ {@value #CORRIDOR_MAX_WIDTH}，且另一边够长）：
+     *       在<b>窄轴的中线</b>上放灯，长轴每 3 格一盏，保证灯正好落在走道正中；</li>
+     *   <li><b>房间 / 开阔区</b>：按全局 3 格网格整齐排布。</li>
+     * </ul>
+     */
     private static boolean lampWanted(boolean[][][] wall, int layer, int lx, int lz,
                                       int chunkX, int chunkZ, int worldX, int worldZ) {
         if (wallAt(wall, layer, lx, lz)) {
