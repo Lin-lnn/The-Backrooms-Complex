@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PP",
+    "PP"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:oak_planks"
+    }
+  },
+  "result": {
+    "id": "backrooms_complex:table_oak",
+    "count": 1
+  }
+}

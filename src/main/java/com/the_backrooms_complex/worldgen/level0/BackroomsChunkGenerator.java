@@ -42,6 +42,12 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     /** 走廊判定的最大宽度（窄轴不超过该值即视为走廊）。 */
     private static final int CORRIDOR_MAX_WIDTH = 4;
 
+    /** 家具刷新概率的分母：10000 = 0.01%。 */
+    private static final int FURNITURE_DENOM = 10000;
+
+    /** 家具选择的哈希盐值（与灯具、结构区分）。 */
+    private static final long SALT_FURNITURE = 0x4655524E49545552L;
+
     /** 量测开路段时的最大探测距离。 */
     private static final int RUN_CAP = 12;
 
@@ -80,6 +86,43 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private final BlockState yellowWall;
     private final BlockState yellowPlinth;
     private final BlockState airState = Blocks.AIR.defaultBlockState();
+
+    /** 可刷新的木质家具（模组提供，等概率抽取）。 */
+    private final BlockState[] furniture = {
+            ModBlocks.STOOL_JUNGLE.get().defaultBlockState(),
+            ModBlocks.STOOL_SPRUCE.get().defaultBlockState(),
+            ModBlocks.STOOL_CHERRY.get().defaultBlockState(),
+            ModBlocks.STOOL_OAK.get().defaultBlockState(),
+            ModBlocks.STOOL_DARK_OAK.get().defaultBlockState(),
+            ModBlocks.STOOL_BIRCH.get().defaultBlockState(),
+            ModBlocks.STOOL_BAMBOO.get().defaultBlockState(),
+            ModBlocks.STOOL_MANGROVE.get().defaultBlockState(),
+            ModBlocks.STOOL_CRIMSON.get().defaultBlockState(),
+            ModBlocks.STOOL_WARPED.get().defaultBlockState(),
+            ModBlocks.STOOL_ACACIA.get().defaultBlockState(),
+            ModBlocks.TABLE_JUNGLE.get().defaultBlockState(),
+            ModBlocks.TABLE_SPRUCE.get().defaultBlockState(),
+            ModBlocks.TABLE_CHERRY.get().defaultBlockState(),
+            ModBlocks.TABLE_OAK.get().defaultBlockState(),
+            ModBlocks.TABLE_DARK_OAK.get().defaultBlockState(),
+            ModBlocks.TABLE_BIRCH.get().defaultBlockState(),
+            ModBlocks.TABLE_BAMBOO.get().defaultBlockState(),
+            ModBlocks.TABLE_MANGROVE.get().defaultBlockState(),
+            ModBlocks.TABLE_CRIMSON.get().defaultBlockState(),
+            ModBlocks.TABLE_WARPED.get().defaultBlockState(),
+            ModBlocks.TABLE_ACACIA.get().defaultBlockState(),
+            ModBlocks.CHAIR_JUNGLE.get().defaultBlockState(),
+            ModBlocks.CHAIR_SPRUCE.get().defaultBlockState(),
+            ModBlocks.CHAIR_CHERRY.get().defaultBlockState(),
+            ModBlocks.CHAIR_OAK.get().defaultBlockState(),
+            ModBlocks.CHAIR_DARK_OAK.get().defaultBlockState(),
+            ModBlocks.CHAIR_BIRCH.get().defaultBlockState(),
+            ModBlocks.CHAIR_BAMBOO.get().defaultBlockState(),
+            ModBlocks.CHAIR_MANGROVE.get().defaultBlockState(),
+            ModBlocks.CHAIR_CRIMSON.get().defaultBlockState(),
+            ModBlocks.CHAIR_WARPED.get().defaultBlockState(),
+            ModBlocks.CHAIR_ACACIA.get().defaultBlockState()
+    };
 
     public BackroomsChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
@@ -120,6 +163,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         }
         // 第二遍：墙壁已全部就位，此时再决定灯位（走廊取中线 / 房间按 3 格网格）
         placeLamps(chunk, wall, chunkX, chunkZ, minY, maxY);
+        // 最后一遍：家具（只落在开阔地面，概率 0.01%）
+        placeFurniture(chunk, wall, chunkX, chunkZ, minY, maxY);
     }
 
     /**
@@ -223,6 +268,42 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
      *   <li><b>房间 / 开阔区</b>：按全局 3 格网格整齐排布。</li>
      * </ul>
      */
+    /**
+     * 最后一遍：在地板上刷木质家具。
+     *
+     * <p>只考虑<b>上方有空间</b>的位置（该格不是墙，故其上方整段都是空气），
+     * 概率 {@code 1 / FURNITURE_DENOM}（0.01%），家具种类由哈希等概率选取。
+     * 全部由坐标与层号决定，同一世界恒定，且不依赖运行时状态。</p>
+     */
+    private void placeFurniture(ChunkAccess chunk, boolean[][][] wall,
+                                int chunkX, int chunkZ, int minY, int maxY) {
+        int layers = fullLayers(chunk);
+        for (int layer = 0; layer < layers; layer++) {
+            int floorY = minY + layer * LAYER_HEIGHT;
+            int placeY = floorY + 1;
+            if (placeY >= maxY) {
+                break;
+            }
+            for (int lx = 0; lx < 16; lx++) {
+                for (int lz = 0; lz < 16; lz++) {
+                    // 墙格上方没有空间，直接跳过
+                    if (wallAt(wall, layer, lx, lz)) {
+                        continue;
+                    }
+                    int worldX = chunkX * 16 + lx;
+                    int worldZ = chunkZ * 16 + lz;
+                    long roll = BackroomsMaze.hash3(worldX, worldZ, layer, SALT_FURNITURE);
+                    if (Math.floorMod(roll, FURNITURE_DENOM) != 0L) {
+                        continue;
+                    }
+                    int pick = (int) Math.floorMod(roll >>> 32, this.furniture.length);
+                    chunk.setBlockState(new net.minecraft.core.BlockPos(worldX, placeY, worldZ),
+                            this.furniture[pick], false);
+                }
+            }
+        }
+    }
+
     private static boolean lampWanted(boolean[][][] wall, int layer, int lx, int lz,
                                       int chunkX, int chunkZ, int worldX, int worldZ) {
         if (wallAt(wall, layer, lx, lz)) {
