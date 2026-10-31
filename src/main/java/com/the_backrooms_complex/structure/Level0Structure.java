@@ -153,7 +153,13 @@ public class Level0Structure extends Structure {
             return Optional.empty(); // 模板缺失或为空
         }
 
-        // 3) 目标层：底部对齐 floorY = layerIndex * 7，且结构整体不超过 Y 上限
+        // 3) 高度适配：结构必须能完整落在「地板之上、天花板之下」
+        //    地板占 floorY 这一格，天花板占 floorY + LAYER_HEIGHT - 1，
+        //    因此结构可用高度 = LAYER_HEIGHT - 2。
+        int usableHeight = BackroomsChunkGenerator.LAYER_HEIGHT - 2;
+        if (size.getY() > usableHeight) {
+            return Optional.empty(); // 太高，放不进一层
+        }
         int maxLayerByHeight = (MAX_STRUCTURE_Y + 1 - size.getY()) / LAYER_PERIOD;
         if (maxLayerByHeight < 0) {
             return Optional.empty(); // 结构过高，放不进允许范围
@@ -187,7 +193,10 @@ public class Level0Structure extends Structure {
         // 群系过滤由 has_structure/level0 标签完成（只含 yellow_rooms）
 
 
+        // 结构落地高度：地板占 floorY，结构第一层从 floorY + 1 起，
+        // 这样结构与地板同高相接，既不埋进地板也不悬空。
         int floorY = layerIndex * LAYER_PERIOD;
+        int placeY = floorY + 1;
 
         // 4) 锚点：完全由网格单元坐标决定（与逐层迷宫种子、世界种子均无关）
         int centerX = Level0StructurePlacement.anchorX(gx, gz);
@@ -198,7 +207,7 @@ public class Level0Structure extends Structure {
         int snap = Level0StructurePlacement.GRID_SNAP;
         int originX = Math.floorDiv(centerX - size.getX() / 2, snap) * snap;
         int originZ = Math.floorDiv(centerZ - size.getZ() / 2, snap) * snap;
-        BlockPos origin = new BlockPos(originX, floorY, originZ);
+        BlockPos origin = new BlockPos(originX, placeY, originZ);
 
         StructurePlaceSettings settings = Level0StructurePiece.defaultSettings();
         return Optional.of(new Structure.GenerationStub(origin, (StructurePiecesBuilder builder) ->
