@@ -43,7 +43,7 @@ public final class Level1Geometry {
     public static boolean isPassageArea(int x, int z) {
         int cx = Math.floorDiv(x, PASSAGE_CELL);
         int cz = Math.floorDiv(z, PASSAGE_CELL);
-        long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x70617373616765L;
+        long h = (long) cx * 0x9E3779B97F4A7C15L ^ (long) cz * 0xC2B2AE3D27D4EB4FL ^ 0x70617373616765L ^ com.the_backrooms_complex.worldgen.BackroomsSeed.salt();
         h ^= h >>> 33;
         h *= 0xFF51AFD7ED558CCDL;
         h ^= h >>> 33;

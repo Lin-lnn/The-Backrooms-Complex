@@ -159,7 +159,7 @@ public final class Level1Sectors {
         h ^= h >>> 33;
         h *= 0xC4CEB9FE1A85EC53L;
         h ^= h >>> 33;
-        return h;
+        return h ^ com.the_backrooms_complex.worldgen.BackroomsSeed.salt();
     }
 
     private Level1Sectors() {
