@@ -17,7 +17,7 @@ public final class ModBalance {
 
     // ==================== 数值上限 ====================
 
-    /** 饮水值与精神值的上限。 */
+    /** 饮水值上限。 */
     public static final int STAT_MAX = 100;
 
     // ==================== 自然消耗 ====================
@@ -26,21 +26,6 @@ public final class ModBalance {
     public static final int THIRST_BASE_INTERVAL = 400;
     /** 奔跑时额外消耗间隔（8 秒 1 点）。 */
     public static final int THIRST_SPRINT_INTERVAL = 160;
-    /** 潮湿环境额外消耗间隔（6 秒 1 点）。 */
-    public static final int THIRST_DAMP_INTERVAL = 120;
-    /** 潮湿环境精神值下降间隔（10 秒 1 点）。 */
-    public static final int SANITY_DAMP_INTERVAL = 200;
-    /** 黑暗中精神值下降间隔（6 秒 1 点）。 */
-    public static final int SANITY_DARK_INTERVAL = 120;
-    /** 黄色房间精神值恢复间隔（5 秒 1 点）。 */
-    public static final int SANITY_YELLOW_INTERVAL = 100;
-
-    // ==================== 状态阈值 ====================
-
-    /** 精神值低于此值时方块与雾变暗红。 */
-    public static final int DARK_RED_THRESHOLD = 5;
-    /** 跨过暗红阈值时给予的黑暗效果时长（2 秒）。 */
-    public static final int DARKNESS_TICKS = 40;
 
     // ==================== 脱水伤害 ====================
 
@@ -53,8 +38,6 @@ public final class ModBalance {
 
     /** 未知污水瓶恢复的饮水值。 */
     public static final int SEWAGE_THIRST_RESTORE = 35;
-    /** 未知污水瓶扣除的精神值。 */
-    public static final int SEWAGE_SANITY_COST = 12;
     /** 药水 / 水瓶 / 牛奶 / 汤类恢复的饮水值。 */
     public static final int DRINK_THIRST_RESTORE = 30;
 
@@ -73,8 +56,6 @@ public final class ModBalance {
 
     /** 受潮罐装杏仁水：饮用时长（2 秒）。 */
     public static final int DAMP_CAN_USE_TICKS = 40;
-    /** 受潮罐装杏仁水：恢复精神值。 */
-    public static final int DAMP_CAN_SANITY = 20;
     /** 受潮罐装杏仁水：恢复饮水值。 */
     public static final int DAMP_CAN_THIRST = 30;
     /** 受潮罐装杏仁水：恢复饥饿值。 */
@@ -84,28 +65,12 @@ public final class ModBalance {
 
     /** 完好罐装杏仁水：饮用时长（1.5 秒）。 */
     public static final int PRISTINE_CAN_USE_TICKS = 30;
-    /** 完好罐装杏仁水：恢复精神值。 */
-    public static final int PRISTINE_CAN_SANITY = 40;
     /** 完好罐装杏仁水：恢复饮水值。 */
     public static final int PRISTINE_CAN_THIRST = 30;
     /** 完好罐装杏仁水：恢复饥饿值。 */
     public static final int PRISTINE_CAN_HUNGER = 4;
     /** 完好罐装杏仁水：是否附带反胃。 */
     public static final boolean PRISTINE_CAN_NAUSEA = false;
-
-    // ==================== 地板刮取 ====================
-
-    /** 剥离地板的复原延迟（60 秒）。 */
-    public static final int CARPET_RESTORE_TICKS = 1200;
-
-    // ==================== 地物概率 ====================
-
-    /** 混凝土大厅：蜘蛛网生成概率。 */
-    public static final double DECOR_COBWEB_CHANCE = 0.002D;   // 0.2%（与生成器原值一致）
-    /** 混凝土大厅：贴墙砂砾堆（燧石）生成概率。 */
-    public static final double DECOR_GRAVEL_CHANCE = 0.00003D;
-    /** 混凝土大厅：熄灭的篝火生成概率（含砂砾区间之后的增量）。 */
-    public static final double DECOR_CAMPFIRE_CHANCE = 0.00015D;
 
     private ModBalance() {
     }

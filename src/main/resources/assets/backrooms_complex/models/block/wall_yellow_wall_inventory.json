@@ -29,8 +29,7 @@
             12
           ],
           "texture": "#wall",
-          "cullface": "down",
-          "tintindex": 0
+          "cullface": "down"
         },
         "up": {
           "uv": [
@@ -39,8 +38,7 @@
             12,
             12
           ],
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "north": {
           "uv": [
@@ -49,8 +47,7 @@
             12,
             16
           ],
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "south": {
           "uv": [
@@ -59,8 +56,7 @@
             12,
             16
           ],
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "west": {
           "uv": [
@@ -69,8 +65,7 @@
             12,
             16
           ],
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "east": {
           "uv": [
@@ -79,8 +74,7 @@
             12,
             16
           ],
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         }
       }
     },
@@ -104,8 +98,7 @@
             16
           ],
           "texture": "#wall",
-          "cullface": "down",
-          "tintindex": 0
+          "cullface": "down"
         },
         "up": {
           "uv": [
@@ -114,8 +107,7 @@
             11,
             16
           ],
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "north": {
           "uv": [
@@ -125,8 +117,7 @@
             16
           ],
           "texture": "#wall",
-          "cullface": "north",
-          "tintindex": 0
+          "cullface": "north"
         },
         "south": {
           "uv": [
@@ -136,8 +127,7 @@
             16
           ],
           "texture": "#wall",
-          "cullface": "south",
-          "tintindex": 0
+          "cullface": "south"
         },
         "west": {
           "uv": [
@@ -146,8 +136,7 @@
             16,
             16
           ],
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "east": {
           "uv": [
@@ -156,8 +145,7 @@
             16,
             16
           ],
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         }
       }
     }

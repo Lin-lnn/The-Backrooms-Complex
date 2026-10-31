@@ -1,6 +1,0 @@
-{
-  "parent": "backrooms_complex:block/tinted_cube",
-  "textures": {
-    "all": "backrooms_complex:block/ruined_vent"
-  }
-}

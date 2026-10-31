@@ -1,6 +1,0 @@
-{
-  "variants": {
-    "origin=floor_tile": { "model": "backrooms_complex:block/stripped_carpet_floor" },
-    "origin=damp_floor": { "model": "backrooms_complex:block/stripped_carpet_floor" }
-  }
-}

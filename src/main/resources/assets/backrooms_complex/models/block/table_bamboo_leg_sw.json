@@ -24,8 +24,7 @@
                                                                 1,
                                                                 1
                                                             ],
-                                                     "texture":  "#tex",
-                                                     "tintindex":  0
+                                                     "texture":  "#tex"
                                                  },
                                        "east":  {
                                                     "uv":  [
@@ -34,8 +33,7 @@
                                                                8,
                                                                1
                                                            ],
-                                                    "texture":  "#tex",
-                                                    "tintindex":  0
+                                                    "texture":  "#tex"
                                                 },
                                        "south":  {
                                                      "uv":  [
@@ -44,8 +42,7 @@
                                                                 1,
                                                                 1
                                                             ],
-                                                     "texture":  "#tex",
-                                                     "tintindex":  0
+                                                     "texture":  "#tex"
                                                  },
                                        "west":  {
                                                     "uv":  [
@@ -54,8 +51,7 @@
                                                                8,
                                                                1
                                                            ],
-                                                    "texture":  "#tex",
-                                                    "tintindex":  0
+                                                    "texture":  "#tex"
                                                 },
                                        "up":  {
                                                   "uv":  [
@@ -64,8 +60,7 @@
                                                              1,
                                                              8
                                                          ],
-                                                  "texture":  "#tex",
-                                                  "tintindex":  0
+                                                  "texture":  "#tex"
                                               },
                                        "down":  {
                                                     "uv":  [
@@ -74,8 +69,7 @@
                                                                1,
                                                                8
                                                            ],
-                                                    "texture":  "#tex",
-                                                    "tintindex":  0
+                                                    "texture":  "#tex"
                                                 }
                                    }
                      },
@@ -98,8 +92,7 @@
                                                                 2,
                                                                 11
                                                             ],
-                                                     "texture":  "#tex",
-                                                     "tintindex":  0
+                                                     "texture":  "#tex"
                                                  },
                                        "east":  {
                                                     "uv":  [
@@ -108,8 +101,7 @@
                                                                2,
                                                                11
                                                            ],
-                                                    "texture":  "#tex",
-                                                    "tintindex":  0
+                                                    "texture":  "#tex"
                                                 },
                                        "south":  {
                                                      "uv":  [
@@ -118,8 +110,7 @@
                                                                 2,
                                                                 11
                                                             ],
-                                                     "texture":  "#tex",
-                                                     "tintindex":  0
+                                                     "texture":  "#tex"
                                                  },
                                        "west":  {
                                                     "uv":  [
@@ -128,8 +119,7 @@
                                                                2,
                                                                11
                                                            ],
-                                                    "texture":  "#tex",
-                                                    "tintindex":  0
+                                                    "texture":  "#tex"
                                                 },
                                        "up":  {
                                                   "uv":  [
@@ -138,8 +128,7 @@
                                                              2,
                                                              2
                                                          ],
-                                                  "texture":  "#tex",
-                                                  "tintindex":  0
+                                                  "texture":  "#tex"
                                               },
                                        "down":  {
                                                     "uv":  [
@@ -148,8 +137,7 @@
                                                                2,
                                                                2
                                                            ],
-                                                    "texture":  "#tex",
-                                                    "tintindex":  0
+                                                    "texture":  "#tex"
                                                 }
                                    }
                      }

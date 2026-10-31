@@ -23,29 +23,23 @@
       "faces": {
         "down": {
           "texture": "#wall",
-          "cullface": "down",
-          "tintindex": 0
+          "cullface": "down"
         },
         "up": {
           "texture": "#wall",
-          "cullface": "up",
-          "tintindex": 0
+          "cullface": "up"
         },
         "north": {
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "south": {
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "west": {
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "east": {
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         }
       }
     }

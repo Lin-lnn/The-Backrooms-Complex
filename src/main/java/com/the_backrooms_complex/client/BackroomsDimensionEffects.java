@@ -22,7 +22,7 @@ import org.joml.Matrix4f;
  *       1.21.1 的 {@code DimensionType} 已没有 cloud 字段，云只受客户端视频设置的
  *       {@code CloudStatus} 控制，因此必须通过这个 NeoForge 扩展钩子按维度关闭。</li>
  *   <li><b>无天空 / 无地平线地面</b>：{@code SkyType.NONE} + {@code hasGround=false}。</li>
- *   <li><b>雾颜色</b>与亮度无关，直接沿用群系给的雾色（混凝土大厅为暗灰）。</li>
+ *   <li><b>雾颜色</b>与亮度无关，直接沿用群系给的雾色。</li>
  * </ul>
  *
  * <p>维度 JSON 中通过 {@code "effects": "backrooms_complex:backrooms"} 引用本类。</p>

@@ -20,8 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import com.the_backrooms_complex.DropHelper;
 
 /**
- * 刮纸刀：右键 Level 0 的墙壁<b>主体</b>方块（{@code wall_yellow} / {@code wall_concrete} / {@code wall_damp}），
- * 刮掉墙纸。
+ * 刮纸刀：右键 Level 0 的黄色墙壁<b>主体</b>（{@code wall_yellow}），刮掉墙纸。
  *
  * <p>行为：</p>
  * <ul>
@@ -45,9 +44,8 @@ public class ScraperItem extends Item {
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
 
-        // 只有"墙壁主体"能被刮；踢脚线、去墙纸状态、其它方块一律 PASS
-        OakedWallBlock.Variant variant = ModBlocks.wallVariantOf(state.getBlock());
-        if (variant == null) {
+        // 只有黄色墙壁主体能被刮；踢脚线、去墙纸状态、其它方块一律 PASS
+        if (!state.is(ModBlocks.WALL_YELLOW.get())) {
             return InteractionResult.PASS;
         }
 
@@ -62,7 +60,6 @@ public class ScraperItem extends Item {
         //    原先分两次 setBlock，会多做一次方块更新与光照刷新。
         serverLevel.setBlock(pos,
                 ModBlocks.WALL_OAKED.get().defaultBlockState()
-                        .setValue(OakedWallBlock.VARIANT, variant)
                         .setValue(OakedWallBlock.SHAPE, OakedWallBlock.shapeFor(serverLevel, pos)),
                 Block.UPDATE_ALL);
 

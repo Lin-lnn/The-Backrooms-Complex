@@ -18,6 +18,8 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
  *
  * <ul>
  *   <li>{@code /backrooms check} —— 扫描玩家附近区域，用并查集输出空气连通分量数量（&gt;1 则警告）。</li>
+ *   <li>{@code /backrooms topo} —— 打印当前房间的拓扑调试信息。</li>
+ *   <li>{@code /backrooms thirst <0-100>} —— 设置当前玩家的饮水值。</li>
  * </ul>
  *
  * <p>说明：方块破坏现在只由 {@code strength(-1.0F, 3600000.0F)} 控制（创造模式可破坏），
@@ -37,7 +39,7 @@ public final class BackroomsCommands {
                                 .executes(ctx -> topo(ctx.getSource())))
         );
 
-        // ===== 数值修改指令：/backrooms thirst <0-100> ，/backrooms sanity <0-100> =====
+        // ===== 数值修改指令：/backrooms thirst <0-100> =====
         // Brigadier 会把同名根节点合并，因此这里再注册一次 /backrooms 是安全的。
         dispatcher.register(
                 Commands.literal("backrooms")
@@ -50,17 +52,6 @@ public final class BackroomsCommands {
                                             ModNetwork.sendTo(player);
                                             ctx.getSource().sendSuccess(() -> Component.literal(
                                                     "饮水值已设为 " + ModPlayerData.getThirst(player)), true);
-                                            return 1;
-                                        })))
-                        .then(Commands.literal("sanity")
-                                .then(Commands.argument("value", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, ModPlayerData.MAX))
-                                        .executes(ctx -> {
-                                            net.minecraft.server.level.ServerPlayer player = ctx.getSource().getPlayerOrException();
-                                            int target = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "value");
-                                            ModPlayerData.addSanity(player, target - ModPlayerData.getSanity(player));
-                                            ModNetwork.sendTo(player);
-                                            ctx.getSource().sendSuccess(() -> Component.literal(
-                                                    "精神值已设为 " + ModPlayerData.getSanity(player)), true);
                                             return 1;
                                         })))
         );

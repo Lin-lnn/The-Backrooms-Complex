@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "backrooms_complex:item/bacteria_spawn_egg"
-  }
-}

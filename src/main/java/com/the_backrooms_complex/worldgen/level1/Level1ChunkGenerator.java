@@ -96,7 +96,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
     /** 传说段的深色木门。 */
     private final BlockState woodDoorState;
     private final BlockState lampState;
-    private final BlockState lampOffState;
     /** 金属门（门洞用）。缓存一次，避免逐方块查注册表 + 分配。 */
     private final BlockState metalDoorState;
 
@@ -138,7 +137,6 @@ public class Level1ChunkGenerator extends ChunkGenerator {
                 .setValue(net.minecraft.world.level.block.VineBlock.UP, Boolean.TRUE);
         this.woodDoorState = net.minecraft.world.level.block.Blocks.DARK_OAK_DOOR.defaultBlockState();
         this.lampState = ModBlocks.FLUORESCENT_LAMP.get().defaultBlockState();
-        this.lampOffState = ModBlocks.LAMP_OFF.get().defaultBlockState();
         this.metalDoorState = ModBlocks.METAL_DOOR.get().defaultBlockState();
 
         this.defaultProfile = new SectorProfile(this.floorState, this.ceilingState,

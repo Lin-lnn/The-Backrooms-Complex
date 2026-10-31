@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
  *
  * <p>本类不持有任何 {@code BlockState}、不访问注册表、不做区块写入，
  * 只回答「这一列属于哪个区段」「这里是不是区段边界 / 通道」以及
- * 「这一层有多高」。生成器、群系源与闪烁现象都从这里取层高常量，
+ * 「这一层有多高」。生成器与群系源都从这里取层高常量，
  * 避免再出现 12 / 18 两套数字。</p>
  */
 public final class Level1Sectors {

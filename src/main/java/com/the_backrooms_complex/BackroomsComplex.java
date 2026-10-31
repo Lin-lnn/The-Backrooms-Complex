@@ -42,7 +42,7 @@ public class BackroomsComplex {
         // 方块实体与容器界面（板条箱 GUI）
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
-        // 必须先触发 ModCreativeTabs 的静态初始化，否则三个页签不会注册
+        // 必须先触发 ModCreativeTabs 的静态初始化，否则两个页签不会注册
         ModCreativeTabs.init();
         ModItems.CREATIVE_MODE_TABS.register(modEventBus);
         ModItems.ARMOR_MATERIALS.register(modEventBus);

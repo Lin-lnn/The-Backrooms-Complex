@@ -1,8 +1,5 @@
 package com.the_backrooms_complex.worldgen.level0;
 
-import com.the_backrooms_complex.worldgen.level0.BackroomsMaze;
-import com.the_backrooms_complex.worldgen.level0.RoomGraph;
-import com.the_backrooms_complex.worldgen.level0.TopologyWalls;
 import com.the_backrooms_complex.worldgen.level0.RoomGraph;
 import com.the_backrooms_complex.worldgen.level0.TopologyWalls;
 

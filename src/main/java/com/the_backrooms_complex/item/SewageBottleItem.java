@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import com.the_backrooms_complex.ModNetwork;
 
 /**
- * 「未知污水瓶」：喝下后恢复饮水值，但会付出精神值代价。
+ * 「未知污水瓶」：喝下后恢复少量饮水值，并留下空玻璃瓶。
  *
  * <h2>饮用动画（完全复用原版水瓶）</h2>
  * <ul>
@@ -58,7 +58,6 @@ public class SewageBottleItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (entity instanceof ServerPlayer serverPlayer) {
             ModPlayerData.addThirst(serverPlayer, ModPlayerData.SEWAGE_THIRST_RESTORE);
-            ModPlayerData.addSanity(serverPlayer, -ModPlayerData.SEWAGE_SANITY_COST);
             // 立刻同步给客户端，否则要等下一次每秒结算（最多 1 秒延迟）
             ModNetwork.sendTo(serverPlayer);
         }

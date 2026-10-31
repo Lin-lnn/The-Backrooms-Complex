@@ -23,26 +23,21 @@
       "faces": {
         "down": {
           "texture": "#wall",
-          "cullface": "down",
-          "tintindex": 0
+          "cullface": "down"
         },
         "up": {
           "texture": "#wall",
-          "cullface": "up",
-          "tintindex": 0
+          "cullface": "up"
         },
         "north": {
           "texture": "#wall",
-          "cullface": "north",
-          "tintindex": 0
+          "cullface": "north"
         },
         "west": {
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         },
         "east": {
-          "texture": "#wall",
-          "tintindex": 0
+          "texture": "#wall"
         }
       }
     }

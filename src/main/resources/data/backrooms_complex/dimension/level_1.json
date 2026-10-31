@@ -4,10 +4,9 @@
     "type": "backrooms_complex:level1",
     "biome_source": {
       "type": "backrooms_complex:backrooms_biome_source",
-      "yellow_rooms": "backrooms_complex:warehouse_aisles",
-      "concrete_halls": "backrooms_complex:aquila_sector",
-      "damp_corridors": "backrooms_complex:puddle_zone",
+      "primary_biome": "backrooms_complex:warehouse_aisles",
       "layer_height": 12,
+      "aquila_sector": "backrooms_complex:aquila_sector",
       "yuejin_sector": "backrooms_complex:yuejin_sector",
       "gothic_sector": "backrooms_complex:gothic_sector",
       "ouroboros_sector": "backrooms_complex:ouroboros_sector",

@@ -18,22 +18,20 @@ import com.the_backrooms_complex.ModPlayerData;
 /**
  * 「罐装杏仁水」（受潮 / 保存完好）。
  *
- * <p>饮用后回复精神值、饮水值与饥饿值，并把空罐留给玩家（{@code empty_can}）。
+ * <p>饮用后回复饮水值与饥饿值，并把空罐留给玩家（{@code empty_can}）。
  * 受潮的那罐额外附带 1 秒反胃 I。</p>
  */
 public class CannedAlmondWaterItem extends Item {
 
     private final int durationTicks;
-    private final int sanity;
     private final int thirst;
     private final int hunger;
     private final boolean nausea;
 
     public CannedAlmondWaterItem(Properties properties,
-                                 int durationTicks, int sanity, int thirst, int hunger, boolean nausea) {
+                                 int durationTicks, int thirst, int hunger, boolean nausea) {
         super(properties);
         this.durationTicks = durationTicks;
-        this.sanity = sanity;
         this.thirst = thirst;
         this.hunger = hunger;
         this.nausea = nausea;
@@ -58,7 +56,7 @@ public class CannedAlmondWaterItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (entity instanceof ServerPlayer player) {
-            ModPlayerDataProxy.apply(player, this.sanity, this.thirst, this.hunger);
+            ModPlayerDataProxy.apply(player, this.thirst, this.hunger);
             if (this.nausea) {
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 20, 0, false, true, true));
             }
@@ -77,10 +75,9 @@ public class CannedAlmondWaterItem extends Item {
         return stack;
     }
 
-    /** 小工具：把三个数值一次性加上去（内部走 ModPlayerData，保持 HUD 同步）。 */
+    /** 小工具：把数值一次性加上去（内部走 ModPlayerData，保持 HUD 同步）。 */
     private static final class ModPlayerDataProxy {
-        static void apply(ServerPlayer player, int sanity, int thirst, int hunger) {
-            ModPlayerData.addSanity(player, sanity);
+        static void apply(ServerPlayer player, int thirst, int hunger) {
             ModPlayerData.addThirst(player, thirst);
             if (hunger > 0) {
                 player.getFoodData().eat(hunger, 0.0F);

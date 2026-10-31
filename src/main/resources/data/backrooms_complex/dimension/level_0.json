@@ -4,9 +4,8 @@
     "type": "backrooms_complex:backrooms",
     "biome_source": {
       "type": "backrooms_complex:backrooms_biome_source",
-      "yellow_rooms": "backrooms_complex:yellow_rooms",
-      "concrete_halls": "backrooms_complex:concrete_halls",
-      "damp_corridors": "backrooms_complex:damp_corridors"
+      "primary_biome": "backrooms_complex:yellow_rooms",
+      "layer_height": 8
     }
   }
 }

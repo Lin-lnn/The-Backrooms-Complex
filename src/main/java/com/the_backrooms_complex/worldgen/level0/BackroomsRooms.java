@@ -1,16 +1,13 @@
 package com.the_backrooms_complex.worldgen.level0;
 
-
-import com.the_backrooms_complex.worldgen.level0.BackroomsRooms;
 /**
  * Level 0 的「房间」布局（纯数学，无 Minecraft 依赖）。
  *
  * <h2>规则</h2>
  * <ul>
  *   <li>房间是<b>矩形空间</b>，长宽都 <b>&gt; 10 且 &lt; 50</b> 格（11~49）；</li>
- *   <li>房间按 80×80 格的单元放置，居中且四周留白，
- *       因此<b>相邻房间的最小间距 ≥ 31 格</b>（远大于要求的 10 格）；</li>
- *   <li>约 25% 的单元放房间，其余保持纯迷宫；</li>
+ *   <li>房间按 51×51 格的单元放置，居中且四周留白；</li>
+ *   <li>约 42% 的单元放房间，其余保持纯迷宫；</li>
  *   <li>房间内部整块清空成走廊式空地，<b>由既有的迷宫走廊相连</b>；
  *       另外在四条边的中点各开一个 3 格宽的门洞，确保出入口可见；</li>
  *   <li>长或宽<b>大于 20 格</b>的房间内部，均匀布置 <b>1×1 的柱子</b>，
@@ -68,17 +65,14 @@ public final class BackroomsRooms {
      *
      * <p>房间始终完整地落在自己的单元内（居中 + 留白），所以只需查询当前单元。</p>
      */
-    public static Room roomAt(int x, int z, int layer, boolean hall) {
+    public static Room roomAt(int x, int z, int layer) {
         int cx = Math.floorDiv(x, CELL);
         int cz = Math.floorDiv(z, CELL);
         long h = hash(cx, cz, layer);
 
-        // 最小间距放宽到 1 格后单元可以很小，用百分比阈值精确控制面积占比：
-        //   混凝土大厅 72% 的单元放房间（目标约 10 倍）
-        //   其它群系   36% 的单元放房间（目标约 5 倍，正好一半）
+        // 约 42% 的单元放房间（目标约 5 倍面积占比）
         int roll = (int) Math.floorMod(h >>> 4, 100L);
-        int threshold = hall ? 85 : 42;
-        if (roll >= threshold) {
+        if (roll >= 42) {
             return null;
         }
 
@@ -92,13 +86,6 @@ public final class BackroomsRooms {
         int bump = small ? 0 : 5;
         int w = MIN_SIZE + Math.min(span, tw + bump);
         int l = MIN_SIZE + Math.min(span, tl + bump);
-        // 房间必须完整落在同一个群系单元内（群系单元 256 格，且整单元同群系）
-        // 否则会跨群系 => 违反"房间所属区域必须属于同一群系"
-        int biomeCell = 256;
-        if (Math.floorDiv(minXof(cx, w), biomeCell) != Math.floorDiv(minXof(cx, w) + w - 1, biomeCell)
-                || Math.floorDiv(minZof(cz, l), biomeCell) != Math.floorDiv(minZof(cz, l) + l - 1, biomeCell)) {
-            return null;
-        }
         int ox = (CELL - w) / 2;
         int oz = (CELL - l) / 2;
         int minX = cx * CELL + ox;
@@ -157,14 +144,6 @@ public final class BackroomsRooms {
         }
         return Math.floorMod(x - r.minX, PILLAR_SPACING) == PILLAR_MARGIN
                 && Math.floorMod(z - r.minZ, PILLAR_SPACING) == PILLAR_MARGIN;
-    }
-
-    private static int minXof(int cx, int w) {
-        return cx * CELL + (CELL - w) / 2;
-    }
-
-    private static int minZof(int cz, int l) {
-        return cz * CELL + (CELL - l) / 2;
     }
 
     /** splitmix64 风格哈希。 */

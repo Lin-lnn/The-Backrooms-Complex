@@ -28,27 +28,9 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
  *   <li>{@link Shape#LOWER} —— 上方也是刮纸墙 ⇒ 只剩<b>下半部分</b>是刮过的；</li>
  *   <li>{@link Shape#MID} —— 上下都是刮纸墙 ⇒ 只有<b>中间一条</b>是刮过的。</li>
  * </ul>
- * <p>所有贴图都是<b>灰度图</b>，由 {@code BiomeTint} 按群系着色（与其它 Level 0 方块一致）。</p>
+ * <p>贴图使用预先着好黄色调的版本，不再依赖运行时方块染色。</p>
  */
 public class OakedWallBlock extends Block {
-
-    /** 原墙壁变体。 */
-    public enum Variant implements StringRepresentable {
-        YELLOW("yellow"),
-        CONCRETE("concrete"),
-        DAMP("damp");
-
-        private final String name;
-
-        Variant(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getSerializedName() {
-            return this.name;
-        }
-    }
 
     /** 刮纸形状（决定用哪张过渡贴图）。 */
     public enum Shape implements StringRepresentable {
@@ -73,16 +55,13 @@ public class OakedWallBlock extends Block {
         }
     }
 
-    public static final EnumProperty<Variant> VARIANT = EnumProperty.create("variant", Variant.class);
     public static final EnumProperty<Shape> SHAPE = EnumProperty.create("shape", Shape.class);
 
     public static final MapCodec<OakedWallBlock> CODEC = simpleCodec(OakedWallBlock::new);
 
     public OakedWallBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any()
-                .setValue(VARIANT, Variant.YELLOW)
-                .setValue(SHAPE, Shape.FULL));
+        this.registerDefaultState(this.stateDefinition.any().setValue(SHAPE, Shape.FULL));
     }
 
     @Override
@@ -92,7 +71,7 @@ public class OakedWallBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(VARIANT, SHAPE);
+        builder.add(SHAPE);
     }
 
     /** 判断某方块是不是同类（刮纸墙）。 */
@@ -129,12 +108,9 @@ public class OakedWallBlock extends Block {
     /** 自动恢复成原本的墙壁。 */
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        Block original = ModBlocks.originalWallOf(state.getValue(VARIANT));
-        if (original != null) {
-            level.setBlock(pos, original.defaultBlockState(), Block.UPDATE_ALL);
-            refresh(level, pos.above());
-            refresh(level, pos.below());
-        }
+        level.setBlock(pos, ModBlocks.WALL_YELLOW.get().defaultBlockState(), Block.UPDATE_ALL);
+        refresh(level, pos.above());
+        refresh(level, pos.below());
     }
 
     /** 刷新一个相邻的刮纸墙形状。 */

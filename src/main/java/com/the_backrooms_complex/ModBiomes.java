@@ -1,6 +1,5 @@
 package com.the_backrooms_complex;
 
-import com.the_backrooms_complex.worldgen.level0.BackroomsChunkGenerator;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -20,17 +19,13 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
  * {@code data/backrooms_complex/worldgen/biome/*.json}。本类的 {@link #bootstrap(BootstrapContext)}
  * 用于数据生成阶段生成这些 JSON。</p>
  *
- * <p>本模组定义了 3 种群系，区别在于墙壁花纹（由 {@code BackroomsChunkGenerator} 根据群系选择）
- * 与战利品表（由 {@code BackroomsChunkGenerator} 根据群系选择战利品箱）。</p>
+ * <p>Level 0 只使用 {@link #YELLOW_ROOMS}；Level 1 的区段群系由
+ * {@code Level1Sectors} 在运行时选择，并作为数据包 JSON 提供。</p>
  */
 public final class ModBiomes {
 
     /** 黄色房间：经典后室黄色墙纸风格。 */
     public static final ResourceKey<Biome> YELLOW_ROOMS = key("yellow_rooms");
-    /** 混凝土大厅：灰色工业风格，物资偏工具类。 */
-    public static final ResourceKey<Biome> CONCRETE_HALLS = key("concrete_halls");
-    /** 潮湿走廊：暗绿色发霉风格，物资偏食物类。 */
-    public static final ResourceKey<Biome> DAMP_CORRIDORS = key("damp_corridors");
     public static final ResourceKey<Biome> YUEJIN_SECTOR = key("yuejin_sector");
     public static final ResourceKey<Biome> GOTHIC_SECTOR = key("gothic_sector");
     public static final ResourceKey<Biome> OUROBOROS_SECTOR = key("ouroboros_sector");
@@ -51,18 +46,10 @@ public final class ModBiomes {
         // 1.21.1 中 BiomeGenerationSettings.Builder 需要特性 / 雕刻器的 HolderGetter
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
         HolderGetter<ConfiguredWorldCarver<?>> carvers = context.lookup(Registries.CONFIGURED_CARVER);
-        // 各群系的雾色、天色营造不同的氛围（无天空光，天色仅作辅助）
+        // 无天空光，天色仅作辅助；雾色为暗黄色
         context.register(YELLOW_ROOMS, buildBiome(placedFeatures, carvers,
                 0xC9BB63, // fog_color：暗黄色雾
                 0x14140D  // sky_color：近黑
-        ));
-        context.register(CONCRETE_HALLS, buildBiome(placedFeatures, carvers,
-                0x8E8E8E, // fog_color：灰色雾
-                0x0B0B0B  // sky_color：近黑
-        ));
-        context.register(DAMP_CORRIDORS, buildBiome(placedFeatures, carvers,
-                0x55603C, // fog_color：暗绿色雾
-                0x0B0D09  // sky_color：近黑
         ));
     }
 

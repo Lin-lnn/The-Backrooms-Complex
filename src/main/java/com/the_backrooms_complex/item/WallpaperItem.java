@@ -44,9 +44,7 @@ public class WallpaperItem extends Item {
             return InteractionResult.PASS;
         }
         if (!level.isClientSide()) {
-            OakedWallBlock.Variant variant = state.getValue(OakedWallBlock.VARIANT);
-            var restored = ModBlocks.originalWallOf(variant);
-            level.setBlockAndUpdate(pos, restored.defaultBlockState());
+            level.setBlockAndUpdate(pos, ModBlocks.WALL_YELLOW.get().defaultBlockState());
             level.playSound(null, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER,
                     SoundSource.BLOCKS, 0.7F, 1.2F);
             var player = context.getPlayer();

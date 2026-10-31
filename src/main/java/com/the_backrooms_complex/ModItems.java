@@ -1,6 +1,5 @@
 package com.the_backrooms_complex;
 
-import com.the_backrooms_complex.item.ChiselItem;
 import com.the_backrooms_complex.item.ScraperItem;
 import com.the_backrooms_complex.item.ThresholdKeyItem;
 import com.the_backrooms_complex.item.WallpaperItem;
@@ -30,7 +29,7 @@ public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(BackroomsComplex.MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, BackroomsComplex.MODID);
-    // 三个创造模式物品栏的定义见 ModCreativeTabs（保持注册表字段不变，外部无需改动）
+    // 两个创造模式物品栏的定义见 ModCreativeTabs（保持注册表字段不变，外部无需改动）
 
     // ===== 方块物品 =====
     public static final DeferredItem<BlockItem> WALL_YELLOW =
@@ -43,18 +42,8 @@ public final class ModItems {
             ITEMS.register("wall_manila_plinth", () -> new BlockItem(ModBlocks.WALL_MANILA_PLINTH.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> FLOOR_MANILA =
             ITEMS.register("floor_manila", () -> new BlockItem(ModBlocks.FLOOR_MANILA.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_DUST_LAYER =
-            ITEMS.register("wall_dust_layer", () -> new BlockItem(ModBlocks.WALL_DUST_LAYER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> CEILING_MANILA =
             ITEMS.register("ceiling_manila", () -> new BlockItem(ModBlocks.CEILING_MANILA.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_CONCRETE =
-            ITEMS.register("wall_concrete", () -> new BlockItem(ModBlocks.WALL_CONCRETE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_CONCRETE_PLINTH =
-            ITEMS.register("wall_concrete_plinth", () -> new BlockItem(ModBlocks.WALL_CONCRETE_PLINTH.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_DAMP =
-            ITEMS.register("wall_damp", () -> new BlockItem(ModBlocks.WALL_DAMP.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_DAMP_PLINTH =
-            ITEMS.register("wall_damp_plinth", () -> new BlockItem(ModBlocks.WALL_DAMP_PLINTH.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> FLOOR_TILE =
             ITEMS.register("floor_tile", () -> new BlockItem(ModBlocks.FLOOR_TILE.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> CEILING_TILE =
@@ -65,32 +54,6 @@ public final class ModItems {
             ITEMS.register("hub_door", () -> new BlockItem(ModBlocks.HUB_DOOR.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> WALL_OAKED =
             ITEMS.register("wall_oaked", () -> new BlockItem(ModBlocks.WALL_OAKED.get(), new Item.Properties()));
-    // ===== 潮湿群系方块物品 =====
-    public static final DeferredItem<BlockItem> DAMP_FLOOR =
-            ITEMS.register("damp_floor", () -> new BlockItem(ModBlocks.DAMP_FLOOR.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> DAMP_CEILING =
-            ITEMS.register("damp_ceiling", () -> new BlockItem(ModBlocks.DAMP_CEILING.get(), new Item.Properties()));
-
-    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR =
-            ITEMS.register("stripped_carpet_floor", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> RUINED_CEILING =
-            ITEMS.register("ruined_ceiling", () -> new BlockItem(ModBlocks.RUINED_CEILING.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> RUINED_VENT =
-            ITEMS.register("ruined_vent", () -> new BlockItem(ModBlocks.RUINED_VENT.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL =
-            ITEMS.register("cracked_concrete_wall", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WARNING_CONCRETE_WALL =
-            ITEMS.register("warning_concrete_wall", () -> new BlockItem(ModBlocks.WARNING_CONCRETE_WALL.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> CHISELED_CONCRETE_WALL =
-            ITEMS.register("chiseled_concrete_wall", () -> new BlockItem(ModBlocks.CHISELED_CONCRETE_WALL.get(), new Item.Properties()));
-
-    /** 「熄灭的荧光灯」的方块物品。 */
-    public static final DeferredItem<BlockItem> LAMP_OFF =
-            ITEMS.register("lamp_off", () -> new BlockItem(ModBlocks.LAMP_OFF.get(), new Item.Properties()));
-
-    public static final DeferredItem<BlockItem> MYCELIUM_CARPET =
-            ITEMS.register("mycelium_carpet", () -> new BlockItem(ModBlocks.MYCELIUM_CARPET.get(), new Item.Properties()));
-
     // ===== 功能物品：阈界的层级密钥 =====
     // 手持右键「枢纽之门」可传送至后室 Level 0（普通 Item 子类，仅带 tooltip）。
     public static final DeferredItem<ThresholdKeyItem> THRESHOLD_KEY =
@@ -158,21 +121,13 @@ public final class ModItems {
                     0.0F,
                     0.0F));
 
-    /** 凿子：右键混凝土墙壁凿破它，耐久 64。2 铁粒 + 1 木棍合成。 */
-    public static final DeferredItem<ChiselItem> CHISEL =
-            ITEMS.register("chisel", () -> new ChiselItem(new Item.Properties().stacksTo(1).durability(64)));
-
-    /** 墙灰：凿墙掉落的粉末（贴图为原版火药染淡灰）。 */
-    public static final DeferredItem<Item> WALL_DUST =
-            ITEMS.register("wall_dust", () -> new com.the_backrooms_complex.item.WallDustItem(new Item.Properties()));
-
     /** 墙纸帽：头盔形状合成，5 个墙纸，可穿戴、无护甲值、耐久 32。 */
     public static final DeferredItem<ArmorItem> WALLPAPER_HAT =
             ITEMS.register("wallpaper_hat", () -> new ArmorItem(
                     WALLPAPER_HAT_MATERIAL, ArmorItem.Type.HELMET,
                     new Item.Properties().durability(32)));
 
-    /** 「未知污水瓶」：用原版水瓶右键潮湿墙壁/地板/天花板获得。 */
+    /** 「未知污水瓶」：饮用恢复饮水值。 */
     public static final DeferredItem<Item> UNKNOWN_SEWAGE_BOTTLE =
             ITEMS.register("unknown_sewage_bottle",
                     () -> new com.the_backrooms_complex.item.SewageBottleItem(new Item.Properties()
@@ -183,21 +138,21 @@ public final class ModItems {
             ITEMS.register("carpet_fiber",
                     () -> new com.the_backrooms_complex.item.CarpetFiberItem(new Item.Properties().stacksTo(64)));
 
-    /** 「受潮的罐装杏仁水」：2 秒饮用，+20 精神 / +30 饮水 / +2 饥饿，附加 1 秒反胃 I。 */
+    /** 「受潮的罐装杏仁水」：2 秒饮用，+30 饮水 / +2 饥饿，附加 1 秒反胃 I。 */
     public static final DeferredItem<Item> DAMP_CANNED_ALMOND_WATER =
             ITEMS.register("damp_canned_almond_water",
                     () -> new com.the_backrooms_complex.item.CannedAlmondWaterItem(
                             new Item.Properties().stacksTo(16),
-                            ModBalance.DAMP_CAN_USE_TICKS, ModBalance.DAMP_CAN_SANITY,
+                            ModBalance.DAMP_CAN_USE_TICKS,
                             ModBalance.DAMP_CAN_THIRST, ModBalance.DAMP_CAN_HUNGER,
                             ModBalance.DAMP_CAN_NAUSEA));
 
-    /** 「保存完好的罐装杏仁水」：1.5 秒饮用，+40 精神 / +30 饮水 / +4 饥饿。 */
+    /** 「保存完好的罐装杏仁水」：1.5 秒饮用，+30 饮水 / +4 饥饿。 */
     public static final DeferredItem<Item> CANNED_ALMOND_WATER =
             ITEMS.register("canned_almond_water",
                     () -> new com.the_backrooms_complex.item.CannedAlmondWaterItem(
                             new Item.Properties().stacksTo(16),
-                            ModBalance.PRISTINE_CAN_USE_TICKS, ModBalance.PRISTINE_CAN_SANITY,
+                            ModBalance.PRISTINE_CAN_USE_TICKS,
                             ModBalance.PRISTINE_CAN_THIRST, ModBalance.PRISTINE_CAN_HUNGER,
                             ModBalance.PRISTINE_CAN_NAUSEA));
 
@@ -205,14 +160,6 @@ public final class ModItems {
     public static final DeferredItem<Item> EMPTY_CAN =
             ITEMS.register("empty_can", () -> new Item(new Item.Properties().stacksTo(64)));
 
-    /** 「细菌组织」：击败细菌掉落，可用于合成。 */
-    public static final DeferredItem<Item> BACTERIA_TISSUE =
-            ITEMS.register("bacteria_tissue", () -> new Item(new Item.Properties()));
-
-    /** 「细菌刷怪蛋」。 */
-    public static final DeferredItem<net.minecraft.world.item.SpawnEggItem> BACTERIA_SPAWN_EGG =
-            ITEMS.register("bacteria_spawn_egg", () -> new net.minecraft.world.item.SpawnEggItem(
-                    ModEntities.BACTERIA.get(), 0x3A3836, 0x1E1C1A, new Item.Properties().stacksTo(64)));
     // ===== 家具 BlockItem =====
     public static final DeferredItem<BlockItem> STOOL_JUNGLE =
             ITEMS.register("stool_jungle", () -> new BlockItem(ModBlocks.STOOL_JUNGLE.get(), new Item.Properties()));
@@ -291,30 +238,6 @@ public final class ModItems {
             ITEMS.register("wall_yellow_stairs", () -> new BlockItem(ModBlocks.WALL_YELLOW_STAIRS.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> WALL_YELLOW_FENCE =
             ITEMS.register("wall_yellow_fence", () -> new BlockItem(ModBlocks.WALL_YELLOW_FENCE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_DAMP_WALL =
-            ITEMS.register("wall_damp_wall", () -> new BlockItem(ModBlocks.WALL_DAMP_WALL.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_DAMP_SLAB =
-            ITEMS.register("wall_damp_slab", () -> new BlockItem(ModBlocks.WALL_DAMP_SLAB.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_DAMP_STAIRS =
-            ITEMS.register("wall_damp_stairs", () -> new BlockItem(ModBlocks.WALL_DAMP_STAIRS.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_DAMP_FENCE =
-            ITEMS.register("wall_damp_fence", () -> new BlockItem(ModBlocks.WALL_DAMP_FENCE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_CONCRETE_WALL =
-            ITEMS.register("wall_concrete_wall", () -> new BlockItem(ModBlocks.WALL_CONCRETE_WALL.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_CONCRETE_SLAB =
-            ITEMS.register("wall_concrete_slab", () -> new BlockItem(ModBlocks.WALL_CONCRETE_SLAB.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_CONCRETE_STAIRS =
-            ITEMS.register("wall_concrete_stairs", () -> new BlockItem(ModBlocks.WALL_CONCRETE_STAIRS.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> WALL_CONCRETE_FENCE =
-            ITEMS.register("wall_concrete_fence", () -> new BlockItem(ModBlocks.WALL_CONCRETE_FENCE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL_WALL =
-            ITEMS.register("cracked_concrete_wall_wall", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL_WALL.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL_SLAB =
-            ITEMS.register("cracked_concrete_wall_slab", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL_SLAB.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL_STAIRS =
-            ITEMS.register("cracked_concrete_wall_stairs", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL_STAIRS.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> CRACKED_CONCRETE_WALL_FENCE =
-            ITEMS.register("cracked_concrete_wall_fence", () -> new BlockItem(ModBlocks.CRACKED_CONCRETE_WALL_FENCE.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> FLOOR_TILE_WALL =
             ITEMS.register("floor_tile_wall", () -> new BlockItem(ModBlocks.FLOOR_TILE_WALL.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> FLOOR_TILE_SLAB =
@@ -323,22 +246,6 @@ public final class ModItems {
             ITEMS.register("floor_tile_stairs", () -> new BlockItem(ModBlocks.FLOOR_TILE_STAIRS.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> FLOOR_TILE_FENCE =
             ITEMS.register("floor_tile_fence", () -> new BlockItem(ModBlocks.FLOOR_TILE_FENCE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> DAMP_FLOOR_WALL =
-            ITEMS.register("damp_floor_wall", () -> new BlockItem(ModBlocks.DAMP_FLOOR_WALL.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> DAMP_FLOOR_SLAB =
-            ITEMS.register("damp_floor_slab", () -> new BlockItem(ModBlocks.DAMP_FLOOR_SLAB.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> DAMP_FLOOR_STAIRS =
-            ITEMS.register("damp_floor_stairs", () -> new BlockItem(ModBlocks.DAMP_FLOOR_STAIRS.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> DAMP_FLOOR_FENCE =
-            ITEMS.register("damp_floor_fence", () -> new BlockItem(ModBlocks.DAMP_FLOOR_FENCE.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_WALL =
-            ITEMS.register("stripped_carpet_floor_wall", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_WALL.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_SLAB =
-            ITEMS.register("stripped_carpet_floor_slab", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_SLAB.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_STAIRS =
-            ITEMS.register("stripped_carpet_floor_stairs", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_STAIRS.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> STRIPPED_CARPET_FLOOR_FENCE =
-            ITEMS.register("stripped_carpet_floor_fence", () -> new BlockItem(ModBlocks.STRIPPED_CARPET_FLOOR_FENCE.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> METAL_DOOR =
             ITEMS.register("metal_door", () -> new BlockItem(ModBlocks.METAL_DOOR.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> MYSTERIOUS_DOOR =

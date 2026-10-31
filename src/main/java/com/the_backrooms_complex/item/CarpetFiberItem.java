@@ -20,7 +20,7 @@ import com.the_backrooms_complex.ModDamageTypes;
 import com.the_backrooms_complex.ModNetwork;
 
 /**
- * 「地毯纤维」：从地板上刮下来的潮湿地毯碎屑。
+ * 「地毯纤维」：从地板上刮下来的地毯碎屑。
  *
  * <h2>食用</h2>
  * <ul>

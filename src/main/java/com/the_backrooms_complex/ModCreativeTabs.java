@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 /**
- * 三个创造模式物品栏页签：后室综合体 / 家具 / 实体。
+ * 两个创造模式物品栏页签：后室综合体 / 家具。
  *
  * <p>从 {@link ModItems} 拆出，让 493 行的注册类只保留字段声明。
  * 注册表本身仍是 {@code ModItems.CREATIVE_MODE_TABS}，
@@ -42,49 +42,13 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.WALL_YELLOW_SLAB.get());
                         output.accept(ModItems.WALL_YELLOW_STAIRS.get());
                         output.accept(ModItems.WALL_YELLOW_FENCE.get());
-                        output.accept(ModItems.WALL_DAMP_WALL.get());
-                        output.accept(ModItems.WALL_DAMP_SLAB.get());
-                        output.accept(ModItems.WALL_DAMP_STAIRS.get());
-                        output.accept(ModItems.WALL_DAMP_FENCE.get());
-                        output.accept(ModItems.WALL_CONCRETE_WALL.get());
-                        output.accept(ModItems.WALL_CONCRETE_SLAB.get());
-                        output.accept(ModItems.WALL_CONCRETE_STAIRS.get());
-                        output.accept(ModItems.WALL_CONCRETE_FENCE.get());
-                        output.accept(ModItems.CRACKED_CONCRETE_WALL_WALL.get());
-                        output.accept(ModItems.CRACKED_CONCRETE_WALL_SLAB.get());
-                        output.accept(ModItems.CRACKED_CONCRETE_WALL_STAIRS.get());
-                        output.accept(ModItems.CRACKED_CONCRETE_WALL_FENCE.get());
                         output.accept(ModItems.FLOOR_TILE_WALL.get());
                         output.accept(ModItems.FLOOR_TILE_SLAB.get());
                         output.accept(ModItems.FLOOR_TILE_STAIRS.get());
                         output.accept(ModItems.FLOOR_TILE_FENCE.get());
-                        output.accept(ModItems.DAMP_FLOOR_WALL.get());
-                        output.accept(ModItems.DAMP_FLOOR_SLAB.get());
-                        output.accept(ModItems.DAMP_FLOOR_STAIRS.get());
-                        output.accept(ModItems.DAMP_FLOOR_FENCE.get());
-                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_WALL.get());
-                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_SLAB.get());
-                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_STAIRS.get());
-                        output.accept(ModItems.STRIPPED_CARPET_FLOOR_FENCE.get());
-                        output.accept(ModBlocks.WALL_CONCRETE.get());
-                        output.accept(ModBlocks.WALL_CONCRETE_PLINTH.get());
-                        output.accept(ModBlocks.WALL_DAMP.get());
-                        output.accept(ModBlocks.WALL_DAMP_PLINTH.get());
                         output.accept(ModBlocks.FLUORESCENT_LAMP.get());
-                        output.accept(ModItems.LAMP_OFF.get());
                         output.accept(ModBlocks.HUB_DOOR.get());
                         output.accept(ModBlocks.WALL_OAKED.get());
-                        output.accept(ModBlocks.STRIPPED_CARPET_FLOOR.get());
-                        output.accept(ModBlocks.RUINED_CEILING.get());
-                        output.accept(ModBlocks.RUINED_VENT.get());
-                        output.accept(ModBlocks.CRACKED_CONCRETE_WALL.get());
-                        output.accept(ModBlocks.WARNING_CONCRETE_WALL.get());
-                        output.accept(ModBlocks.DAMP_FLOOR.get());
-                        output.accept(ModBlocks.DAMP_CEILING.get());
-                        output.accept(ModBlocks.CHISELED_CONCRETE_WALL.get());
-                        output.accept(ModItems.MYCELIUM_CARPET.get());
-                        output.accept(ModItems.CHISEL.get());
-                        output.accept(ModItems.WALL_DUST.get());
                         output.accept(ModItems.THRESHOLD_KEY.get());
                         output.accept(ModItems.SCRAPER.get());
                         output.accept(ModItems.WALLPAPER.get());
@@ -92,7 +56,6 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.WALLPAPER_HAT.get());
                         output.accept(ModItems.UNKNOWN_SEWAGE_BOTTLE.get());
                         output.accept(ModItems.CARPET_FIBER.get());
-                        output.accept(ModItems.BACTERIA_TISSUE.get());
                         output.accept(ModItems.DAMP_CANNED_ALMOND_WATER.get());
                         output.accept(ModItems.CANNED_ALMOND_WATER.get());
                         output.accept(ModItems.EMPTY_CAN.get());
@@ -184,19 +147,11 @@ public final class ModCreativeTabs {
                     })
                     .build());
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ENTITIES_TAB =
-            CREATIVE_MODE_TABS.register("backrooms_entities", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.backrooms_complex.entities"))
-                    .icon(() -> new ItemStack(BACTERIA_SPAWN_EGG.get()))
-                    .displayItems((parameters, output) -> {
-                        output.accept(BACTERIA_SPAWN_EGG.get());
-                    })
-                    .build());
 
     /**
      * 触发本类的静态初始化。
      *
-     * <p>三个页签的注册写在静态字段的初始化表达式里，而 JVM 只有在<b>首次访问</b>
+     * <p>两个页签的注册写在静态字段的初始化表达式里，而 JVM 只有在<b>首次访问</b>
      * 本类时才会执行它 —— 若没有这行调用，页签就永远不会注册（创造栏里看不到本模组内容）。</p>
      */
     public static void init() {
