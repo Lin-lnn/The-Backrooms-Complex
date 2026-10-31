@@ -57,8 +57,13 @@ public class Level0Structure extends Structure {
     /** 每层周期（格），与 {@code BackroomsChunkGenerator.LAYER_HEIGHT} 一致。 */
     public static final int LAYER_PERIOD = 8;   // 必须等于 BackroomsChunkGenerator.LAYER_HEIGHT
 
-    /** 允许的最高层索引：0..32，对应 Y = 0 .. 32*7+6 = 230。 */
-    public static final int MAX_LAYER_INDEX = 31;
+    /**
+     * 允许的最高层索引。
+     *
+     * <p>必须与生成器实际生成的层数一致：生成器只填 0..{@code LEVEL_LAYERS-1} 层，
+     * 超出这个范围的层是空气 —— 之前写成 31，结构就会刷在 Y=248 的天空里。</p>
+     */
+    public static final int MAX_LAYER_INDEX = BackroomsChunkGenerator.LEVEL_LAYERS - 1;
 
     /**
      * 「马尼拉结构」的独立刷新率：<b>0.005%</b>（1 / 20000）。
@@ -74,12 +79,18 @@ public class Level0Structure extends Structure {
      * <p>原来结构可以在 32 层里任意一层出现，玩家在底层活动时只有 1/32 的结构能被看到，
      * 这正是"结构很难找到"的原因。收窄到 4 层后，底层遇到结构的概率提升约 8 倍。</p>
      */
-    public static final int LAYER_SPREAD = 32;   // 允许全部层都分配到结构
+    public static final int LAYER_SPREAD = BackroomsChunkGenerator.LEVEL_LAYERS;   // 仅在实际存在的层内分配
     /** 马尼拉结构专用盐值。 */
     private static final long SALT_MANILA = 0x4D414E494C41L;
 
-    /** 结构可占据的最高 Y 坐标。 */
-    public static final int MAX_STRUCTURE_Y = MAX_LAYER_INDEX * LAYER_PERIOD + 6;
+    /**
+     * 结构可占据的最高 Y 坐标。
+     *
+     * <p>留两格余量，保证结构整体位于最上层天花板（{@code LEVEL_LAYERS * LAYER_PERIOD - 1}）
+     * 之下，不会顶穿或悬空。</p>
+     */
+    public static final int MAX_STRUCTURE_Y =
+            BackroomsChunkGenerator.LEVEL_LAYERS * LAYER_PERIOD - 2;
 
     /** 旧模板数量（level0_1..level0_5），权重 1。 */
     public static final int OLD_TEMPLATE_COUNT = 5;
