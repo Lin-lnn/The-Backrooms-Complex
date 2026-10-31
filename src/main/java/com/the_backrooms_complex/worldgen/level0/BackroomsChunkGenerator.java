@@ -13,6 +13,7 @@ import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -116,47 +117,84 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         }
     }
 
-    /** 生成一整列（从 {@code minY} 到 {@code maxY}）。 */
+    /**
+     * 生成一整列（从 {@code minY} 到 {@code maxY}）。
+     *
+     * <p>三项优化都在这里：
+     * <ol>
+     *   <li><b>按层循环</b>：不再对每个方块做 {@code y / LAYER_HEIGHT} 与取模，
+     *       层号与偏移直接由循环变量给出；</li>
+     *   <li><b>合并连续墙段</b>：踢脚线与墙身是连续的一段，一次遍历写完；</li>
+     *   <li><b>section 直写</b>：墙身位于天花板之下，不影响高度图，
+     *       因此跳过 {@code ChunkAccess#setBlockState}，直接写所属
+     *       {@link LevelChunkSection}，省掉每次写入的索引与回调开销。</li>
+     * </ol>
+     * 地板与天花板仍走正常写入通道，保证高度图与光照正确。</p>
+     */
     private void fillColumn(ChunkAccess chunk, BlockPos.MutableBlockPos mutable,
                             boolean[][][] wall, int worldX, int worldZ,
                             int lx, int lz, int minY, int maxY) {
         boolean colIsLamp = isLamp(worldX, worldZ);
         int layers = fullLayers(chunk);
 
-        // 墙体判定与层无关的循环变量，每列每层只算一次（原来每个方块算一次，且每次都分配 Room）
+        // 墙体判定按层预先算好（每列每层一次）
         boolean[] colWall = new boolean[layers];
         for (int l = 0; l < layers; l++) {
             colWall[l] = resolveWall(wall, lx, lz, worldX, worldZ, l);
         }
 
-        for (int y = minY; y < maxY; y++) {
-            int layer = y / LAYER_HEIGHT;
-            int offset = y - layer * LAYER_HEIGHT;
+        int lx15 = worldX & 15;
+        int lz15 = worldZ & 15;
 
+        for (int layer = 0; layer < (maxY - minY) / LAYER_HEIGHT + 1; layer++) {
+            int baseY = minY + layer * LAYER_HEIGHT;
+            if (baseY >= maxY) {
+                break;
+            }
             if (layer >= layers) {
-                // 顶部残层（Y >= 252）：用天花板封顶，闭合维度
-                chunk.setBlockState(mutable.set(worldX, y, worldZ), ceilingState, false);
-                continue;
-            }
-
-            boolean isWall = colWall[layer];
-
-            if (offset == 0) {
-                chunk.setBlockState(mutable.set(worldX, y, worldZ), floorState, false);
-            } else if (offset <= LAYER_HEIGHT - 2) {
-                // 墙体状态在这里一次性取好，避免每个方块都做一次三元判断
-                if (isWall) {
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                            (offset == 1) ? this.yellowPlinth : this.yellowWall, false);
+                // 顶部残层：用天花板封顶，闭合维度
+                for (int y = baseY; y < maxY; y++) {
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ), ceilingState, false);
                 }
-                // 非墙 = 空气：区块从全空气开始，这里<b>不写入</b>。
-                // 每层有 6 格墙体空间，其中大部分是空气，跳过可省掉约 2/3 的方块写入。
-            } else {
-                chunk.setBlockState(mutable.set(worldX, y, worldZ),
-                        colIsLamp ? lampState : ceilingState, false);
+                break;
             }
+
+            // 地板
+            chunk.setBlockState(mutable.set(worldX, baseY, worldZ), floorState, false);
+
+            // 踢脚线 + 墙身：连续一段，合并写入
+            if (colWall[layer]) {
+                setSectionBlock(chunk, lx15, baseY + 1, lz15, yellowPlinth);
+                for (int offset = 2; offset <= LAYER_HEIGHT - 2; offset++) {
+                    setSectionBlock(chunk, lx15, baseY + offset, lz15, yellowWall);
+                }
+            }
+
+            // 天花板（含荧光灯）
+            chunk.setBlockState(mutable.set(worldX, baseY + LAYER_HEIGHT - 1, worldZ),
+                    colIsLamp ? lampState : ceilingState, false);
         }
     }
+
+    /**
+     * 直接写所属区块段（不改高度图、不走回调）。
+     *
+     * <p>仅用于天花板之下的墙身：那里不参与高度图，光照由光照引擎稍后统一处理。
+     * 越界或段不存在时安全跳过。</p>
+     */
+    private static void setSectionBlock(ChunkAccess chunk, int x15, int y, int z15,
+                                       BlockState state) {
+        int index = chunk.getSectionIndex(y);
+        if (index < 0 || index >= chunk.getSectionsCount()) {
+            return;
+        }
+        LevelChunkSection section = chunk.getSection(index);
+        if (section == null) {
+            return;
+        }
+        section.setBlockState(x15, y & 15, z15, state, false);
+    }
+
 
     /**
      * 判定某一格是否放墙：迷宫网格 → 宽阔街道 → 矩形房间。
