@@ -28,9 +28,6 @@ public final class BackroomsMaze {
     /** 逻辑单元格边长（格）；结构锚点吸附到该网格，保证结构与墙壁对齐。 */
     public static final int CELL_PITCH = 32;
 
-    /** 拓扑生成用的固定种子（确定性；同一世界永远一样）。 */
-    private static final long TOPOLOGY_SEED = 0x5EEDBACC0001L;
-
     private BackroomsMaze() {
     }
 
@@ -43,7 +40,7 @@ public final class BackroomsMaze {
 
     /** 三维坐标 + 盐值 → 64 位哈希（splitmix 风格混合，雪崩性好）。 */
     public static long hash3(int a, int b, int c, long salt) {
-        long h = salt;
+        long h = salt ^ com.the_backrooms_complex.worldgen.BackroomsSeed.salt();
         h ^= (long) a * 0x9E3779B97F4A7C15L;
         h = Long.rotateLeft(h, 27);
         h ^= (long) b * 0xC2B2AE3D27D4EB4FL;
@@ -60,17 +57,25 @@ public final class BackroomsMaze {
     // ==================== 布局入口 ====================
 
     /**
-     * 全局唯一的拓扑实例。
+     * 与当前世界种子绑定的拓扑实例。
      *
      * <p>拓扑是纯函数（同种子同坐标恒定），因此可以安全共享；共享后
-     * {@link RoomGraph} 内部的 LRU 查询缓存能<b>跨区块复用</b>，
-     * 而原来每区块 new 一个会让缓存每块都被丢弃。</p>
+     * {@link RoomGraph} 内部的 LRU 查询缓存能<b>跨区块复用</b>。
+     * 世界种子变化时（切换存档/新世界）会自动重建，因此不会串世界。</p>
      */
-    private static final RoomGraph GRAPH = new RoomGraph(TOPOLOGY_SEED);
+    private static RoomGraph graph = new RoomGraph(
+            com.the_backrooms_complex.worldgen.BackroomsSeed.graphSeed());
+    private static long graphSeedUsed =
+            com.the_backrooms_complex.worldgen.BackroomsSeed.graphSeed();
 
     /** 共享拓扑实例（供需要跨区块查询墙体的调用方使用）。 */
-    static RoomGraph graph() {
-        return GRAPH;
+    static synchronized RoomGraph graph() {
+        long seed = com.the_backrooms_complex.worldgen.BackroomsSeed.graphSeed();
+        if (graph == null || seed != graphSeedUsed) {
+            graph = new RoomGraph(seed);
+            graphSeedUsed = seed;
+        }
+        return graph;
     }
 
     /**
@@ -85,7 +90,7 @@ public final class BackroomsMaze {
     public static boolean[][][] generateWallGrids(int chunkX, int chunkZ, int layerCount) {
         boolean[][][] walls = new boolean[layerCount][16][16];
         for (int layer = 0; layer < layerCount; layer++) {
-            walls[layer] = TopologyWalls.wallGrid(GRAPH, chunkX, chunkZ, layer);
+            walls[layer] = TopologyWalls.wallGrid(graph(), chunkX, chunkZ, layer);
         }
         return walls;
     }

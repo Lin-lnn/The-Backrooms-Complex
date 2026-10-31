@@ -94,6 +94,18 @@ public final class ModEvents {
         }
     }
 
+    /**
+     * 服务器启动：把世界种子交给生成器。
+     *
+     * <p>后室的布局由哈希决定，混入世界种子后同一个种子生成同一张地图，
+     * 不同种子则是完全不同的布局。</p>
+     */
+    @SubscribeEvent
+    public static void onServerStarted(net.neoforged.neoforge.event.server.ServerStartedEvent event) {
+        long seed = event.getServer().overworld().getSeed();
+        com.the_backrooms_complex.worldgen.BackroomsSeed.set(seed);
+    }
+
     private ModEvents() {
     }
 }

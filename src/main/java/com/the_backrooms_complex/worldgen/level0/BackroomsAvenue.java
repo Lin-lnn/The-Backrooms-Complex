@@ -111,7 +111,8 @@ public final class BackroomsAvenue {
         long h = (long) cx * 0x9E3779B97F4A7C15L
                 ^ (long) cz * 0xC2B2AE3D27D4EB4FL
                 ^ (long) layer * 0xD6E8FEB86659FD93L
-                ^ SALT;
+                ^ SALT
+                ^ com.the_backrooms_complex.worldgen.BackroomsSeed.salt();
         h ^= h >>> 33;
         h *= 0xFF51AFD7ED558CCDL;
         h ^= h >>> 33;
