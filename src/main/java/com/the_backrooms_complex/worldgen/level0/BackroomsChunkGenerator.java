@@ -115,6 +115,8 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                         lx, lz, minY, maxY);
             }
         }
+        // 第二遍：墙壁已全部就位，此时再决定灯位（走廊取中线 / 房间按 3 格网格）
+        placeLamps(chunk, wall, chunkX, chunkZ, minY, maxY);
     }
 
     /**
@@ -134,7 +136,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private void fillColumn(ChunkAccess chunk, BlockPos.MutableBlockPos mutable,
                             boolean[][][] wall, int worldX, int worldZ,
                             int lx, int lz, int minY, int maxY) {
-        boolean colIsLamp = isLamp(worldX, worldZ);
         int layers = fullLayers(chunk);
 
         // 墙体判定按层预先算好（每列每层一次）
@@ -170,10 +171,76 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 }
             }
 
-            // 天花板（含荧光灯）
+            // 天花板（灯具留到第二遍再放，见 placeLamps）
             chunk.setBlockState(mutable.set(worldX, baseY + LAYER_HEIGHT - 1, worldZ),
-                    colIsLamp ? lampState : ceilingState, false);
+                    ceilingState, false);
         }
+    }
+
+    /**
+     * 第二遍：在天花板上放荧光灯。
+     *
+     * <p>规则分两类：</p>
+     * <ul>
+     *   <li><b>走廊</b>：只有当该格是 1 格宽走廊的<b>正中</b>时放灯，保证灯居中照亮；</li>
+     *   <li><b>房间 / 其它随机区域</b>：按全局 3 格网格整齐排布（{@code x%3==0 && z%3==0}），
+     *       形状规整、间距一致。</li>
+     * </ul>
+     */
+    private void placeLamps(ChunkAccess chunk, boolean[][][] wall,
+                            int chunkX, int chunkZ, int minY, int maxY) {
+        int layers = fullLayers(chunk);
+        for (int layer = 0; layer < layers; layer++) {
+            int ceilingY = minY + layer * LAYER_HEIGHT + LAYER_HEIGHT - 1;
+            if (ceilingY >= maxY) {
+                break;
+            }
+            for (int lx = 0; lx < 16; lx++) {
+                for (int lz = 0; lz < 16; lz++) {
+                    int worldX = chunkX * 16 + lx;
+                    int worldZ = chunkZ * 16 + lz;
+                    if (!lampWanted(wall, layer, lx, lz, worldX, worldZ)) {
+                        continue;
+                    }
+                    chunk.setBlockState(
+                            new BlockPos(worldX, ceilingY, worldZ),
+                            lampState, false);
+                }
+            }
+        }
+    }
+
+    /**
+     * 该格天花板是否放灯。
+     *
+     * <p>1 格宽走廊取正中；其余（房间、街道、随机区域）按 3 格网格，保证整齐。</p>
+     */
+    private static boolean lampWanted(boolean[][][] wall, int layer, int lx, int lz,
+                                      int worldX, int worldZ) {
+        boolean here = !wallAt(wall, layer, lx, lz);
+        if (!here) {
+            return false;
+        }
+        boolean west = wallAt(wall, layer, lx - 1, lz);
+        boolean east = wallAt(wall, layer, lx + 1, lz);
+        boolean north = wallAt(wall, layer, lx, lz - 1);
+        boolean south = wallAt(wall, layer, lx, lz + 1);
+        // 1 格宽走廊：某一轴两侧都是墙、另一轴两侧都通 => 该格为走廊正中
+        boolean centredAlongX = west && east && !north && !south;
+        boolean centredAlongZ = north && south && !west && !east;
+        if (centredAlongX || centredAlongZ) {
+            return true;
+        }
+        // 房间 / 其它区域：3 格整齐网格
+        return Math.floorMod(worldX, 3) == 0 && Math.floorMod(worldZ, 3) == 0;
+    }
+
+    /** 越界视为墙（走廊在区块边界处不会误判为正中）。 */
+    private static boolean wallAt(boolean[][][] wall, int layer, int lx, int lz) {
+        if (lx < 0 || lx > 15 || lz < 0 || lz > 15) {
+            return true;
+        }
+        return wall[layer][lx][lz];
     }
 
     /**
@@ -234,12 +301,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     }
 
     // ==================== 荧光灯 ====================
-
-    /** 荧光灯：每 {@link #LAMP_SPACING} 格一个。 */
-    private static boolean isLamp(int worldX, int worldZ) {
-        return Math.floorMod(worldX, LAMP_SPACING) == 2
-                && Math.floorMod(worldZ, LAMP_SPACING) == 2;
-    }
 
     // ==================== 其余 ChunkGenerator 抽象方法 ====================
 
