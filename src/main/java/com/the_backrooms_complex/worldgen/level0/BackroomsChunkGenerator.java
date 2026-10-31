@@ -228,60 +228,56 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
         if (wallAt(wall, layer, lx, lz)) {
             return false;
         }
-        int runX = runWidth(wall, layer, chunkX, chunkZ, worldX, worldZ, true);
-        int runZ = runWidth(wall, layer, chunkX, chunkZ, worldX, worldZ, false);
-        boolean narrowIsX = runX <= runZ;
+        long infoX = runInfo(wall, layer, chunkX, chunkZ, worldX, worldZ, true);
+        long infoZ = runInfo(wall, layer, chunkX, chunkZ, worldX, worldZ, false);
+        int runX = (int) (infoX & 0xFFFFFFFFL);
+        int runZ = (int) (infoZ & 0xFFFFFFFFL);
+        int startX = (int) (infoX >> 32);
+        int startZ = (int) (infoZ >> 32);
+
         int shortRun = Math.min(runX, runZ);
         int longRun = Math.max(runX, runZ);
-
         if (shortRun <= CORRIDOR_MAX_WIDTH && longRun >= 3) {
-            // 走廊：窄轴必须居中；长轴每 3 格一盏
-            boolean centredOnShort = narrowIsX
-                    ? Math.floorMod(worldX - runStart(wall, layer, chunkX, chunkZ, worldX, worldZ, true), 3) == 0
-                    && isRunCentre(runX)
-                    : isRunCentre(runZ);
-            if (centredOnShort) {
-                int alongLong = narrowIsX ? worldZ : worldX;
-                return Math.floorMod(alongLong, 3) == 0;
+            boolean narrowIsX = runX <= runZ;
+            int alongShort = narrowIsX ? worldX - startX : worldZ - startZ;
+            int shortWidth = narrowIsX ? runX : runZ;
+            // 段内位置折算到中线：偶数宽度允许两条中线
+            if (Math.abs(alongShort * 2 - (shortWidth - 1)) > 1) {
+                return false;
             }
-            return false;
+            int alongLong = narrowIsX ? worldZ : worldX;
+            return Math.floorMod(alongLong, 3) == 0;
         }
         // 房间 / 开阔区：3 格网格
         return Math.floorMod(worldX, 3) == 0 && Math.floorMod(worldZ, 3) == 0;
     }
 
-    /** 是否处于开路段的整数中线（宽度 1 也算居中）。 */
-    private static boolean isRunCentre(int width) {
-        return true;
-    }
-
-    /** 该列在某一方向上所在的连开段起点相对坐标（用于长轴间隔对齐）。 */
-    private static int runStart(boolean[][][] wall, int layer, int chunkX, int chunkZ,
-                                int worldX, int worldZ, boolean alongX) {
-        return alongX ? worldX : worldZ;
-    }
-
     /**
      * 量出从该列向两侧延伸的开路段总宽（不含自身两侧之外），上限 {@value #RUN_CAP}。
      */
-    private static int runWidth(boolean[][][] wall, int layer, int chunkX, int chunkZ,
+    private static long runInfo(boolean[][][] wall, int layer, int chunkX, int chunkZ,
                                 int worldX, int worldZ, boolean alongX) {
-        int width = 1;
+        int pos = alongX ? worldX : worldZ;
+        int start = pos;
         for (int s = 1; s <= RUN_CAP; s++) {
+            int p = pos - s;
             if (blockedAt(wall, layer, chunkX, chunkZ,
-                    alongX ? worldX - s : worldX, alongX ? worldZ : worldZ - s)) {
+                    alongX ? p : worldX, alongX ? worldZ : p)) {
                 break;
             }
-            width++;
+            start = p;
         }
+        int end = pos;
         for (int s = 1; s <= RUN_CAP; s++) {
+            int p = pos + s;
             if (blockedAt(wall, layer, chunkX, chunkZ,
-                    alongX ? worldX + s : worldX, alongX ? worldZ : worldZ + s)) {
+                    alongX ? p : worldX, alongX ? worldZ : p)) {
                 break;
             }
-            width++;
+            end = p;
         }
-        return width;
+        int width = end - start + 1;
+        return ((long) start << 32) | (width & 0xFFFFFFFFL);
     }
 
     /** 跨区块取墙：本区块直接查数组，越界则取相邻区块的缓存网格。 */
