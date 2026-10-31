@@ -153,10 +153,9 @@ public class Level0Structure extends Structure {
             return Optional.empty(); // 模板缺失或为空
         }
 
-        // 3) 高度适配：结构必须能完整落在「地板之上、天花板之下」
-        //    地板占 floorY 这一格，天花板占 floorY + LAYER_HEIGHT - 1，
-        //    因此结构可用高度 = LAYER_HEIGHT - 2。
-        int usableHeight = BackroomsChunkGenerator.LAYER_HEIGHT - 2;
+        // 3) 高度适配：模板自带地板，从 floorY 开始替换原地板，
+        //    天花板固定在 floorY + LAYER_HEIGHT - 1，因此结构最多占 LAYER_HEIGHT - 1 格。
+        int usableHeight = BackroomsChunkGenerator.LAYER_HEIGHT - 1;
         if (size.getY() > usableHeight) {
             return Optional.empty(); // 太高，放不进一层
         }
@@ -193,10 +192,10 @@ public class Level0Structure extends Structure {
         // 群系过滤由 has_structure/level0 标签完成（只含 yellow_rooms）
 
 
-        // 结构落地高度：地板占 floorY，结构第一层从 floorY + 1 起，
-        // 这样结构与地板同高相接，既不埋进地板也不悬空。
+        // 结构落地高度：模板自带地板，直接以 floorY 为原点替换原地板，
+        // 使结构地面与楼层地面完全同高。
         int floorY = layerIndex * LAYER_PERIOD;
-        int placeY = floorY + 1;
+        int placeY = floorY;
 
         // 4) 锚点：完全由网格单元坐标决定（与逐层迷宫种子、世界种子均无关）
         int centerX = Level0StructurePlacement.anchorX(gx, gz);
