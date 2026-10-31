@@ -39,7 +39,26 @@ public final class TopologyWalls {
      *
      * @return {@code walls[16][16]}，{@code true} = 墙
      */
+    /** 缓存的网格（键为区块+层）。相邻区块会重复请求同一层，命中即可省掉整套拓扑计算。 */
+    private static final int GRID_CACHE = 32;
+    private static final long[] GRID_KEY = new long[GRID_CACHE];
+    private static final boolean[][][] GRID_VAL = new boolean[GRID_CACHE][][];
+    private static final boolean[] GRID_HAS = new boolean[GRID_CACHE];
+
     public static boolean[][] wallGrid(RoomGraph graph, int chunkX, int chunkZ, int layer) {
+        int slot = Math.floorMod((chunkX * 0x9E3779B1) ^ (chunkZ * 0x85EBCA6B) ^ layer, GRID_CACHE);
+        long key = ((long) chunkX << 40) ^ ((long) chunkZ << 8) ^ layer;
+        if (GRID_HAS[slot] && GRID_KEY[slot] == key) {
+            return GRID_VAL[slot];
+        }
+        boolean[][] result = computeWallGrid(graph, chunkX, chunkZ, layer);
+        GRID_KEY[slot] = key;
+        GRID_VAL[slot] = result;
+        GRID_HAS[slot] = true;
+        return result;
+    }
+
+    private static boolean[][] computeWallGrid(RoomGraph graph, int chunkX, int chunkZ, int layer) {
         int size = 16 + CELL_MARGIN * 4;
         int baseX = chunkX * 16 - CELL_MARGIN * 2;
         int baseZ = chunkZ * 16 - CELL_MARGIN * 2;

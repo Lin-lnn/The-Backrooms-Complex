@@ -144,9 +144,10 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
             if (offset == 0) {
                 chunk.setBlockState(mutable.set(worldX, y, worldZ), floorState, false);
             } else if (offset <= LAYER_HEIGHT - 2) {
+                // 墙体状态在这里一次性取好，避免每个方块都做一次三元判断
                 if (isWall) {
-                    BlockState state = (offset == 1) ? yellowPlinth : yellowWall;
-                    chunk.setBlockState(mutable.set(worldX, y, worldZ), state, false);
+                    chunk.setBlockState(mutable.set(worldX, y, worldZ),
+                            (offset == 1) ? this.yellowPlinth : this.yellowWall, false);
                 }
                 // 非墙 = 空气：区块从全空气开始，这里<b>不写入</b>。
                 // 每层有 6 格墙体空间，其中大部分是空气，跳过可省掉约 2/3 的方块写入。

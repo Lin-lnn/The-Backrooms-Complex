@@ -65,7 +65,36 @@ public final class BackroomsRooms {
      *
      * <p>房间始终完整地落在自己的单元内（居中 + 留白），所以只需查询当前单元。</p>
      */
+    /**
+     * 按单元格缓存最近查询到的房间。
+     *
+     * <p>房间以 {@value #CELL} 格为单元，同一单元内任意坐标结果相同；
+     * 生成一个区块会对同一单元询问上千次，缓存后只需真正计算几次。</p>
+     */
+    private static final int CACHE_SLOTS = 8;
+    private static final int[] CACHE_KEY = new int[CACHE_SLOTS];
+    private static final int[] CACHE_LAYER = new int[CACHE_SLOTS];
+    private static final Room[] CACHE_VAL = new Room[CACHE_SLOTS];
+    private static final boolean[] CACHE_HAS = new boolean[CACHE_SLOTS];
+
     public static Room roomAt(int x, int z, int layer) {
+        int cx = Math.floorDiv(x, CELL);
+        int cz = Math.floorDiv(z, CELL);
+        int key = cx * 0x9E3779B1 + cz;
+        int slot = Math.floorMod(key ^ (layer * 31), CACHE_SLOTS);
+        if (CACHE_HAS[slot] && CACHE_KEY[slot] == key && CACHE_LAYER[slot] == layer) {
+            return CACHE_VAL[slot];
+        }
+        Room value = computeRoom(x, z, layer);
+        CACHE_KEY[slot] = key;
+        CACHE_LAYER[slot] = layer;
+        CACHE_VAL[slot] = value;
+        CACHE_HAS[slot] = true;
+        return value;
+    }
+
+    private static Room computeRoom(int x, int z, int layer) {
+
         int cx = Math.floorDiv(x, CELL);
         int cz = Math.floorDiv(z, CELL);
         long h = hash(cx, cz, layer);
