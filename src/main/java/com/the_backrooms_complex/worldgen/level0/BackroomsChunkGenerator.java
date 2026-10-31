@@ -48,9 +48,6 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
     /** 单层高度（格）：地板 1 + 墙壁/空气 6 + 天花板 1。 */
     public static final int LAYER_HEIGHT = 8;
-    /** 荧光灯间隔（格）。 */
-    private static final int LAMP_SPACING = 5;
-
     /**
      * 当前区块实际可用的层数。
      *
