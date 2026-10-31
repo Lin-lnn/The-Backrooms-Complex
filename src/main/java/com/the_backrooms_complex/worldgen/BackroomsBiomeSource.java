@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class BackroomsBiomeSource extends BiomeSource {
 
     /** 未指定 {@code layer_height} 时的默认单层高度（Level 0 的 8 格）。 */
-    public static final int DEFAULT_LAYER_HEIGHT = 8;
+    public static final int DEFAULT_LAYER_HEIGHT = 7;
 
     /** 群系源编解码器。 */
     public static final MapCodec<BackroomsBiomeSource> CODEC = RecordCodecBuilder.mapCodec(instance ->

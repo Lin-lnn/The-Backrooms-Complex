@@ -55,7 +55,15 @@ public class Level0Structure extends Structure {
             instance.group(settingsCodec(instance)).apply(instance, Level0Structure::new));
 
     /** 每层周期（格），与 {@code BackroomsChunkGenerator.LAYER_HEIGHT} 一致。 */
-    public static final int LAYER_PERIOD = 8;   // 必须等于 BackroomsChunkGenerator.LAYER_HEIGHT
+    public static final int LAYER_PERIOD = BackroomsChunkGenerator.LAYER_HEIGHT;
+
+    /**
+     * 特殊结构生成总开关。
+     *
+     * <p>暂时置为 {@code false}：整套结构系统（放置规则、模板、权重）都保留，
+     * 只是不再在世界里生成。改回 {@code true} 即恢复，无需其他改动。</p>
+     */
+    public static final boolean STRUCTURES_ENABLED = false;
 
     /**
      * 允许的最高层索引。

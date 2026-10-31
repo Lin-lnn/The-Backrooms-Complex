@@ -141,6 +141,9 @@ public class Level0StructurePlacement extends StructurePlacement {
 
     @Override
     protected boolean isPlacementChunk(ChunkGeneratorStructureState state, int chunkX, int chunkZ) {
+        if (!Level0Structure.STRUCTURES_ENABLED) {
+            return false;
+        }
         // 概率判定完全交给 Level0Structure.findGenerationPoint（逐层 0.005%），
         // 因此这里对所有区块返回 true，让它有机会执行。
         return true;

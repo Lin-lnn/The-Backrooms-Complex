@@ -53,7 +53,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     private static final int MIN_Y = 0;
 
     /** 单层高度（格）：地板 1 + 墙壁/空气 6 + 天花板 1。 */
-    public static final int LAYER_HEIGHT = 8;
+    public static final int LAYER_HEIGHT = 7;
     /**
      * 当前区块实际可用的层数。
      *
