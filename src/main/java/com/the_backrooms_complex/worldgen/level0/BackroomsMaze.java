@@ -68,6 +68,11 @@ public final class BackroomsMaze {
      */
     private static final RoomGraph GRAPH = new RoomGraph(TOPOLOGY_SEED);
 
+    /** 共享拓扑实例（供需要跨区块查询墙体的调用方使用）。 */
+    static RoomGraph graph() {
+        return GRAPH;
+    }
+
     /**
      * 生成某个区块各层楼的墙体网格。
      *

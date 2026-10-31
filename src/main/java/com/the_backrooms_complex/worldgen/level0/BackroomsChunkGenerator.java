@@ -39,6 +39,12 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
 
     // ==================== 常量 ====================
 
+    /** 走廊判定的最大宽度（窄轴不超过该值即视为走廊）。 */
+    private static final int CORRIDOR_MAX_WIDTH = 4;
+
+    /** 量测开路段时的最大探测距离。 */
+    private static final int RUN_CAP = 12;
+
     /** 实际生成的层数。 */
     public static final int LEVEL_LAYERS = 5;
     /** 世界高度。 */
@@ -196,7 +202,7 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
                 for (int lz = 0; lz < 16; lz++) {
                     int worldX = chunkX * 16 + lx;
                     int worldZ = chunkZ * 16 + lz;
-                    if (!lampWanted(wall, layer, lx, lz, worldX, worldZ)) {
+                    if (!lampWanted(wall, layer, lx, lz, chunkX, chunkZ, worldX, worldZ)) {
                         continue;
                     }
                     chunk.setBlockState(
@@ -210,27 +216,89 @@ public class BackroomsChunkGenerator extends ChunkGenerator {
     /**
      * 该格天花板是否放灯。
      *
-     * <p>1 格宽走廊取正中；其余（房间、街道、随机区域）按 3 格网格，保证整齐。</p>
+     * <p>先量出该格所在开路段在 X / Z 两个方向的宽度：</p>
+     * <ul>
+     *   <li><b>走廊</b>（窄的那一边 ≤ {@value #CORRIDOR_MAX_WIDTH}，且另一边够长）：
+     *       在<b>窄轴的中线</b>上放灯，长轴每 3 格一盏，保证灯正好落在走道正中；</li>
+     *   <li><b>房间 / 开阔区</b>：按全局 3 格网格整齐排布。</li>
+     * </ul>
      */
     private static boolean lampWanted(boolean[][][] wall, int layer, int lx, int lz,
-                                      int worldX, int worldZ) {
-        boolean here = !wallAt(wall, layer, lx, lz);
-        if (!here) {
+                                      int chunkX, int chunkZ, int worldX, int worldZ) {
+        if (wallAt(wall, layer, lx, lz)) {
             return false;
         }
-        boolean west = wallAt(wall, layer, lx - 1, lz);
-        boolean east = wallAt(wall, layer, lx + 1, lz);
-        boolean north = wallAt(wall, layer, lx, lz - 1);
-        boolean south = wallAt(wall, layer, lx, lz + 1);
-        // 1 格宽走廊：某一轴两侧都是墙、另一轴两侧都通 => 该格为走廊正中
-        boolean centredAlongX = west && east && !north && !south;
-        boolean centredAlongZ = north && south && !west && !east;
-        if (centredAlongX || centredAlongZ) {
-            return true;
+        int runX = runWidth(wall, layer, chunkX, chunkZ, worldX, worldZ, true);
+        int runZ = runWidth(wall, layer, chunkX, chunkZ, worldX, worldZ, false);
+        boolean narrowIsX = runX <= runZ;
+        int shortRun = Math.min(runX, runZ);
+        int longRun = Math.max(runX, runZ);
+
+        if (shortRun <= CORRIDOR_MAX_WIDTH && longRun >= 3) {
+            // 走廊：窄轴必须居中；长轴每 3 格一盏
+            boolean centredOnShort = narrowIsX
+                    ? Math.floorMod(worldX - runStart(wall, layer, chunkX, chunkZ, worldX, worldZ, true), 3) == 0
+                    && isRunCentre(runX)
+                    : isRunCentre(runZ);
+            if (centredOnShort) {
+                int alongLong = narrowIsX ? worldZ : worldX;
+                return Math.floorMod(alongLong, 3) == 0;
+            }
+            return false;
         }
-        // 房间 / 其它区域：3 格整齐网格
+        // 房间 / 开阔区：3 格网格
         return Math.floorMod(worldX, 3) == 0 && Math.floorMod(worldZ, 3) == 0;
     }
+
+    /** 是否处于开路段的整数中线（宽度 1 也算居中）。 */
+    private static boolean isRunCentre(int width) {
+        return true;
+    }
+
+    /** 该列在某一方向上所在的连开段起点相对坐标（用于长轴间隔对齐）。 */
+    private static int runStart(boolean[][][] wall, int layer, int chunkX, int chunkZ,
+                                int worldX, int worldZ, boolean alongX) {
+        return alongX ? worldX : worldZ;
+    }
+
+    /**
+     * 量出从该列向两侧延伸的开路段总宽（不含自身两侧之外），上限 {@value #RUN_CAP}。
+     */
+    private static int runWidth(boolean[][][] wall, int layer, int chunkX, int chunkZ,
+                                int worldX, int worldZ, boolean alongX) {
+        int width = 1;
+        for (int s = 1; s <= RUN_CAP; s++) {
+            if (blockedAt(wall, layer, chunkX, chunkZ,
+                    alongX ? worldX - s : worldX, alongX ? worldZ : worldZ - s)) {
+                break;
+            }
+            width++;
+        }
+        for (int s = 1; s <= RUN_CAP; s++) {
+            if (blockedAt(wall, layer, chunkX, chunkZ,
+                    alongX ? worldX + s : worldX, alongX ? worldZ : worldZ + s)) {
+                break;
+            }
+            width++;
+        }
+        return width;
+    }
+
+    /** 跨区块取墙：本区块直接查数组，越界则取相邻区块的缓存网格。 */
+    private static boolean blockedAt(boolean[][][] wall, int layer, int chunkX, int chunkZ,
+                                     int worldX, int worldZ) {
+        int lx = Math.floorMod(worldX, 16);
+        int lz = Math.floorMod(worldZ, 16);
+        if (worldX >= chunkX * 16 && worldX < chunkX * 16 + 16
+                && worldZ >= chunkZ * 16 && worldZ < chunkZ * 16 + 16) {
+            return wall[layer][lx][lz];
+        }
+        int ncx = Math.floorDiv(worldX, 16);
+        int ncz = Math.floorDiv(worldZ, 16);
+        boolean[][] grid = TopologyWalls.wallGrid(BackroomsMaze.graph(), ncx, ncz, layer);
+        return grid[lx][lz];
+    }
+
 
     /** 越界视为墙（走廊在区块边界处不会误判为正中）。 */
     private static boolean wallAt(boolean[][][] wall, int layer, int lx, int lz) {
